@@ -68,6 +68,8 @@ export default function LoginPage() {
                     className="pl-10"
                     required
                     aria-describedby="email-description"
+                    name="email"
+                    
                   />
                 </div>
               </div>
@@ -85,6 +87,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10"
                     required
+                    name="password"
                     aria-describedby="password-description"
                   />
                   <Button
@@ -98,6 +101,7 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </Button>
                 </div>
+                 <p id="password-description" className="sr-only">Nhập mật khẩu của bạn để đăng nhập.</p> 
               </div>
 
               {/* Ghi nhớ & Quên mật khẩu */}
