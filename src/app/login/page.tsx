@@ -10,8 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-
+import { useRouter } from "next/navigation"
 export default function LoginPage() {
+
+  const router = useRouter()
+
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -21,12 +24,10 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-
-    // Simulate login process
+    
     await new Promise((resolve) => setTimeout(resolve, 2000))
 
-    // Redirect to dashboard (in real app, handle authentication)
-    window.location.href = "/"
+    router.push("/")
   }
 
   return (

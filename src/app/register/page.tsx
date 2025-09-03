@@ -4,13 +4,13 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { Eye, EyeOff, Lock, Mail, Coins, Shield, User } from "lucide-react"
+import { Eye, EyeOff, Lock, Mail, Coins, Shield, User, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-
+import { useRouter } from "next/navigation"
 export default function RegisterPage() {
     const [showPassword, setShowPassword] = useState(false)
     const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -21,20 +21,19 @@ export default function RegisterPage() {
     const [agreeToTerms, setAgreeToTerms] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
+    const router = useRouter()
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setIsLoading(true)
 
-        // Simulate registration process
         await new Promise((resolve) => setTimeout(resolve, 2000))
 
-        // Redirect to dashboard (in real app, handle authentication)
-        window.location.href = "/"
+        router.push("/")
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
-            <div className="w-full max-w-md space-y-8">      
+            <div className="w-full max-w-md space-y-8">
 
                 {/* Logo and Brand */}
                 <div className="text-center space-y-4">
@@ -146,7 +145,11 @@ export default function RegisterPage() {
                                     >
                                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                     </Button>
+                                    {confirmPassword && confirmPassword === password && (
+                                        <Check className="absolute right-10 top-1/2 h-4 w-4 -translate-y-1/2 text-green-500" />
+                                    )}
                                 </div>
+                                {confirmPassword && confirmPassword !== password && <p className="text-sm text-red-500">Passwords do not match</p>}
                             </div>
 
                             {/* Terms Agreement */}
