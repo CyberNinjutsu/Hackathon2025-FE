@@ -18,19 +18,16 @@ export default function Header() {
 
         {/* Navigation */}
         <div className='flex items-center space-x-3'>
-          <Link href='/login'>
-            <Button
-              variant='ghost'
-              className='glass-button text-white hover:text-white'
-            >
-              Login
-            </Button>
-          </Link>
-          <Link href='/signup'>
-            <Button className='glass-button text-white hover:text-white'>
-              Sign Up
-            </Button>
-          </Link>
+          <Button
+            variant='ghost'
+            className='glass-button text-white hover:text-white'
+          >
+            <Link href='/login'>Login</Link>
+          </Button>
+
+          <Button className='glass-button text-white hover:text-white'>
+            <Link href='/signup'>Sign Up</Link>
+          </Button>
         </div>
       </div>
     </header>
