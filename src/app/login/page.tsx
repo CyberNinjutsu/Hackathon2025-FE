@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { goldCoinBlurUrl } from "@/lib/blur-bg";
 export default function LoginPage() {
   const router = useRouter();
 
@@ -38,13 +39,14 @@ export default function LoginPage() {
   return (
     <div className="auth-background flex items-center justify-center p-4">
       <Image
-        src="/gold-coin.jpg"
+        src="/gold-bars3.jpg"
         alt="Blockchain background"
         fill
+        className="opacity-70"
         priority
         quality={85}
         placeholder="blur"
-        blurDataURL="data:image/jpeg;base64,..." // tiny base64 preview
+        blurDataURL={goldCoinBlurUrl} // tiny base64 preview
       />
       <div className="w-full max-w-md space-y-8 relative z-10">
         {/* Logo và thương hiệu */}

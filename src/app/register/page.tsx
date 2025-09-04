@@ -26,6 +26,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
+import { goldBarBlurUrl } from "@/lib/blur-bg";
+
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -55,8 +57,8 @@ export default function RegisterPage() {
         priority
         quality={85}
         placeholder="blur"
-        blurDataURL="data:image/jpeg;base64,..." // tiny base64 preview
-      />
+        blurDataURL={goldBarBlurUrl}
+        />
       <div className="w-full max-w-md space-y-8 relative z-10">
         {/* Logo và thương hiệu */}
         <div className="text-center space-y-4 floating">
