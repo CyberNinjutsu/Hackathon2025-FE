@@ -1,29 +1,17 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useState } from "react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   User,
   Shield,
@@ -36,12 +24,14 @@ import {
   Smartphone,
   Mail,
   Globe,
-} from "lucide-react";
+  TrendingUp,
+  DollarSign,
+} from "lucide-react"
 
 export default function AccountPage() {
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [profileData, setProfileData] = useState({
     firstName: "John",
     lastName: "Doe",
@@ -50,12 +40,12 @@ export default function AccountPage() {
     bio: "Người đam mê blockchain và đầu tư tiền điện tử với hơn 5 năm kinh nghiệm trong quản lý tài sản số.",
     country: "Việt Nam",
     timezone: "UTC+7 (ICT)",
-  });
+  })
 
   const handleSaveProfile = () => {
-    setIsEditing(false);
+    setIsEditing(false)
     // Xử lý logic lưu tại đây
-  };
+  }
   const colors = [
     "bg-red-500",
     "bg-green-500",
@@ -64,628 +54,612 @@ export default function AccountPage() {
     "bg-yellow-500",
     "bg-pink-500",
     "bg-indigo-500",
-  ];
+  ]
   function hashString(str: string) {
-    let hash = 0;
+    let hash = 0
     for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+      hash = str.charCodeAt(i) + ((hash << 5) - hash)
     }
-    return Math.abs(hash);
+    return Math.abs(hash)
   }
 
   function getColorFromName(name: string) {
-    const index = hashString(name) % colors.length;
-    return colors[index];
+    const index = hashString(name) % colors.length
+    return colors[index]
   }
 
-  function getInitials(name: string, locale: "vn" | "en" = "vn") {
-    const parts = name.trim().split(" ");
+  function getInitials(name: string, locale: "vn" | "en" = "vn") {  
+  const parts = name.trim().split(/\s+/).filter(Boolean);  
+  if (parts.length === 0) return "?";  
 
-    if (locale === "vn") {
-      // Vietnamese: last two words are usually the middle + given name
-      if (parts.length >= 2) {
-        return (
-          parts[parts.length - 2][0].toUpperCase() +
-          parts[parts.length - 1][0].toUpperCase()
-        );
-      }
-      return parts[parts.length - 1][0].toUpperCase();
-    } else {
-      // English: first and last name
-      if (parts.length >= 2) {
-        return (
-          parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase()
-        );
-      }
-      return parts[0][0].toUpperCase();
-    }
-  }
+  if (locale === "vn") {  
+    // Vietnamese: commonly last two tokens are middle + given name  
+    if (parts.length >= 2) {  
+      const a = parts[parts.length - 2][0];  
+      const b = parts[parts.length - 1][0];  
+      return (a + b).toUpperCase();  
+    }  
+    return parts[parts.length - 1][0].toUpperCase();  
+  } else {  
+    // English: first and last name  
+    if (parts.length >= 2) {  
+      const a = parts[0][0];  
+      const b = parts[parts.length - 1][0];  
+      return (a + b).toUpperCase();  
+    }  
+    return parts[0][0].toUpperCase();  
+  }  
+}  
+
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-6 max-w-4xl">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Cài Đặt Tài Khoản
-          </h1>
-          <p className="text-muted-foreground">
-            Quản lý thông tin tài khoản và tùy chỉnh cá nhân
-          </p>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
+      <div className="relative overflow-hidden">
+        <div className="absolute left-0 top-0 bottom-0 w-1/4 bg-gradient-to-b from-yellow-400 via-purple-500 to-purple-800 opacity-30 blur-3xl" />
+        <div className="absolute left-0 top-0 bottom-0 w-1/3 bg-gradient-to-br from-amber-300 via-purple-600 to-indigo-800 opacity-20 blur-2xl" />
+        <div className="absolute right-0 top-0 bottom-0 w-1/4 bg-gradient-to-b from-yellow-400 via-purple-500 to-purple-800 opacity-30 blur-3xl" />
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-bl from-amber-300 via-purple-600 to-indigo-800 opacity-20 blur-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/10" />
+        <div className="relative container mx-auto p-6 max-w-6xl">
 
-        <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger
-              value="profile"
-              className="flex items-center gap-2 rounded-md transition
-               data-[state=active]:bg-gray-100 
-               data-[state=active]:shadow-lg 
-               data-[state=active]:ring-2 
-               data-[state=active]:ring-gray-200"
-            >
-              <User className="h-4 w-4" />
-              Hồ Sơ
-            </TabsTrigger>
+          <div className="mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
+              <div>
+                <h1 className="text-4xl font-bold text-white mb-2">Cài Đặt Tài Khoản</h1>
+                <p className="text-blue-100 text-lg">
+                  Quản lý thông tin tài khoản và tùy chỉnh cá nhân với phong cách hiện đại
+                </p>
+              </div>
 
-            <TabsTrigger
-              value="security"
-              className="flex items-center gap-2 rounded-md transition
-               data-[state=active]:bg-gray-100 
-               data-[state=active]:shadow-lg 
-               data-[state=active]:ring-2 
-               data-[state=active]:ring-gray-200"
-            >
-              <Shield className="h-4 w-4" />
-              Bảo Mật
-            </TabsTrigger>
+              <div className="flex gap-4">
+                <Card className="bg-blue-800/50 backdrop-blur-sm border-blue-600/30 shadow-xl">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <TrendingUp className="h-5 w-5 text-purple-300" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-blue-200">Tổng Tài Sản</p>
+                        <p className="text-xl font-bold text-white">$24,580</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
 
-            <TabsTrigger
-              value="notifications"
-              className="flex items-center gap-2 rounded-md transition
-               data-[state=active]:bg-gray-100 
-               data-[state=active]:shadow-lg 
-               data-[state=active]:ring-2 
-               data-[state=active]:ring-gray-200"
-            >
-              <Bell className="h-4 w-4" />
-              Thông Báo
-            </TabsTrigger>
+                <Card className="bg-blue-800/50 backdrop-blur-sm border-blue-600/30 shadow-xl">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-purple-500/20 rounded-lg">
+                        <DollarSign className="h-5 w-5 text-purple-300" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-blue-200">Lợi Nhuận 24h</p>
+                        <p className="text-xl font-bold text-green-300">+$1,240</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </div>
 
-            <TabsTrigger
-              value="wallets"
-              className="flex items-center gap-2 rounded-md transition
-               data-[state=active]:bg-gray-100 
-               data-[state=active]:shadow-lg 
-               data-[state=active]:ring-2 
-               data-[state=active]:ring-gray-200"
-            >
-              <Wallet className="h-4 w-4" />
-              Ví Tiền
-            </TabsTrigger>
-          </TabsList>
+          <Tabs defaultValue="profile" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 bg-blue-800/50 backdrop-blur-sm border border-blue-600/30">
+              <TabsTrigger
+                value="profile"
+                className="flex items-center gap-2 text-blue-100 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <User className="h-4 w-4" />
+                Hồ Sơ
+              </TabsTrigger>
+              <TabsTrigger
+                value="security"
+                className="flex items-center gap-2 text-blue-100 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Shield className="h-4 w-4" />
+                Bảo Mật
+              </TabsTrigger>
+              <TabsTrigger
+                value="notifications"
+                className="flex items-center gap-2 text-blue-100 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Bell className="h-4 w-4" />
+                Thông Báo
+              </TabsTrigger>
+              <TabsTrigger
+                value="wallets"
+                className="flex items-center gap-2 text-blue-100 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+              >
+                <Wallet className="h-4 w-4" />
+                Ví Tiền
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="profile" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  Thông Tin Cá Nhân
-                  <Button
-                    variant={isEditing ? "default" : "outline"}
-                    size="sm"
-                    onClick={
-                      isEditing ? handleSaveProfile : () => setIsEditing(true)
-                    }
-                  >
-                    {isEditing ? (
-                      <>
-                        <Save className="h-4 w-4 mr-2" />
-                        Lưu Thay Đổi
-                      </>
-                    ) : (
-                      "Chỉnh Sửa Hồ Sơ"
-                    )}
-                  </Button>
-                </CardTitle>
-                <CardDescription>
-                  Cập nhật thông tin cá nhân và chi tiết hồ sơ của bạn
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-20 w-20">
-                    <AvatarImage
-                      src="/professional-profile.png"
-                      alt={profileData.firstName + " " + profileData.lastName}
-                    />
-                    <AvatarFallback
-                      className={`text-lg text-white ${getColorFromName(
-                        profileData.firstName + " " + profileData.lastName
-                      )}`}
+            <TabsContent value="profile" className="space-y-6">
+              <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
+                <CardHeader className="border-b border-blue-600/30">
+                  <CardTitle className="flex items-center justify-between text-2xl text-white">
+                    Thông Tin Cá Nhân
+                    <Button
+                      variant={isEditing ? "default" : "outline"}
+                      size="sm"
+                      onClick={isEditing ? handleSaveProfile : () => setIsEditing(true)}
+                      className={
+                        isEditing
+                          ? "bg-purple-600 hover:bg-purple-700 text-white"
+                          : "border-blue-400 text-black hover:bg-blue-700/50"
+                      }
                     >
-                      {getInitials(
-                        profileData.firstName + " " + profileData.lastName,
-                        "vn"
+                      {isEditing ? (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Lưu Thay Đổi
+                        </>
+                      ) : (
+                        "Chỉnh Sửa Hồ Sơ"
                       )}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="space-y-2">
-                    <Button variant="outline" size="sm">
-                      <Camera className="h-4 w-4 mr-2" />
-                      Đổi Ảnh
                     </Button>
-                    <p className="text-sm text-muted-foreground">
-                      JPG, PNG hoặc GIF. Dung lượng tối đa 2MB.
-                    </p>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">Họ</Label>
-                    <Input
-                      id="firstName"
-                      value={profileData.firstName}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          firstName: e.target.value,
-                        })
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Tên</Label>
-                    <Input
-                      id="lastName"
-                      value={profileData.lastName}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          lastName: e.target.value,
-                        })
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Địa Chỉ Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          email: e.target.value,
-                        })
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Số Điện Thoại</Label>
-                    <Input
-                      id="phone"
-                      value={profileData.phone}
-                      onChange={(e) =>
-                        setProfileData({
-                          ...profileData,
-                          phone: e.target.value,
-                        })
-                      }
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Quốc Gia</Label>
-                    <Select
-                      value={profileData.country}
-                      onValueChange={(value) => {
-                        if (isEditing) {
-                          setProfileData({ ...profileData, country: value });
-                        }
-                      }}
-                      disabled={!isEditing}
-                    >
-                      <SelectTrigger id="country" aria-label="Quốc Gia">
-                        <SelectValue placeholder="Chọn quốc gia" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Việt Nam">Việt Nam</SelectItem>
-                        <SelectItem value="United States">Hoa Kỳ</SelectItem>
-                        <SelectItem value="Canada">Canada</SelectItem>
-                        <SelectItem value="United Kingdom">
-                          Vương Quốc Anh
-                        </SelectItem>
-                        <SelectItem value="Germany">Đức</SelectItem>
-                        <SelectItem value="France">Pháp</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="timezone">Múi Giờ</Label>
-                    <Select
-                      value={profileData.timezone}
-                      disabled={!isEditing}
-                      onValueChange={(value) => {
-                        if (isEditing) {
-                          setProfileData({ ...profileData, timezone: value });
-                        }
-                      }}
-                    >
-                      <SelectTrigger id="timezone" aria-label="Múi Giờ">
-                        <SelectValue placeholder="Chọn múi giờ" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="UTC+7 (ICT)">UTC+7 (ICT)</SelectItem>
-                        <SelectItem value="UTC-5 (EST)">UTC-5 (EST)</SelectItem>
-                        <SelectItem value="UTC-8 (PST)">UTC-8 (PST)</SelectItem>
-                        <SelectItem value="UTC+0 (GMT)">UTC+0 (GMT)</SelectItem>
-                        <SelectItem value="UTC+1 (CET)">UTC+1 (CET)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Tiểu Sử</Label>
-                  <Textarea
-                    id="bio"
-                    value={profileData.bio}
-                    onChange={(e) =>
-                      setProfileData({ ...profileData, bio: e.target.value })
-                    }
-                    disabled={!isEditing}
-                    rows={3}
-                    placeholder="Hãy kể về bản thân bạn..."
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="security" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Mật Khẩu & Xác Thực</CardTitle>
-                <CardDescription>
-                  Quản lý mật khẩu và cài đặt bảo mật của bạn
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="currentPassword">Mật Khẩu Hiện Tại</Label>
-                    <div className="relative">
-                      <Input
-                        id="currentPassword"
-                        type={showCurrentPassword ? "text" : "password"}
-                        placeholder="Nhập mật khẩu hiện tại"
+                  </CardTitle>
+                  <CardDescription className="text-base text-blue-200">
+                    Cập nhật thông tin cá nhân và chi tiết hồ sơ của bạn
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="flex items-center space-x-4">
+                    <Avatar className="h-20 w-20 ring-4 ring-purple-500/30">
+                      <AvatarImage
+                        src="/professional-profile.png"
+                        alt={profileData.firstName + " " + profileData.lastName}
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() =>
-                          setShowCurrentPassword(!showCurrentPassword)
-                        }
-                        aria-pressed={showCurrentPassword}
-                        aria-label={
-                          showCurrentPassword
-                            ? "Ẩn mật khẩu hiện tại"
-                            : "Hiện mật khẩu hiện tại"
-                        }
+                      <AvatarFallback
+                        className={`text-lg text-white ${getColorFromName(profileData.firstName + " " + profileData.lastName)}`}
                       >
-                        {showCurrentPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
+                        {getInitials(profileData.firstName + " " + profileData.lastName, "vn")}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-blue-700/50 border-blue-400 text-blue-100 hover:bg-blue-600/50"
+                      >
+                        <Camera className="h-4 w-4 mr-2" />
+                        Đổi Ảnh
                       </Button>
+                      <p className="text-sm text-blue-300">JPG, PNG hoặc GIF. Dung lượng tối đa 2MB.</p>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="newPassword">Mật Khẩu Mới</Label>
-                    <div className="relative">
+
+                  <Separator className="bg-blue-600/30" />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="firstName" className="font-medium text-blue-100">
+                        Họ
+                      </Label>
                       <Input
-                        id="newPassword"
-                        type={showNewPassword ? "text" : "password"}
-                        placeholder="Nhập mật khẩu mới"
+                        id="firstName"
+                        value={profileData.firstName}
+                        onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                        disabled={!isEditing}
+                        className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
                       />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        aria-pressed={showNewPassword}
-                        aria-label={
-                          showNewPassword
-                            ? "Ẩn mật khẩu mới"
-                            : "Hiện mật khẩu mới"
-                        }
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="lastName" className="font-medium text-blue-100">
+                        Tên
+                      </Label>
+                      <Input
+                        id="lastName"
+                        value={profileData.lastName}
+                        onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                        disabled={!isEditing}
+                        className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="font-medium text-blue-100">
+                        Địa Chỉ Email
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={profileData.email}
+                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                        disabled={!isEditing}
+                        className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="font-medium text-blue-100">
+                        Số Điện Thoại
+                      </Label>
+                      <Input
+                        id="phone"
+                        value={profileData.phone}
+                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        disabled={!isEditing}
+                        className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="country" className="font-medium text-blue-100">
+                        Quốc Gia
+                      </Label>
+                      <Select
+                        value={profileData.country}
+                        onValueChange={(value) => {
+                          if (isEditing) {
+                            setProfileData({ ...profileData, country: value })
+                          }
+                        }}
+                        disabled={!isEditing}
                       >
-                        {showNewPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
+                        <SelectTrigger
+                          id="country"
+                          aria-label="Quốc Gia"
+                          className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                        >
+                          <SelectValue placeholder="Chọn quốc gia" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-blue-600/30 text-blue-100">
+                          <SelectItem value="Việt Nam">Việt Nam</SelectItem>
+                          <SelectItem value="United States">Hoa Kỳ</SelectItem>
+                          <SelectItem value="Canada">Canada</SelectItem>
+                          <SelectItem value="United Kingdom">Vương Quốc Anh</SelectItem>
+                          <SelectItem value="Germany">Đức</SelectItem>
+                          <SelectItem value="France">Pháp</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="timezone" className="font-medium text-blue-100">
+                        Múi Giờ
+                      </Label>
+                      <Select
+                        value={profileData.timezone}
+                        disabled={!isEditing}
+                        onValueChange={(value) => {
+                          if (isEditing) {
+                            setProfileData({ ...profileData, timezone: value })
+                          }
+                        }}
+                      >
+                        <SelectTrigger
+                          id="timezone"
+                          aria-label="Múi Giờ"
+                          className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                        >
+                          <SelectValue placeholder="Chọn múi giờ" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-popover border-blue-600/30 text-blue-100">
+                          <SelectItem value="UTC+7 (ICT)">UTC+7 (ICT)</SelectItem>
+                          <SelectItem value="UTC-5 (EST)">UTC-5 (EST)</SelectItem>
+                          <SelectItem value="UTC-8 (PST)">UTC-8 (PST)</SelectItem>
+                          <SelectItem value="UTC+0 (GMT)">UTC+0 (GMT)</SelectItem>
+                          <SelectItem value="UTC+1 (CET)">UTC+1 (CET)</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
+
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">
-                      Xác Nhận Mật Khẩu Mới
+                    <Label htmlFor="bio" className="font-medium text-blue-100">
+                      Tiểu Sử
                     </Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Xác nhận mật khẩu mới"
+                    <Textarea
+                      id="bio"
+                      value={profileData.bio}
+                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                      disabled={!isEditing}
+                      rows={3}
+                      placeholder="Hãy kể về bản thân bạn..."
+                      className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300 resize-none"
                     />
                   </div>
-                  <Button>Cập Nhật Mật Khẩu</Button>
-                </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Xác Thực Hai Yếu Tố</h4>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Smartphone className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          Ứng Dụng Xác Thực
-                        </span>
-                        <Badge variant="secondary">Đã Bật</Badge>
+            <TabsContent value="security" className="space-y-6">
+              <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
+                <CardHeader className="border-b border-blue-600/30">
+                  <CardTitle className="text-2xl text-white">Mật Khẩu & Xác Thực</CardTitle>
+                  <CardDescription className="text-base text-blue-200">
+                    Quản lý mật khẩu và cài đặt bảo mật của bạn
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword" className="font-medium text-blue-100">
+                        Mật Khẩu Hiện Tại
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="currentPassword"
+                          type={showCurrentPassword ? "text" : "password"}
+                          placeholder="Nhập mật khẩu hiện tại"
+                          className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-blue-100"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          aria-pressed={showCurrentPassword}
+                          aria-label={showCurrentPassword ? "Ẩn mật khẩu hiện tại" : "Hiện mật khẩu hiện tại"}
+                        >
+                          {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Sử dụng ứng dụng xác thực để tạo mã xác minh
-                      </p>
                     </div>
-                    <Switch defaultChecked />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-4 w-4" />
-                        <span className="text-sm font-medium">
-                          Xác Minh Email
-                        </span>
-                        <Badge variant="outline">Đã Tắt</Badge>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword" className="font-medium text-blue-100">
+                        Mật Khẩu Mới
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          placeholder="Nhập mật khẩu mới"
+                          className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-blue-100"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          aria-pressed={showNewPassword}
+                          aria-label={showNewPassword ? "Ẩn mật khẩu mới" : "Hiện mật khẩu mới"}
+                        >
+                          {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        Nhận mã xác minh qua email
-                      </p>
                     </div>
-                    <Switch />
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword" className="font-medium text-blue-100">
+                        Xác Nhận Mật Khẩu Mới
+                      </Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        placeholder="Xác nhận mật khẩu mới"
+                        className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
+                      />
+                    </div>
+                    <Button className="bg-purple-600 hover:bg-purple-700 text-white">Cập Nhật Mật Khẩu</Button>
                   </div>
-                </div>
 
-                <Separator />
+                  <Separator className="bg-blue-600/30" />
 
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Phiên Hoạt Động</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-white">Xác Thực Hai Yếu Tố</h4>
+                    <div className="flex items-center justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <Globe className="h-4 w-4" />
-                          <span className="text-sm font-medium">
-                            Chrome trên Windows
-                          </span>
-                          <Badge variant="secondary">Hiện Tại</Badge>
+                          <Smartphone className="h-4 w-4 text-white" />
+                          <span className="text-sm font-medium text-blue-100">Ứng Dụng Xác Thực</span>
+                          <Badge variant="secondary" className="bg-purple-600/20 text-green-300 border-green-400">
+                            Đã Bật
+                          </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          Hồ Chí Minh, VN • Hoạt động lần cuối: hiện tại
-                        </p>
+                        <p className="text-sm text-blue-300">Sử dụng ứng dụng xác thực để tạo mã xác minh</p>
                       </div>
+                      <Switch defaultChecked />
                     </div>
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <Smartphone className="h-4 w-4" />
-                          <span className="text-sm font-medium">
-                            Ứng Dụng Di Động
-                          </span>
+                          <Mail className="h-4 w-4 text-blue-300" />
+                          <span className="text-sm font-medium text-blue-100">Xác Minh Email</span>
+                          <Badge variant="outline" className="bg-purple-600/20 text-white/60 border-white/30">
+                            Đã Tắt
+                          </Badge>
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          Hồ Chí Minh, VN • Hoạt động lần cuối: 2 giờ trước
-                        </p>
+                        <p className="text-sm text-blue-300">Nhận mã xác minh qua email</p>
                       </div>
-                      <Button variant="outline" size="sm">
-                        Thu Hồi
+                      <Switch />
+                    </div>
+                  </div>
+
+                  <Separator className="bg-blue-600/30" />
+
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-white">Phiên Hoạt Động</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-blue-900/50 rounded-lg">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-4 w-4 text-white" />
+                            <span className="text-sm font-medium text-blue-100">Chrome trên Windows</span>
+                            <Badge variant="secondary" className="bg-purple-600/20 text-blue-300 border-blue-400">
+                              Hiện Tại
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-blue-300">Hồ Chí Minh, VN • Hoạt động lần cuối: hiện tại</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-blue-900/50 rounded-lg">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Smartphone className="h-4 w-4 text-blue-300" />
+                            <span className="text-sm font-medium text-blue-100">Ứng Dụng Di Động</span>
+                          </div>
+                          <p className="text-sm text-blue-300">Hồ Chí Minh, VN • Hoạt động lần cuối: 2 giờ trước</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-blue-700/50 border-blue-400 text-blue-100 hover:bg-blue-600/50"
+                        >
+                          Thu Hồi
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="notifications" className="space-y-6">
+              <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
+                <CardHeader className="border-b border-blue-600/30">
+                  <CardTitle className="text-2xl text-white">Tùy Chọn Thông Báo</CardTitle>
+                  <CardDescription className="text-base text-blue-200">
+                    Chọn cách bạn muốn nhận thông báo về hoạt động tài khoản
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-white">Thông Báo Email</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Cập Nhật Danh Mục Đầu Tư</span>
+                          <p className="text-sm text-blue-300">Tóm tắt hàng ngày về hiệu suất danh mục của bạn</p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Cảnh Báo Giao Dịch</span>
+                          <p className="text-sm text-blue-300">Thông báo cho các giao dịch gửi và nhận</p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Cảnh Báo Bảo Mật</span>
+                          <p className="text-sm text-blue-300">Thông báo bảo mật quan trọng và cảnh báo đăng nhập</p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Cập Nhật Marketing</span>
+                          <p className="text-sm text-blue-300">Cập nhật sản phẩm và nội dung khuyến mại</p>
+                        </div>
+                        <Switch />
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator className="bg-blue-600/30" />
+
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-white">Thông Báo Đẩy</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Cảnh Báo Giá</span>
+                          <p className="text-sm text-blue-300">Thông báo khi tài sản của bạn đạt mức giá mục tiêu</p>
+                        </div>
+                        <Switch defaultChecked />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Giao Dịch Lớn</span>
+                          <p className="text-sm text-blue-300">Cảnh báo cho giao dịch trên $1,000</p>
+                        </div>
+                        <Switch />
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="wallets" className="space-y-6">
+              <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
+                <CardHeader className="border-b border-blue-600/30">
+                  <CardTitle className="text-2xl text-white">Ví Đã Kết Nối</CardTitle>
+                  <CardDescription className="text-base text-blue-200">
+                    Quản lý các ví tiền điện tử đã kết nối của bạn
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-blue-900/50 rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                          <Wallet className="h-5 w-5 text-white" />
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-blue-100">Ví MetaMask</span>
+                            <Badge variant="secondary" className="bg-purple-600/20 text-blue-300 border-blue-400">
+                              Chính
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-blue-300">0x742d...4c2f • Kết nối 3 tháng trước</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-blue-700/50 border-blue-400 text-blue-100 hover:bg-blue-600/50"
+                      >
+                        Quản Lý
                       </Button>
                     </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Tùy Chọn Thông Báo</CardTitle>
-                <CardDescription>
-                  Chọn cách bạn muốn nhận thông báo về hoạt động tài khoản
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Thông Báo Email</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Cập Nhật Danh Mục Đầu Tư
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Tóm tắt hàng ngày về hiệu suất danh mục của bạn
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Cảnh Báo Giao Dịch
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Thông báo cho các giao dịch gửi và nhận
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Cảnh Báo Bảo Mật
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Thông báo bảo mật quan trọng và cảnh báo đăng nhập
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Cập Nhật Marketing
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Cập nhật sản phẩm và nội dung khuyến mại
-                        </p>
-                      </div>
-                      <Switch />
-                    </div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Thông Báo Đẩy</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Cảnh Báo Giá
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Thông báo khi tài sản của bạn đạt mức giá mục tiêu
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Giao Dịch Lớn
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Cảnh báo cho giao dịch trên $1,000
-                        </p>
-                      </div>
-                      <Switch defaultChecked />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="wallets" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Ví Đã Kết Nối</CardTitle>
-                <CardDescription>
-                  Quản lý các ví tiền điện tử đã kết nối của bạn
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                        <Wallet className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">Ví MetaMask</span>
-                          <Badge variant="secondary">Chính</Badge>
+                    <div className="flex items-center justify-between p-4 bg-blue-900/50 rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                          <Wallet className="h-5 w-5 text-white" />
                         </div>
-                        <p className="text-sm text-muted-foreground">
-                          0x742d...4c2f • Kết nối 3 tháng trước
-                        </p>
+                        <div className="space-y-1">
+                          <span className="font-medium text-blue-100">Ví Coinbase</span>
+                          <p className="text-sm text-blue-300">0x8a3b...7e9d • Kết nối 1 tháng trước</p>
+                        </div>
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-blue-700/50 border-blue-400 text-blue-100 hover:bg-blue-600/50"
+                      >
+                        Quản Lý
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm">
-                      Quản Lý
+
+                    <Button
+                      variant="outline"
+                      className="w-full bg-blue-700/50 border-blue-400 text-blue-100 hover:bg-blue-600/50"
+                    >
+                      <Wallet className="h-4 w-4 mr-2" />
+                      Kết Nối Ví Mới
                     </Button>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
-                        <Wallet className="h-5 w-5 text-secondary" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="font-medium">Ví Coinbase</span>
-                        <p className="text-sm text-muted-foreground">
-                          0x8a3b...7e9d • Kết nối 1 tháng trước
-                        </p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm">
-                      Quản Lý
-                    </Button>
-                  </div>
+                  <Separator className="bg-blue-600/30" />
 
-                  <Button variant="outline" className="w-full bg-transparent">
-                    <Wallet className="h-4 w-4 mr-2" />
-                    Kết Nối Ví Mới
-                  </Button>
-                </div>
-
-                <Separator />
-
-                <div className="space-y-4">
-                  <h4 className="text-sm font-medium">Tùy Chọn Ví</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Tự Động Đồng Bộ Số Dư
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Tự động cập nhật số dư ví mỗi 5 phút
-                        </p>
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-white">Tùy Chọn Ví</h4>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Tự Động Đồng Bộ Số Dư</span>
+                          <p className="text-sm text-blue-300">Tự động cập nhật số dư ví mỗi 5 phút</p>
+                        </div>
+                        <Switch defaultChecked />
                       </div>
-                      <Switch defaultChecked />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <span className="text-sm font-medium">
-                          Ẩn Số Dư Nhỏ
-                        </span>
-                        <p className="text-sm text-muted-foreground">
-                          Ẩn tài sản có giá trị dưới $1
-                        </p>
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <span className="text-sm font-medium text-blue-100">Ẩn Số Dư Nhỏ</span>
+                          <p className="text-sm text-blue-300">Ẩn tài sản có giá trị dưới $1</p>
+                        </div>
+                        <Switch />
                       </div>
-                      <Switch />
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
     </div>
-  );
+  )
 }
