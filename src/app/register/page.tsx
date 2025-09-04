@@ -26,7 +26,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
-import { goldBarBlurUrl } from "@/lib/blur-bg";
+import goldbarBg from "@/assets/goldbar-bg.jpg";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -51,14 +51,14 @@ export default function RegisterPage() {
   return (
     <div className="auth-background with-image flex items-center justify-center p-4">
       <Image
-        src="/goldbar-bg.jpg"
+        src={goldbarBg}
         alt="Blockchain background"
         fill
         priority
         quality={85}
         placeholder="blur"
-        blurDataURL={goldBarBlurUrl}
-        />
+        // blurDataURL={goldBarBlurUrl}
+      />
       <div className="w-full max-w-md space-y-8 relative z-10">
         {/* Logo và thương hiệu */}
         <div className="text-center space-y-4 floating">
@@ -105,7 +105,8 @@ export default function RegisterPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     className="glass-input pl-10 border-0"
                     required
-                    aria-describedby="fullName-description"
+                    // aria-describedby="fullName-description"
+                    autoComplete="name"
                   />
                 </div>
               </div>
@@ -125,7 +126,8 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 glass-input border-0"
                     required
-                    aria-describedby="email-description"
+                    // aria-describedby="email-description"
+                    autoComplete="email"
                   />
                 </div>
               </div>
@@ -145,7 +147,8 @@ export default function RegisterPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10 glass-input"
                     required
-                    aria-describedby="password-description"
+                    // aria-describedby="password-description"
+                    autoComplete="new-password"
                   />
                   <Button
                     type="button"
@@ -179,7 +182,16 @@ export default function RegisterPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10 pr-10 glass-input border-0"
                     required
-                    aria-describedby="confirmPassword-description"
+                    // aria-describedby="confirmPassword-description"
+                    autoComplete="new-password"
+                    aria-invalid={
+                      !!(confirmPassword && confirmPassword !== password)
+                    }
+                    aria-describedby={
+                      confirmPassword && confirmPassword !== password
+                        ? "confirmPassword-error"
+                        : undefined
+                    }
                   />
                   <Button
                     type="button"
