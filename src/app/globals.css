@@ -4,76 +4,76 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color tokens to match MyTokenHub fintech branding */
-  --background: oklch(0.97 0.005 240); /* Light gray background #f1f5f9 */
-  --foreground: oklch(0.35 0.01 240); /* Dark gray text #475569 */
-  --card: oklch(1 0 0); /* Pure white for cards */
-  --card-foreground: oklch(0.35 0.01 240); /* Dark gray for card text */
-  --popover: oklch(1 0 0); /* White popover background */
-  --popover-foreground: oklch(0.35 0.01 240); /* Dark gray popover text */
-  --primary: oklch(0.6 0.15 250); /* Fintech blue #3B82F6 */
-  --primary-foreground: oklch(1 0 0); /* White text on primary */
-  --secondary: oklch(0.65 0.12 160); /* Success green #10B981 */
-  --secondary-foreground: oklch(0.25 0.01 240); /* Dark text on secondary */
-  --muted: oklch(0.97 0.005 240); /* Light gray for muted elements */
-  --muted-foreground: oklch(0.35 0.01 240); /* Dark gray for muted text */
-  --accent: oklch(0.6 0.15 250); /* Accent same as primary blue */
-  --accent-foreground: oklch(1 0 0); /* White text on accent */
-  --destructive: oklch(0.55 0.2 25); /* Red for errors #dc2626 */
-  --destructive-foreground: oklch(1 0 0); /* White text on destructive */
-  --border: oklch(0.85 0.005 240); /* Light gray borders #d1d5db */
-  --input: oklch(1 0 0); /* White input backgrounds */
-  --ring: oklch(0.6 0.15 250 / 0.5); /* Soft blue focus ring */
-  --chart-1: oklch(0.6 0.15 250); /* Primary blue for charts */
-  --chart-2: oklch(0.65 0.12 160); /* Green for charts */
-  --chart-3: oklch(0.7 0.15 60); /* Yellow for charts */
-  --chart-4: oklch(0.55 0.2 25); /* Red for charts */
-  --chart-5: oklch(0.6 0.15 270); /* Purple for charts */
-  --radius: 0.75rem; /* 12px rounded corners as specified */
-  --sidebar: oklch(1 0 0); /* White sidebar */
-  --sidebar-foreground: oklch(0.35 0.01 240); /* Dark gray sidebar text */
-  --sidebar-primary: oklch(0.6 0.15 250); /* Blue sidebar primary */
-  --sidebar-primary-foreground: oklch(1 0 0); /* White sidebar primary text */
-  --sidebar-accent: oklch(0.65 0.12 160); /* Green sidebar accent */
-  --sidebar-accent-foreground: oklch(1 0 0); /* White sidebar accent text */
-  --sidebar-border: oklch(0.85 0.005 240); /* Light gray sidebar border */
-  --sidebar-ring: oklch(0.6 0.15 250 / 0.5); /* Soft blue sidebar ring */
+  /* Updated color tokens for Claymorphism mysterious theme */
+  --background: oklch(0.98 0.005 240); /* Light mystical background */
+  --foreground: oklch(0.25 0.01 240); /* Dark mysterious text */
+  --card: oklch(0.99 0.003 240); /* Soft card background */
+  --card-foreground: oklch(0.25 0.01 240);
+  --popover: oklch(0.99 0.003 240);
+  --popover-foreground: oklch(0.25 0.01 240);
+  --primary: oklch(0.25 0.01 240); /* Deep mysterious primary */
+  --primary-foreground: oklch(0.98 0.005 240);
+  --secondary: oklch(0.55 0.15 260); /* Mystical purple accent */
+  --secondary-foreground: oklch(0.98 0.005 240);
+  --muted: oklch(0.15 0.01 240); /* Very dark muted */
+  --muted-foreground: oklch(0.98 0.005 240);
+  --accent: oklch(0.55 0.15 260); /* Purple accent for highlights */
+  --accent-foreground: oklch(0.98 0.005 240);
+  --destructive: oklch(0.55 0.2 15); /* Warm destructive */
+  --destructive-foreground: oklch(0.98 0.005 240);
+  --border: oklch(0.9 0.01 240); /* Subtle borders */
+  --input: oklch(0.99 0.003 240);
+  --ring: oklch(0.55 0.15 260 / 0.5); /* Purple ring with transparency */
+  --chart-1: oklch(0.55 0.15 260);
+  --chart-2: oklch(0.45 0.12 280);
+  --chart-3: oklch(0.35 0.1 300);
+  --chart-4: oklch(0.65 0.18 240);
+  --chart-5: oklch(0.75 0.2 220);
+  --radius: 1.5rem; /* Larger radius for clay-like softness */
+  --sidebar: oklch(0.98 0.005 240);
+  --sidebar-foreground: oklch(0.25 0.01 240);
+  --sidebar-primary: oklch(0.55 0.15 260);
+  --sidebar-primary-foreground: oklch(0.98 0.005 240);
+  --sidebar-accent: oklch(0.55 0.2 15);
+  --sidebar-accent-foreground: oklch(0.98 0.005 240);
+  --sidebar-border: oklch(0.9 0.01 240);
+  --sidebar-ring: oklch(0.55 0.15 260 / 0.5);
 }
 
 .dark {
-  /* Updated dark mode tokens for fintech theme */
-  --background: oklch(0.08 0.005 240); /* Dark background */
-  --foreground: oklch(0.95 0.005 240); /* Light text */
-  --card: oklch(0.12 0.005 240); /* Dark card background */
-  --card-foreground: oklch(0.95 0.005 240); /* Light card text */
-  --popover: oklch(0.12 0.005 240); /* Dark popover */
-  --popover-foreground: oklch(0.95 0.005 240); /* Light popover text */
-  --primary: oklch(0.6 0.15 250); /* Same fintech blue */
-  --primary-foreground: oklch(1 0 0); /* White text */
-  --secondary: oklch(0.65 0.12 160); /* Same success green */
-  --secondary-foreground: oklch(0.08 0.005 240); /* Dark text on secondary */
-  --muted: oklch(0.15 0.005 240); /* Dark muted background */
-  --muted-foreground: oklch(0.7 0.005 240); /* Light muted text */
-  --accent: oklch(0.6 0.15 250); /* Same accent blue */
-  --accent-foreground: oklch(1 0 0); /* White accent text */
-  --destructive: oklch(0.55 0.2 25); /* Same red for errors */
-  --destructive-foreground: oklch(1 0 0); /* White destructive text */
-  --border: oklch(0.2 0.005 240); /* Dark borders */
-  --input: oklch(0.15 0.005 240); /* Dark input backgrounds */
-  --ring: oklch(0.6 0.15 250 / 0.5); /* Same blue focus ring */
-  --chart-1: oklch(0.6 0.15 250); /* Same chart colors */
-  --chart-2: oklch(0.65 0.12 160);
-  --chart-3: oklch(0.7 0.15 60);
-  --chart-4: oklch(0.55 0.2 25);
-  --chart-5: oklch(0.6 0.15 270);
-  --sidebar: oklch(0.1 0.005 240); /* Dark sidebar */
-  --sidebar-foreground: oklch(0.95 0.005 240); /* Light sidebar text */
-  --sidebar-primary: oklch(0.6 0.15 250); /* Blue sidebar primary */
-  --sidebar-primary-foreground: oklch(1 0 0); /* White sidebar primary text */
-  --sidebar-accent: oklch(0.65 0.12 160); /* Green sidebar accent */
-  --sidebar-accent-foreground: oklch(1 0 0); /* White sidebar accent text */
-  --sidebar-border: oklch(0.2 0.005 240); /* Dark sidebar border */
-  --sidebar-ring: oklch(0.6 0.15 250 / 0.5); /* Blue sidebar ring */
+  /* Enhanced dark mode for mysterious crypto theme */
+  --background: oklch(0.08 0.01 240); /* Very dark mysterious background */
+  --foreground: oklch(0.9 0.02 240); /* Light mystical text */
+  --card: oklch(0.12 0.015 240); /* Dark card with subtle hue */
+  --card-foreground: oklch(0.9 0.02 240);
+  --popover: oklch(0.12 0.015 240);
+  --popover-foreground: oklch(0.9 0.02 240);
+  --primary: oklch(0.9 0.02 240); /* Light primary for dark mode */
+  --primary-foreground: oklch(0.08 0.01 240);
+  --secondary: oklch(0.2 0.02 240); /* Dark secondary */
+  --secondary-foreground: oklch(0.9 0.02 240);
+  --muted: oklch(0.2 0.02 240);
+  --muted-foreground: oklch(0.65 0.015 240);
+  --accent: oklch(0.65 0.18 260); /* Brighter purple accent for dark mode */
+  --accent-foreground: oklch(0.08 0.01 240);
+  --destructive: oklch(0.45 0.18 15);
+  --destructive-foreground: oklch(0.9 0.02 240);
+  --border: oklch(0.2 0.02 240);
+  --input: oklch(0.2 0.02 240);
+  --ring: oklch(0.65 0.18 260 / 0.5);
+  --chart-1: oklch(0.65 0.18 260);
+  --chart-2: oklch(0.55 0.15 280);
+  --chart-3: oklch(0.75 0.2 220);
+  --chart-4: oklch(0.45 0.12 300);
+  --chart-5: oklch(0.55 0.16 16);
+  --sidebar: oklch(0.15 0.015 240);
+  --sidebar-foreground: oklch(0.9 0.02 240);
+  --sidebar-primary: oklch(0.65 0.18 260);
+  --sidebar-primary-foreground: oklch(0.08 0.01 240);
+  --sidebar-accent: oklch(0.2 0.02 240);
+  --sidebar-accent-foreground: oklch(0.9 0.02 240);
+  --sidebar-border: oklch(0.2 0.02 240);
+  --sidebar-ring: oklch(0.65 0.18 260 / 0.5);
 }
 
 @theme inline {
@@ -123,5 +123,111 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .glass-button {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .dark .glass-button {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .dark .glass-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+  }
+
+  .dark .glass-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .dark .glass-input:focus {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .clay-card {
+    background: linear-gradient(
+      145deg,
+      oklch(var(--card) / 0.95),
+      oklch(var(--card) / 0.8)
+    );
+    box-shadow: 20px 20px 60px oklch(var(--muted) / 0.1),
+      -20px -20px 60px oklch(var(--background) / 0.8),
+      inset 5px 5px 10px oklch(var(--background) / 0.3),
+      inset -5px -5px 10px oklch(var(--muted) / 0.1);
+    border-radius: var(--radius);
+    border: 1px solid oklch(var(--border) / 0.3);
+  }
+
+  .clay-button {
+    background: linear-gradient(
+      145deg,
+      oklch(var(--primary) / 0.9),
+      oklch(var(--primary) / 0.7)
+    );
+    box-shadow: 8px 8px 16px oklch(var(--muted) / 0.2),
+      -8px -8px 16px oklch(var(--background) / 0.5);
+    transition: all 0.3s ease;
+  }
+
+  .clay-button:hover {
+    box-shadow: 4px 4px 8px oklch(var(--muted) / 0.3),
+      -4px -4px 8px oklch(var(--background) / 0.7),
+      inset 2px 2px 4px oklch(var(--muted) / 0.1);
+  }
+
+  .clay-input {
+    background: linear-gradient(
+      145deg,
+      oklch(var(--input) / 0.8),
+      oklch(var(--input) / 0.95)
+    );
+    box-shadow: inset 8px 8px 16px oklch(var(--muted) / 0.1),
+      inset -8px -8px 16px oklch(var(--background) / 0.8);
+    border: 1px solid oklch(var(--border) / 0.5);
   }
 }
