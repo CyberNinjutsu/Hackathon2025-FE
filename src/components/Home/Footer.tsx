@@ -6,8 +6,8 @@ export default function Footer() {
       <div className='container mx-auto px-4 py-8'>
         <div className='text-center text-white/70'>
           <p>
-            &copy; 2024 AssetVault. Secure real-world asset tokenization
-            platform.
+            &copy; {new Date().getFullYear()} AssetVault. Secure real-world
+            asset tokenization platform.
           </p>
           <p className='text-sm mt-2'>
             Powered by blockchain technology and institutional-grade custody
