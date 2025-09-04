@@ -56,7 +56,50 @@ export default function AccountPage() {
     setIsEditing(false);
     // Xử lý logic lưu tại đây
   };
+  const colors = [
+    "bg-red-500",
+    "bg-green-500",
+    "bg-blue-500",
+    "bg-purple-500",
+    "bg-yellow-500",
+    "bg-pink-500",
+    "bg-indigo-500",
+  ];
+  function hashString(str: string) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash);
+  }
 
+  function getColorFromName(name: string) {
+    const index = hashString(name) % colors.length;
+    return colors[index];
+  }
+
+  function getInitials(name: string, locale: "vn" | "en" = "vn") {
+    const parts = name.trim().split(" ");
+
+    if (locale === "vn") {
+      // Vietnamese: last two words are usually the middle + given name
+      if (parts.length >= 2) {
+        return (
+          parts[parts.length - 2][0].toUpperCase() +
+          parts[parts.length - 1][0].toUpperCase()
+        );
+      }
+      return parts[parts.length - 1][0].toUpperCase();
+    } else {
+      // English: first and last name
+      if (parts.length >= 2) {
+        return (
+          parts[0][0].toUpperCase() + parts[parts.length - 1][0].toUpperCase()
+        );
+      }
+      return parts[0][0].toUpperCase();
+    }
+  }
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-6 max-w-4xl">
@@ -71,22 +114,50 @@ export default function AccountPage() {
 
         <Tabs defaultValue="profile" className="space-y-6">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+            <TabsTrigger
+              value="profile"
+              className="flex items-center gap-2 rounded-md transition
+               data-[state=active]:bg-gray-100 
+               data-[state=active]:shadow-lg 
+               data-[state=active]:ring-2 
+               data-[state=active]:ring-gray-200"
+            >
               <User className="h-4 w-4" />
               Hồ Sơ
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
+
+            <TabsTrigger
+              value="security"
+              className="flex items-center gap-2 rounded-md transition
+               data-[state=active]:bg-gray-100 
+               data-[state=active]:shadow-lg 
+               data-[state=active]:ring-2 
+               data-[state=active]:ring-gray-200"
+            >
               <Shield className="h-4 w-4" />
               Bảo Mật
             </TabsTrigger>
+
             <TabsTrigger
               value="notifications"
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 rounded-md transition
+               data-[state=active]:bg-gray-100 
+               data-[state=active]:shadow-lg 
+               data-[state=active]:ring-2 
+               data-[state=active]:ring-gray-200"
             >
               <Bell className="h-4 w-4" />
               Thông Báo
             </TabsTrigger>
-            <TabsTrigger value="wallets" className="flex items-center gap-2">
+
+            <TabsTrigger
+              value="wallets"
+              className="flex items-center gap-2 rounded-md transition
+               data-[state=active]:bg-gray-100 
+               data-[state=active]:shadow-lg 
+               data-[state=active]:ring-2 
+               data-[state=active]:ring-gray-200"
+            >
               <Wallet className="h-4 w-4" />
               Ví Tiền
             </TabsTrigger>
@@ -121,9 +192,22 @@ export default function AccountPage() {
               <CardContent className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20">
-                    <AvatarImage src="/professional-profile.png" />
-                    <AvatarFallback className="text-lg">MN</AvatarFallback>
+                    <AvatarImage
+                      src="/professional-profile.png"
+                      alt={profileData.firstName + " " + profileData.lastName}
+                    />
+                    <AvatarFallback
+                      className={`text-lg text-white ${getColorFromName(
+                        profileData.firstName + " " + profileData.lastName
+                      )}`}
+                    >
+                      {getInitials(
+                        profileData.firstName + " " + profileData.lastName,
+                        "vn"
+                      )}
+                    </AvatarFallback>
                   </Avatar>
+
                   <div className="space-y-2">
                     <Button variant="outline" size="sm">
                       <Camera className="h-4 w-4 mr-2" />
@@ -197,9 +281,17 @@ export default function AccountPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="country">Quốc Gia</Label>
-                    <Select value={profileData.country} disabled={!isEditing}>
-                      <SelectTrigger>
-                        <SelectValue />
+                    <Select
+                      value={profileData.country}
+                      onValueChange={(value) => {
+                        if (isEditing) {
+                          setProfileData({ ...profileData, country: value });
+                        }
+                      }}
+                      disabled={!isEditing}
+                    >
+                      <SelectTrigger id="country" aria-label="Quốc Gia">
+                        <SelectValue placeholder="Chọn quốc gia" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Việt Nam">Việt Nam</SelectItem>
@@ -215,9 +307,17 @@ export default function AccountPage() {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="timezone">Múi Giờ</Label>
-                    <Select value={profileData.timezone} disabled={!isEditing}>
-                      <SelectTrigger>
-                        <SelectValue />
+                    <Select
+                      value={profileData.timezone}
+                      disabled={!isEditing}
+                      onValueChange={(value) => {
+                        if (isEditing) {
+                          setProfileData({ ...profileData, timezone: value });
+                        }
+                      }}
+                    >
+                      <SelectTrigger id="timezone" aria-label="Múi Giờ">
+                        <SelectValue placeholder="Chọn múi giờ" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="UTC+7 (ICT)">UTC+7 (ICT)</SelectItem>
@@ -273,6 +373,12 @@ export default function AccountPage() {
                         onClick={() =>
                           setShowCurrentPassword(!showCurrentPassword)
                         }
+                        aria-pressed={showCurrentPassword}
+                        aria-label={
+                          showCurrentPassword
+                            ? "Ẩn mật khẩu hiện tại"
+                            : "Hiện mật khẩu hiện tại"
+                        }
                       >
                         {showCurrentPassword ? (
                           <EyeOff className="h-4 w-4" />
@@ -296,6 +402,12 @@ export default function AccountPage() {
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowNewPassword(!showNewPassword)}
+                        aria-pressed={showNewPassword}
+                        aria-label={
+                          showNewPassword
+                            ? "Ẩn mật khẩu mới"
+                            : "Hiện mật khẩu mới"
+                        }
                       >
                         {showNewPassword ? (
                           <EyeOff className="h-4 w-4" />
