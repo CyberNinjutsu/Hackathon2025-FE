@@ -12,7 +12,7 @@ export function Logo({ className = "", showText = true }: LogoProps) {
         <Coins className='h-5 w-5' />
       </div>
       {showText && (
-        <span className='text-xl font-bold text-foreground'>MyTokenHub</span>
+        <span className='text-xl font-bold text-foreground select-none'>MyTokenHub</span>
       )}
     </div>
   )
