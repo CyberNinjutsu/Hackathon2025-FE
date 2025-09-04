@@ -190,7 +190,7 @@ export default function RegisterPage() {
                     aria-describedby={
                       confirmPassword && confirmPassword !== password
                         ? "confirmPassword-error"
-                        : undefined
+                        : "confirmPassword"
                     }
                   />
                   <Button
@@ -214,7 +214,7 @@ export default function RegisterPage() {
                   )}
                 </div>
                 {confirmPassword && confirmPassword !== password && (
-                  <p className="text-sm text-red-800">Mật khẩu không khớp</p>
+                  <p id="confirmPassword-error" className="text-sm text-red-800">Mật khẩu không khớp</p>
                 )}
               </div>
 
