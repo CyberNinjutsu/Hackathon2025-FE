@@ -1,0 +1,225 @@
+"use client"
+
+import type React from "react"
+
+import { useState } from "react"
+import Link from "next/link"
+import { Eye, EyeOff, Lock, Mail, Coins, Shield, User, Check } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useRouter } from "next/navigation"
+
+export default function RegisterPage() {
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const router = useRouter()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+
+    router.push("/")
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20 p-4">
+      <div className="w-full max-w-md space-y-8">
+        {/* Logo và thương hiệu */}
+        <div className="text-center space-y-4">
+          <div className="flex justify-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg">
+              <Coins className="h-8 w-8" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight text-balance">MyTokenHub</h1>
+            <p className="text-muted-foreground text-pretty">Bắt đầu quản lý tài sản blockchain của bạn ngay hôm nay</p>
+          </div>
+        </div>
+
+        {/* Form Đăng ký */}
+        <Card className="border-border/50 shadow-xl">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-semibold">Tạo tài khoản</CardTitle>
+            <CardDescription>Tham gia cùng hàng ngàn người dùng quản lý tài sản số một cách an toàn</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Họ và tên */}
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Họ và tên</Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Nhập họ và tên của bạn"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    className="pl-10"
+                    required
+                    aria-describedby="fullName-description"
+                  />
+                </div>
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email">Địa chỉ Email</Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Nhập email của bạn"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10"
+                    required
+                    aria-describedby="email-description"
+                  />
+                </div>
+              </div>
+
+              {/* Mật khẩu */}
+              <div className="space-y-2">
+                <Label htmlFor="password">Mật khẩu</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Tạo mật khẩu mạnh"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10"
+                    required
+                    aria-describedby="password-description"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Xác nhận mật khẩu */}
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Nhập lại mật khẩu"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10 pr-10"
+                    required
+                    aria-describedby="confirmPassword-description"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                  {confirmPassword && confirmPassword === password && (
+                    <Check className="absolute right-10 top-1/2 h-4 w-4 -translate-y-1/2 text-green-500" />
+                  )}
+                </div>
+                {confirmPassword && confirmPassword !== password && (
+                  <p className="text-sm text-red-500">Mật khẩu không khớp</p>
+                )}
+              </div>
+
+              {/* Đồng ý điều khoản */}
+              <div className="flex items-start space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={agreeToTerms}
+                  onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                  className="mt-1 border-black/20"
+                />
+                <Label htmlFor="terms" className="text-sm font-normal leading-relaxed">
+                  Tôi đồng ý với{" "}
+                  <Link href="/terms" className="text-primary hover:text-primary/80 underline-offset-4 hover:underline">
+                    Điều khoản dịch vụ
+                  </Link>{" "}
+                  và{" "}
+                  <Link href="/privacy" className="text-primary hover:text-primary/80 underline-offset-4 hover:underline">
+                    Chính sách bảo mật
+                  </Link>
+                </Label>
+              </div>
+
+              {/* Nút đăng ký */}
+              <Button type="submit" className="w-full" size="lg" disabled={isLoading || !agreeToTerms}>
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Đang tạo tài khoản...
+                  </>
+                ) : (
+                  "Tạo tài khoản"
+                )}
+              </Button>
+            </form>
+
+            {/* Thông báo bảo mật */}
+            <div className="mt-6 flex items-start space-x-2 rounded-lg bg-muted/50 p-3">
+              <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+              <div className="text-xs text-muted-foreground">
+                <p className="font-medium text-foreground">Đăng ký an toàn</p>
+                <p>Dữ liệu của bạn được mã hóa và bảo vệ. Chúng tôi không bao giờ chia sẻ thông tin với bên thứ ba.</p>
+              </div>
+            </div>
+
+            {/* Link đăng nhập */}
+            <div className="mt-6 text-center text-sm">
+              <span className="text-muted-foreground">Đã có tài khoản? </span>
+              <Link href="/login" className="text-primary hover:text-primary/80 font-medium underline-offset-4 hover:underline">
+                Đăng nhập
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Footer */}
+        <div className="text-center text-xs text-muted-foreground">
+          <p>
+            Bằng việc tạo tài khoản, bạn đồng ý với{" "}
+            <Link href="/terms" className="underline hover:text-foreground">
+              Điều khoản dịch vụ
+            </Link>{" "}
+            và{" "}
+            <Link href="/privacy" className="underline hover:text-foreground">
+              Chính sách bảo mật
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
