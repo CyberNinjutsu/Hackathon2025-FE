@@ -23,6 +23,11 @@ export default function HeroSection() {
   const [fromAmount, setFromAmount] = useState("")
   const [fromToken, setFromToken] = useState("GOLD")
   const toToken = "TOKENIZED_ASSET"
+  // Derived numeric state
+  const cleanedAmount = fromAmount.replace(/,/g, "")
+  const parsedAmount = Number.parseFloat(cleanedAmount)
+  const isPositiveAmount = Number.isFinite(parsedAmount) && parsedAmount > 0
+  const estimatedTokens = isPositiveAmount ? parsedAmount : 0
 
   return (
     <section className='container mx-auto px-4 py-16 text-center relative z-10'>
@@ -51,11 +56,17 @@ export default function HeroSection() {
           <CardContent className='space-y-6'>
             <div className='space-y-4'>
               <div className='space-y-2'>
-                <label className='text-sm font-medium text-white/70'>
+                <label
+                  htmlFor='asset-type'
+                  className='text-sm font-medium text-white/70'
+                >
                   Asset Type
                 </label>
                 <Select value={fromToken} onValueChange={setFromToken}>
-                  <SelectTrigger className='glass-input w-full text-white'>
+                  <SelectTrigger
+                    id='asset-type'
+                    className='glass-input w-full text-white'
+                  >
                     <SelectValue placeholder='Select asset type' />
                   </SelectTrigger>
                   <SelectContent className='backdrop-blur-xl bg-slate-900/90 border border-white/20 shadow-2xl'>
@@ -73,10 +84,17 @@ export default function HeroSection() {
               </div>
 
               <div className='space-y-2'>
-                <label className='text-sm font-medium text-white/70'>
+                <label
+                  htmlFor='asset-value'
+                  className='text-sm font-medium text-white/70'
+                >
                   Asset Value (USD)
                 </label>
                 <Input
+                  id='asset-value'
+                  type='number'
+                  min={0}
+                  step='0.01'
                   placeholder='Enter asset value'
                   value={fromAmount}
                   onChange={(e) => setFromAmount(e.target.value)}
@@ -94,12 +112,11 @@ export default function HeroSection() {
                 <label className='text-sm font-medium text-white/70'>
                   Estimated Tokens
                 </label>
-                <div className='glass-input p-3 text-white/70'>
-                  {fromAmount
-                    ? `${Number.parseFloat(
-                        fromAmount
-                      ).toLocaleString()} ${toToken} tokens`
-                    : "0 tokens"}
+                <div
+                  className='glass-input p-3 text-white/70'
+                  aria-live='polite'
+                >
+                  {estimatedTokens.toLocaleString()} {toToken} tokens
                 </div>
               </div>
             </div>
