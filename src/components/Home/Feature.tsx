@@ -1,59 +1,58 @@
-import React from "react"
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Shield, TrendingUp, Wallet } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { Globe, Shield, Zap } from "lucide-react"
 
 export default function Feature() {
+  const features = [
+    {
+      icon: <Shield className='w-8 h-8' />,
+      title: "Secure Tokenization",
+      description:
+        "Transform physical assets into secure digital tokens backed by real-world value and legal frameworks"
+    },
+    {
+      icon: <Zap className='w-8 h-8' />,
+      title: "Instant Liquidity",
+      description:
+        "Convert illiquid assets like real estate and gold into tradeable tokens within minutes"
+    },
+    {
+      icon: <Globe className='w-8 h-8' />,
+      title: "Global Access",
+      description:
+        "Access premium assets worldwide through fractional ownership and blockchain technology"
+    }
+  ]
   return (
-    <section className='container mx-auto px-4 py-16'>
+    <section className='container mx-auto px-4 py-16 relative z-10'>
       <div className='text-center mb-12'>
-        <h2 className='text-3xl font-bold text-foreground mb-4'>
-          Everything You Need for Digital Asset Management
-        </h2>
-        <p className='text-muted-foreground max-w-2xl mx-auto'>
-          MyTokenHub provides comprehensive tools to track, manage, and transfer
-          your digital assets securely.
+        <h3 className='text-3xl font-bold mb-4 text-purple-300'>
+          Why Choose AssetVault?
+        </h3>
+        <p className='text-white/70 max-w-2xl mx-auto text-pretty'>
+          Unlock the value of physical assets through secure tokenization with
+          institutional-grade custody and compliance
         </p>
       </div>
 
-      <div className='grid md:grid-cols-3 gap-8'>
-        <Card className='text-center'>
-          <CardHeader>
-            <div className='mx-auto w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4'>
-              <TrendingUp className='h-6 w-6 text-primary' />
-            </div>
-            <CardTitle>Portfolio Tracking</CardTitle>
-            <CardDescription>
-              Monitor your digital asset portfolio with real-time updates and
-              comprehensive analytics.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-
-        <Card className='text-center'>
-          <CardHeader>
-            <div className='mx-auto w-12 h-12 bg-secondary/10 rounded-lg flex items-center justify-center mb-4'>
-              <Wallet className='h-6 w-6 text-secondary' />
-            </div>
-            <CardTitle>Wallet Management</CardTitle>
-            <CardDescription>
-              Seamlessly transfer tokens between multiple wallets with secure,
-              fast transactions.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-
-        <Card className='text-center'>
-          <CardHeader>
-            <div className='mx-auto w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center mb-4'>
-              <Shield className='h-6 w-6 text-accent' />
-            </div>
-            <CardTitle>Transaction History</CardTitle>
-            <CardDescription>
-              Complete transaction history with detailed records and advanced
-              filtering options.
-            </CardDescription>
-          </CardHeader>
-        </Card>
+      <div className='grid md:grid-cols-3 gap-8 max-w-4xl mx-auto'>
+        {features.map((feature, index) => (
+          <Card
+            key={index}
+            className='glass-card text-center p-6 hover:scale-105 transition-all duration-300 hover:bg-white/10'
+          >
+            <CardContent className='pt-6'>
+              <div className='glass-card w-16 h-16 mx-auto mb-4 flex items-center justify-center text-purple-300'>
+                {feature.icon}
+              </div>
+              <h4 className='text-xl font-semibold mb-3 text-purple-300'>
+                {feature.title}
+              </h4>
+              <p className='text-white/70 leading-relaxed text-pretty'>
+                {feature.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </section>
   )
