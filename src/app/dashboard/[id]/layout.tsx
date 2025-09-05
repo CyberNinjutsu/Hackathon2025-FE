@@ -1,15 +1,22 @@
-import { Sidebar } from "@/components/dashboard/sidebar"
-import type React from "react"
+import Header from "@/components/dashboard/Header"
+import Sidebar from "@/components/dashboard/sidebar"
+import React from "react"
 
-export default function DashboardLayout({
+export default function LayoutDashboard({
   children
-}: {
+}: Readonly<{
   children: React.ReactNode
-}) {
+}>) {
   return (
-    <div className='flex h-screen bg-background'>
-      <Sidebar />
-      <main className='flex-1 overflow-y-auto p-[15px]'>{children}</main>
+    <div className='min-h-screen bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900'>
+      {/* Header */}
+      <Header />
+
+      <div className='flex'>
+        <Sidebar />
+        {/* Main Content */}
+        <main className='flex-1 p-6'>{children}</main>
+      </div>
     </div>
   )
 }
