@@ -1,42 +1,26 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { GeistSans } from "geist/font/sans"
+import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
-import { ThemeProvider } from "next-themes"
 import { Suspense } from "react"
 import "./globals.css"
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-inter"
-})
-
 export const metadata: Metadata = {
-  title: "MyTokenHub - Digital Asset Management",
-  description:
-    "Manage your digital assets with confidence. Track portfolios, transfer tokens, and view transaction history.",
+  title: "v0 App",
+  description: "Created with v0",
   generator: "v0.app"
 }
 
 export default function RootLayout({
   children
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang='en' suppressHydrationWarning>
-      <body className={`font-sans ${inter.variable} antialiased`}>
-        <Suspense fallback={null}>
-          <ThemeProvider
-            attribute='class'
-            defaultTheme='light'
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </Suspense>
+    <html lang='en' className='dark antialiased'>
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+        <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
       </body>
     </html>
