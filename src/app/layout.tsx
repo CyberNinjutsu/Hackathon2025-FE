@@ -19,7 +19,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en' className='dark antialiased'>
-      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable}`}>
+      <body
+        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar`}
+      >
         <Suspense fallback={null}>{children}</Suspense>
         <Analytics />
       </body>

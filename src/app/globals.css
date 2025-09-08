@@ -231,3 +231,19 @@
     border: 1px solid oklch(var(--border) / 0.5);
   }
 }
+
+/* globals.css */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom right,
+    #0f172a,
+    /* slate-900 */ #581c87,
+    /* purple-900 */ #0f172a /* slate-900 */
+  );
+  color: var(--foreground);
+  border-radius: 9999px;
+}
