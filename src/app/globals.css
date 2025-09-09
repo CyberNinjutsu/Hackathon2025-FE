@@ -230,6 +230,45 @@
       inset -8px -8px 16px oklch(var(--background) / 0.8);
     border: 1px solid oklch(var(--border) / 0.5);
   }
+
+  .auth-background {
+    position: relative;
+    min-height: 100vh;
+    background: black;
+    overflow: hidden;
+  }
+
+  .auth-background::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.3;
+  }
+
+  .auth-background.with-image::before {
+    background-image: var(--auth-bg-image);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.7;
+  }
+
+  .auth-background.with-image::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+  }
+  .floating {
+    animation: float 6s ease-in-out infinite;
+  }
 }
 
 /* globals.css */
@@ -246,4 +285,13 @@
   );
   color: var(--foreground);
   border-radius: 9999px;
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }

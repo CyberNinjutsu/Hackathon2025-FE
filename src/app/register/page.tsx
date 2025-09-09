@@ -214,41 +214,46 @@ export default function RegisterPage() {
                   )}
                 </div>
                 {confirmPassword && confirmPassword !== password && (
-                  <p id="confirmPassword-error" className="text-sm text-red-800">Mật khẩu không khớp</p>
+                  <p
+                    id="confirmPassword-error"
+                    className="text-sm text-red-800"
+                  >
+                    Mật khẩu không khớp
+                  </p>
                 )}
               </div>
 
-              {/* Đồng ý điều khoản */}
-              <div className="flex items-start space-x-2">
+              <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
                   checked={agreeToTerms}
                   onCheckedChange={(checked) =>
                     setAgreeToTerms(checked as boolean)
                   }
-                  className="mt-1 border-white/30 data-[state=checked]:bg-white/20"
+                  className="mt-0.5 border-white/30 data-[state=checked]:bg-white/20 shrink-0"
                 />
-                <Label
-                  htmlFor="terms"
-                  className="text-sm font-normal leading-relaxed glass-text-secondary"
-                >
-                  Tôi đồng ý với{" "}
-                  <Link
-                    href="/terms"
-                    className="glass-text-secondary hover:text-white underline-offset-4 hover:underline"
+                <div className="grid gap-1.5 leading-none">
+                  <label
+                    htmlFor="terms"
+                    className="text-sm font-normal leading-relaxed glass-text-secondary"
                   >
-                    Điều khoản dịch vụ
-                  </Link>{" "}
-                  và{" "}
-                  <Link
-                    href="/privacy"
-                    className="glass-text-secondary hover:text-white underline-offset-4 hover:underline"
-                  >
-                    Chính sách bảo mật
-                  </Link>
-                </Label>
+                    Tôi đồng ý với{" "}
+                    <Link
+                      href="/#"
+                      className="font-bold glass-text-secondary hover:text-white underline-offset-4 hover:underline"
+                    >
+                      Điều khoản dịch vụ
+                    </Link>{" "}
+                    và{" "}
+                    <Link
+                      href="/privacy"
+                      className="font-bold glass-text-secondary hover:text-white underline-offset-4 hover:underline"
+                    >
+                      Chính sách bảo mật
+                    </Link>
+                  </label>
+                </div>
               </div>
-
               {/* Nút đăng ký */}
               <Button
                 type="submit"
