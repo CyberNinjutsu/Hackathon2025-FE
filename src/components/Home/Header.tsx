@@ -26,7 +26,7 @@ export default function Header() {
           </Button>
 
           <Button className='glass-button text-white hover:text-white'>
-            <Link href='/signup'>Sign Up</Link>
+            <Link href='/register'>Sign Up</Link>
           </Button>
         </div>
       </div>

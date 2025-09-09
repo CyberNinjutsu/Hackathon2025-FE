@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import goldBar3 from "@/assets/gold-bars3.jpg"
+import bg from "@/assets/gold-gemstone.png"
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <div className="auth-background flex items-center justify-center p-4">
       <Image
-        src={goldBar3}
+        src={bg}
         alt="Blockchain background"
         fill
         className="opacity-70"
