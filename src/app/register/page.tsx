@@ -239,7 +239,7 @@ export default function RegisterPage() {
                   >
                     Tôi đồng ý với{" "}
                     <Link
-                      href="/#"
+                      href="/terms"
                       className="font-bold glass-text-secondary hover:text-white underline-offset-4 hover:underline"
                     >
                       Điều khoản dịch vụ
