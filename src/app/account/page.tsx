@@ -1,17 +1,29 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { Switch } from "@/components/ui/switch"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   User,
   Shield,
@@ -26,12 +38,12 @@ import {
   Globe,
   TrendingUp,
   DollarSign,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function AccountPage() {
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [isEditing, setIsEditing] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
     firstName: "John",
     lastName: "Doe",
@@ -40,12 +52,12 @@ export default function AccountPage() {
     bio: "Người đam mê blockchain và đầu tư tiền điện tử với hơn 5 năm kinh nghiệm trong quản lý tài sản số.",
     country: "Việt Nam",
     timezone: "UTC+7 (ICT)",
-  })
+  });
 
   const handleSaveProfile = () => {
-    setIsEditing(false)
+    setIsEditing(false);
     // Xử lý logic lưu tại đây
-  }
+  };
   const colors = [
     "bg-red-500",
     "bg-green-500",
@@ -54,42 +66,42 @@ export default function AccountPage() {
     "bg-yellow-500",
     "bg-pink-500",
     "bg-indigo-500",
-  ]
+  ];
   function hashString(str: string) {
-    let hash = 0
+    let hash = 0;
     for (let i = 0; i < str.length; i++) {
-      hash = str.charCodeAt(i) + ((hash << 5) - hash)
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
-    return Math.abs(hash)
+    return Math.abs(hash);
   }
 
   function getColorFromName(name: string) {
-    const index = hashString(name) % colors.length
-    return colors[index]
+    const index = hashString(name) % colors.length;
+    return colors[index];
   }
 
-  function getInitials(name: string, locale: "vn" | "en" = "vn") {  
-  const parts = name.trim().split(/\s+/).filter(Boolean);  
-  if (parts.length === 0) return "?";  
+  function getInitials(name: string, locale: "vn" | "en" = "vn") {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "?";
 
-  if (locale === "vn") {  
-    // Vietnamese: commonly last two tokens are middle + given name  
-    if (parts.length >= 2) {  
-      const a = parts[parts.length - 2][0];  
-      const b = parts[parts.length - 1][0];  
-      return (a + b).toUpperCase();  
-    }  
-    return parts[parts.length - 1][0].toUpperCase();  
-  } else {  
-    // English: first and last name  
-    if (parts.length >= 2) {  
-      const a = parts[0][0];  
-      const b = parts[parts.length - 1][0];  
-      return (a + b).toUpperCase();  
-    }  
-    return parts[0][0].toUpperCase();  
-  }  
-}  
+    if (locale === "vn") {
+      // Vietnamese: commonly last two tokens are middle + given name
+      if (parts.length >= 2) {
+        const a = parts[parts.length - 2][0];
+        const b = parts[parts.length - 1][0];
+        return (a + b).toUpperCase();
+      }
+      return parts[parts.length - 1][0].toUpperCase();
+    } else {
+      // English: first and last name
+      if (parts.length >= 2) {
+        const a = parts[0][0];
+        const b = parts[parts.length - 1][0];
+        return (a + b).toUpperCase();
+      }
+      return parts[0][0].toUpperCase();
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
@@ -100,13 +112,15 @@ export default function AccountPage() {
         <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-bl from-amber-300 via-purple-600 to-indigo-800 opacity-20 blur-2xl" />
         <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-blue-600/10" />
         <div className="relative container mx-auto p-6 max-w-6xl">
-
           <div className="mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
               <div>
-                <h1 className="text-4xl font-bold text-white mb-2">Cài Đặt Tài Khoản</h1>
+                <h1 className="text-4xl font-bold text-white mb-2">
+                  Cài Đặt Tài Khoản
+                </h1>
                 <p className="text-blue-100 text-lg">
-                  Quản lý thông tin tài khoản và tùy chỉnh cá nhân với phong cách hiện đại
+                  Quản lý thông tin tài khoản và tùy chỉnh cá nhân với phong
+                  cách hiện đại
                 </p>
               </div>
 
@@ -133,7 +147,9 @@ export default function AccountPage() {
                       </div>
                       <div>
                         <p className="text-sm text-blue-200">Lợi Nhuận 24h</p>
-                        <p className="text-xl font-bold text-green-300">+$1,240</p>
+                        <p className="text-xl font-bold text-green-300">
+                          +$1,240
+                        </p>
                       </div>
                     </div>
                   </CardContent>
@@ -182,7 +198,9 @@ export default function AccountPage() {
                     <Button
                       variant={isEditing ? "default" : "outline"}
                       size="sm"
-                      onClick={isEditing ? handleSaveProfile : () => setIsEditing(true)}
+                      onClick={
+                        isEditing ? handleSaveProfile : () => setIsEditing(true)
+                      }
                       className={
                         isEditing
                           ? "bg-purple-600 hover:bg-purple-700 text-white"
@@ -213,7 +231,10 @@ export default function AccountPage() {
                       <AvatarFallback
                         className={`text-lg text-white ${getColorFromName(profileData.firstName + " " + profileData.lastName)}`}
                       >
-                        {getInitials(profileData.firstName + " " + profileData.lastName, "vn")}
+                        {getInitials(
+                          profileData.firstName + " " + profileData.lastName,
+                          "vn",
+                        )}
                       </AvatarFallback>
                     </Avatar>
                     <div className="space-y-2">
@@ -225,7 +246,9 @@ export default function AccountPage() {
                         <Camera className="h-4 w-4 mr-2" />
                         Đổi Ảnh
                       </Button>
-                      <p className="text-sm text-blue-300">JPG, PNG hoặc GIF. Dung lượng tối đa 2MB.</p>
+                      <p className="text-sm text-blue-300">
+                        JPG, PNG hoặc GIF. Dung lượng tối đa 2MB.
+                      </p>
                     </div>
                   </div>
 
@@ -233,63 +256,98 @@ export default function AccountPage() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="firstName"
+                        className="font-medium text-blue-100"
+                      >
                         Họ
                       </Label>
                       <Input
                         id="firstName"
                         value={profileData.firstName}
-                        onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            firstName: e.target.value,
+                          })
+                        }
                         disabled={!isEditing}
                         className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="lastName"
+                        className="font-medium text-blue-100"
+                      >
                         Tên
                       </Label>
                       <Input
                         id="lastName"
                         value={profileData.lastName}
-                        onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            lastName: e.target.value,
+                          })
+                        }
                         disabled={!isEditing}
                         className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="email"
+                        className="font-medium text-blue-100"
+                      >
                         Địa Chỉ Email
                       </Label>
                       <Input
                         id="email"
                         type="email"
                         value={profileData.email}
-                        onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            email: e.target.value,
+                          })
+                        }
                         disabled={!isEditing}
                         className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="phone" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="phone"
+                        className="font-medium text-blue-100"
+                      >
                         Số Điện Thoại
                       </Label>
                       <Input
                         id="phone"
                         value={profileData.phone}
-                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                        onChange={(e) =>
+                          setProfileData({
+                            ...profileData,
+                            phone: e.target.value,
+                          })
+                        }
                         disabled={!isEditing}
                         className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="country" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="country"
+                        className="font-medium text-blue-100"
+                      >
                         Quốc Gia
                       </Label>
                       <Select
                         value={profileData.country}
                         onValueChange={(value) => {
                           if (isEditing) {
-                            setProfileData({ ...profileData, country: value })
+                            setProfileData({ ...profileData, country: value });
                           }
                         }}
                         disabled={!isEditing}
@@ -305,14 +363,19 @@ export default function AccountPage() {
                           <SelectItem value="Việt Nam">Việt Nam</SelectItem>
                           <SelectItem value="United States">Hoa Kỳ</SelectItem>
                           <SelectItem value="Canada">Canada</SelectItem>
-                          <SelectItem value="United Kingdom">Vương Quốc Anh</SelectItem>
+                          <SelectItem value="United Kingdom">
+                            Vương Quốc Anh
+                          </SelectItem>
                           <SelectItem value="Germany">Đức</SelectItem>
                           <SelectItem value="France">Pháp</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="timezone" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="timezone"
+                        className="font-medium text-blue-100"
+                      >
                         Múi Giờ
                       </Label>
                       <Select
@@ -320,7 +383,7 @@ export default function AccountPage() {
                         disabled={!isEditing}
                         onValueChange={(value) => {
                           if (isEditing) {
-                            setProfileData({ ...profileData, timezone: value })
+                            setProfileData({ ...profileData, timezone: value });
                           }
                         }}
                       >
@@ -332,11 +395,21 @@ export default function AccountPage() {
                           <SelectValue placeholder="Chọn múi giờ" />
                         </SelectTrigger>
                         <SelectContent className="bg-popover border-blue-600/30 text-blue-100">
-                          <SelectItem value="UTC+7 (ICT)">UTC+7 (ICT)</SelectItem>
-                          <SelectItem value="UTC-5 (EST)">UTC-5 (EST)</SelectItem>
-                          <SelectItem value="UTC-8 (PST)">UTC-8 (PST)</SelectItem>
-                          <SelectItem value="UTC+0 (GMT)">UTC+0 (GMT)</SelectItem>
-                          <SelectItem value="UTC+1 (CET)">UTC+1 (CET)</SelectItem>
+                          <SelectItem value="UTC+7 (ICT)">
+                            UTC+7 (ICT)
+                          </SelectItem>
+                          <SelectItem value="UTC-5 (EST)">
+                            UTC-5 (EST)
+                          </SelectItem>
+                          <SelectItem value="UTC-8 (PST)">
+                            UTC-8 (PST)
+                          </SelectItem>
+                          <SelectItem value="UTC+0 (GMT)">
+                            UTC+0 (GMT)
+                          </SelectItem>
+                          <SelectItem value="UTC+1 (CET)">
+                            UTC+1 (CET)
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -349,7 +422,9 @@ export default function AccountPage() {
                     <Textarea
                       id="bio"
                       value={profileData.bio}
-                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+                      onChange={(e) =>
+                        setProfileData({ ...profileData, bio: e.target.value })
+                      }
                       disabled={!isEditing}
                       rows={3}
                       placeholder="Hãy kể về bản thân bạn..."
@@ -363,7 +438,9 @@ export default function AccountPage() {
             <TabsContent value="security" className="space-y-6">
               <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
                 <CardHeader className="border-b border-blue-600/30">
-                  <CardTitle className="text-2xl text-white">Mật Khẩu & Xác Thực</CardTitle>
+                  <CardTitle className="text-2xl text-white">
+                    Mật Khẩu & Xác Thực
+                  </CardTitle>
                   <CardDescription className="text-base text-blue-200">
                     Quản lý mật khẩu và cài đặt bảo mật của bạn
                   </CardDescription>
@@ -371,7 +448,10 @@ export default function AccountPage() {
                 <CardContent className="space-y-6 pt-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="currentPassword"
+                        className="font-medium text-blue-100"
+                      >
                         Mật Khẩu Hiện Tại
                       </Label>
                       <div className="relative">
@@ -386,16 +466,29 @@ export default function AccountPage() {
                           variant="ghost"
                           size="sm"
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-blue-100"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
                           aria-pressed={showCurrentPassword}
-                          aria-label={showCurrentPassword ? "Ẩn mật khẩu hiện tại" : "Hiện mật khẩu hiện tại"}
+                          aria-label={
+                            showCurrentPassword
+                              ? "Ẩn mật khẩu hiện tại"
+                              : "Hiện mật khẩu hiện tại"
+                          }
                         >
-                          {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="newPassword"
+                        className="font-medium text-blue-100"
+                      >
                         Mật Khẩu Mới
                       </Label>
                       <div className="relative">
@@ -412,14 +505,25 @@ export default function AccountPage() {
                           className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-blue-100"
                           onClick={() => setShowNewPassword(!showNewPassword)}
                           aria-pressed={showNewPassword}
-                          aria-label={showNewPassword ? "Ẩn mật khẩu mới" : "Hiện mật khẩu mới"}
+                          aria-label={
+                            showNewPassword
+                              ? "Ẩn mật khẩu mới"
+                              : "Hiện mật khẩu mới"
+                          }
                         >
-                          {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </Button>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="font-medium text-blue-100">
+                      <Label
+                        htmlFor="confirmPassword"
+                        className="font-medium text-blue-100"
+                      >
                         Xác Nhận Mật Khẩu Mới
                       </Label>
                       <Input
@@ -429,23 +533,34 @@ export default function AccountPage() {
                         className="bg-blue-900/50 border-blue-600/50 text-white placeholder:text-blue-300"
                       />
                     </div>
-                    <Button className="bg-purple-600 hover:bg-purple-700 text-white">Cập Nhật Mật Khẩu</Button>
+                    <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                      Cập Nhật Mật Khẩu
+                    </Button>
                   </div>
 
                   <Separator className="bg-blue-600/30" />
 
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-white">Xác Thực Hai Yếu Tố</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      Xác Thực Hai Yếu Tố
+                    </h4>
                     <div className="flex items-center justify-between">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Smartphone className="h-4 w-4 text-white" />
-                          <span className="text-sm font-medium text-blue-100">Ứng Dụng Xác Thực</span>
-                          <Badge variant="secondary" className="bg-purple-600/20 text-green-300 border-green-400">
+                          <span className="text-sm font-medium text-blue-100">
+                            Ứng Dụng Xác Thực
+                          </span>
+                          <Badge
+                            variant="secondary"
+                            className="bg-purple-600/20 text-green-300 border-green-400"
+                          >
                             Đã Bật
                           </Badge>
                         </div>
-                        <p className="text-sm text-blue-300">Sử dụng ứng dụng xác thực để tạo mã xác minh</p>
+                        <p className="text-sm text-blue-300">
+                          Sử dụng ứng dụng xác thực để tạo mã xác minh
+                        </p>
                       </div>
                       <Switch defaultChecked />
                     </div>
@@ -453,12 +568,19 @@ export default function AccountPage() {
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <Mail className="h-4 w-4 text-blue-300" />
-                          <span className="text-sm font-medium text-blue-100">Xác Minh Email</span>
-                          <Badge variant="outline" className="bg-purple-600/20 text-white/60 border-white/30">
+                          <span className="text-sm font-medium text-blue-100">
+                            Xác Minh Email
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className="bg-purple-600/20 text-white/60 border-white/30"
+                          >
                             Đã Tắt
                           </Badge>
                         </div>
-                        <p className="text-sm text-blue-300">Nhận mã xác minh qua email</p>
+                        <p className="text-sm text-blue-300">
+                          Nhận mã xác minh qua email
+                        </p>
                       </div>
                       <Switch />
                     </div>
@@ -467,27 +589,40 @@ export default function AccountPage() {
                   <Separator className="bg-blue-600/30" />
 
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-white">Phiên Hoạt Động</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      Phiên Hoạt Động
+                    </h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between p-3 bg-blue-900/50 rounded-lg">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <Globe className="h-4 w-4 text-white" />
-                            <span className="text-sm font-medium text-blue-100">Chrome trên Windows</span>
-                            <Badge variant="secondary" className="bg-purple-600/20 text-blue-300 border-blue-400">
+                            <span className="text-sm font-medium text-blue-100">
+                              Chrome trên Windows
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className="bg-purple-600/20 text-blue-300 border-blue-400"
+                            >
                               Hiện Tại
                             </Badge>
                           </div>
-                          <p className="text-sm text-blue-300">Hồ Chí Minh, VN • Hoạt động lần cuối: hiện tại</p>
+                          <p className="text-sm text-blue-300">
+                            Hồ Chí Minh, VN • Hoạt động lần cuối: hiện tại
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center justify-between p-3 bg-blue-900/50 rounded-lg">
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
                             <Smartphone className="h-4 w-4 text-blue-300" />
-                            <span className="text-sm font-medium text-blue-100">Ứng Dụng Di Động</span>
+                            <span className="text-sm font-medium text-blue-100">
+                              Ứng Dụng Di Động
+                            </span>
                           </div>
-                          <p className="text-sm text-blue-300">Hồ Chí Minh, VN • Hoạt động lần cuối: 2 giờ trước</p>
+                          <p className="text-sm text-blue-300">
+                            Hồ Chí Minh, VN • Hoạt động lần cuối: 2 giờ trước
+                          </p>
                         </div>
                         <Button
                           variant="outline"
@@ -506,40 +641,60 @@ export default function AccountPage() {
             <TabsContent value="notifications" className="space-y-6">
               <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
                 <CardHeader className="border-b border-blue-600/30">
-                  <CardTitle className="text-2xl text-white">Tùy Chọn Thông Báo</CardTitle>
+                  <CardTitle className="text-2xl text-white">
+                    Tùy Chọn Thông Báo
+                  </CardTitle>
                   <CardDescription className="text-base text-blue-200">
                     Chọn cách bạn muốn nhận thông báo về hoạt động tài khoản
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6 pt-6">
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-white">Thông Báo Email</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      Thông Báo Email
+                    </h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Cập Nhật Danh Mục Đầu Tư</span>
-                          <p className="text-sm text-blue-300">Tóm tắt hàng ngày về hiệu suất danh mục của bạn</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Cập Nhật Danh Mục Đầu Tư
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Tóm tắt hàng ngày về hiệu suất danh mục của bạn
+                          </p>
                         </div>
                         <Switch defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Cảnh Báo Giao Dịch</span>
-                          <p className="text-sm text-blue-300">Thông báo cho các giao dịch gửi và nhận</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Cảnh Báo Giao Dịch
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Thông báo cho các giao dịch gửi và nhận
+                          </p>
                         </div>
                         <Switch defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Cảnh Báo Bảo Mật</span>
-                          <p className="text-sm text-blue-300">Thông báo bảo mật quan trọng và cảnh báo đăng nhập</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Cảnh Báo Bảo Mật
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Thông báo bảo mật quan trọng và cảnh báo đăng nhập
+                          </p>
                         </div>
                         <Switch defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Cập Nhật Marketing</span>
-                          <p className="text-sm text-blue-300">Cập nhật sản phẩm và nội dung khuyến mại</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Cập Nhật Marketing
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Cập nhật sản phẩm và nội dung khuyến mại
+                          </p>
                         </div>
                         <Switch />
                       </div>
@@ -549,19 +704,29 @@ export default function AccountPage() {
                   <Separator className="bg-blue-600/30" />
 
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-white">Thông Báo Đẩy</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      Thông Báo Đẩy
+                    </h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Cảnh Báo Giá</span>
-                          <p className="text-sm text-blue-300">Thông báo khi tài sản của bạn đạt mức giá mục tiêu</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Cảnh Báo Giá
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Thông báo khi tài sản của bạn đạt mức giá mục tiêu
+                          </p>
                         </div>
                         <Switch defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Giao Dịch Lớn</span>
-                          <p className="text-sm text-blue-300">Cảnh báo cho giao dịch trên $1,000</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Giao Dịch Lớn
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Cảnh báo cho giao dịch trên $1,000
+                          </p>
                         </div>
                         <Switch />
                       </div>
@@ -574,7 +739,9 @@ export default function AccountPage() {
             <TabsContent value="wallets" className="space-y-6">
               <Card className="bg-blue-800/60 backdrop-blur-sm border-blue-600/40 shadow-xl">
                 <CardHeader className="border-b border-blue-600/30">
-                  <CardTitle className="text-2xl text-white">Ví Đã Kết Nối</CardTitle>
+                  <CardTitle className="text-2xl text-white">
+                    Ví Đã Kết Nối
+                  </CardTitle>
                   <CardDescription className="text-base text-blue-200">
                     Quản lý các ví tiền điện tử đã kết nối của bạn
                   </CardDescription>
@@ -588,12 +755,19 @@ export default function AccountPage() {
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-blue-100">Ví MetaMask</span>
-                            <Badge variant="secondary" className="bg-purple-600/20 text-blue-300 border-blue-400">
+                            <span className="font-medium text-blue-100">
+                              Ví MetaMask
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className="bg-purple-600/20 text-blue-300 border-blue-400"
+                            >
                               Chính
                             </Badge>
                           </div>
-                          <p className="text-sm text-blue-300">0x742d...4c2f • Kết nối 3 tháng trước</p>
+                          <p className="text-sm text-blue-300">
+                            0x742d...4c2f • Kết nối 3 tháng trước
+                          </p>
                         </div>
                       </div>
                       <Button
@@ -611,8 +785,12 @@ export default function AccountPage() {
                           <Wallet className="h-5 w-5 text-white" />
                         </div>
                         <div className="space-y-1">
-                          <span className="font-medium text-blue-100">Ví Coinbase</span>
-                          <p className="text-sm text-blue-300">0x8a3b...7e9d • Kết nối 1 tháng trước</p>
+                          <span className="font-medium text-blue-100">
+                            Ví Coinbase
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            0x8a3b...7e9d • Kết nối 1 tháng trước
+                          </p>
                         </div>
                       </div>
                       <Button
@@ -636,19 +814,29 @@ export default function AccountPage() {
                   <Separator className="bg-blue-600/30" />
 
                   <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-white">Tùy Chọn Ví</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      Tùy Chọn Ví
+                    </h4>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Tự Động Đồng Bộ Số Dư</span>
-                          <p className="text-sm text-blue-300">Tự động cập nhật số dư ví mỗi 5 phút</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Tự Động Đồng Bộ Số Dư
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Tự động cập nhật số dư ví mỗi 5 phút
+                          </p>
                         </div>
                         <Switch defaultChecked />
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="space-y-1">
-                          <span className="text-sm font-medium text-blue-100">Ẩn Số Dư Nhỏ</span>
-                          <p className="text-sm text-blue-300">Ẩn tài sản có giá trị dưới $1</p>
+                          <span className="text-sm font-medium text-blue-100">
+                            Ẩn Số Dư Nhỏ
+                          </span>
+                          <p className="text-sm text-blue-300">
+                            Ẩn tài sản có giá trị dưới $1
+                          </p>
                         </div>
                         <Switch />
                       </div>
@@ -661,5 +849,5 @@ export default function AccountPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

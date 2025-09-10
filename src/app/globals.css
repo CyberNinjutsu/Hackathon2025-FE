@@ -195,7 +195,8 @@
       oklch(var(--card) / 0.95),
       oklch(var(--card) / 0.8)
     );
-    box-shadow: 20px 20px 60px oklch(var(--muted) / 0.1),
+    box-shadow:
+      20px 20px 60px oklch(var(--muted) / 0.1),
       -20px -20px 60px oklch(var(--background) / 0.8),
       inset 5px 5px 10px oklch(var(--background) / 0.3),
       inset -5px -5px 10px oklch(var(--muted) / 0.1);
@@ -209,13 +210,15 @@
       oklch(var(--primary) / 0.9),
       oklch(var(--primary) / 0.7)
     );
-    box-shadow: 8px 8px 16px oklch(var(--muted) / 0.2),
+    box-shadow:
+      8px 8px 16px oklch(var(--muted) / 0.2),
       -8px -8px 16px oklch(var(--background) / 0.5);
     transition: all 0.3s ease;
   }
 
   .clay-button:hover {
-    box-shadow: 4px 4px 8px oklch(var(--muted) / 0.3),
+    box-shadow:
+      4px 4px 8px oklch(var(--muted) / 0.3),
       -4px -4px 8px oklch(var(--background) / 0.7),
       inset 2px 2px 4px oklch(var(--muted) / 0.1);
   }
@@ -226,7 +229,8 @@
       oklch(var(--input) / 0.8),
       oklch(var(--input) / 0.95)
     );
-    box-shadow: inset 8px 8px 16px oklch(var(--muted) / 0.1),
+    box-shadow:
+      inset 8px 8px 16px oklch(var(--muted) / 0.1),
       inset -8px -8px 16px oklch(var(--background) / 0.8);
     border: 1px solid oklch(var(--border) / 0.5);
   }

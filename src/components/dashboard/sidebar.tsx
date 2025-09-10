@@ -1,44 +1,44 @@
-"use client"
-import { BarChart3, History, Settings, Wallet } from "lucide-react"
-import Link from "next/link"
-import { useParams, usePathname } from "next/navigation"
+"use client";
+import { BarChart3, History, Settings, Wallet } from "lucide-react";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
 
 export default function Sidebar() {
-  const params = useParams()
-  const pathname = usePathname()
+  const params = useParams();
+  const pathname = usePathname();
 
   const sidebarItems = [
     {
       name: "Tổng quan tài sản",
       icon: BarChart3,
-      route: ``
+      route: ``,
     },
     {
       name: "Danh mục tài sản",
       icon: Wallet,
-      route: `portfolio`
+      route: `portfolio`,
     },
     {
       name: "Quản lý giao dịch",
       icon: History,
-      route: `transactions`
+      route: `transactions`,
     },
     {
       name: "Hành động quản lý",
       icon: Settings,
-      route: `actions`
-    }
-  ]
+      route: `actions`,
+    },
+  ];
 
   return (
-    <aside className='w-16 md:w-64 glass-card border-r border-white/10 max-h-screen transition-all duration-300 '>
-      <nav className='p-2 md:p-4 space-y-2'>
+    <aside className="w-16 md:w-64 glass-card border-r border-white/10 max-h-screen transition-all duration-300 ">
+      <nav className="p-2 md:p-4 space-y-2">
         {sidebarItems.map((item) => {
-          const IconComponent = item.icon
+          const IconComponent = item.icon;
           const link = `/dashboard/${params.id}${
             item.route ? `/${item.route}` : ""
-          }`
-          const isActive = pathname === link
+          }`;
+          const isActive = pathname === link;
 
           return (
             <Link key={item.name} href={link} title={item.name}>
@@ -49,15 +49,15 @@ export default function Sidebar() {
                     : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
-                <IconComponent className='w-5 h-5' />
-                <span className='hidden md:inline text-sm font-medium'>
+                <IconComponent className="w-5 h-5" />
+                <span className="hidden md:inline text-sm font-medium">
                   {item.name}
                 </span>
               </button>
             </Link>
-          )
+          );
         })}
       </nav>
     </aside>
-  )
+  );
 }
