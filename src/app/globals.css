@@ -269,6 +269,32 @@
   .floating {
     animation: float 6s ease-in-out infinite;
   }
+
+  .prose-glass {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .prose-glass h2 {
+    @apply text-lg sm:text-xl font-semibold text-white mt-8 mb-4 border-b border-white/20 pb-2;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .prose-glass h3 {
+    @apply text-base sm:text-lg font-semibold text-white mt-6 mb-3;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+
+  .prose-glass p {
+    @apply leading-relaxed mb-4;
+  }
+
+  .prose-glass ul {
+    @apply list-disc list-inside space-y-2 mb-4 pl-4;
+  }
+
+  .prose-glass a {
+    @apply text-yellow-400 hover:text-yellow-300 underline underline-offset-4;
+  }
 }
 
 /* globals.css */
