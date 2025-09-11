@@ -46,7 +46,7 @@ export default function TermsPage() {
 
       <h2>4. Giới hạn Trách nhiệm</h2>
       <p>
-        Dịch vụ được cung cấp &quot;&quot;nguyên trạng&quot; và &quot;sẵn có&quot;. MysticalGold không
+        Dịch vụ được cung cấp &quot;nguyên trạng&quot; và &quot;sẵn có&quot;. MysticalGold không
         chịu trách nhiệm cho bất kỳ tổn thất nào phát sinh từ việc sử dụng dịch
         vụ, bao gồm nhưng không giới hạn ở việc mất mát tài sản do lỗi bảo mật,
         lỗi phần mềm, hoặc biến động thị trường.
