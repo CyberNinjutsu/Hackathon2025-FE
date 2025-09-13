@@ -49,7 +49,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-background with-image flex items-center justify-center p-4">
+    <div className="auth-background with-image flex items-center justify-center p-4 sm:p-6 md:p-8">
       <Image
         src={goldbarBg}
         alt="Blockchain background"
@@ -57,9 +57,9 @@ export default function RegisterPage() {
         priority
         quality={85}
         placeholder="blur"
-        // blurDataURL={goldBarBlurUrl}
+        className="object-cover object-center"
       />
-      <div className="w-full max-w-md space-y-8 relative z-10">
+      <div className="w-full max-w-md space-y-6 sm:space-y-8 relative z-10">
         {/* Logo và thương hiệu */}
         <div className="text-center space-y-4 floating">
           <div className="flex justify-center">
@@ -68,7 +68,8 @@ export default function RegisterPage() {
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-balance glass-text-warning">
+            {/* SỬA ĐỔI: Thêm cỡ chữ responsive */}
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-balance glass-text-warning">
               MysticalGold
             </h1>
             <p className="glass-text-secondary text-pretty">
@@ -80,7 +81,8 @@ export default function RegisterPage() {
         {/* Form Đăng ký */}
         <Card className="glass-card border-0">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-semibold glass-text-primary">
+            {/* SỬA ĐỔI: Thêm cỡ chữ responsive */}
+            <CardTitle className="text-xl sm:text-2xl font-semibold glass-text-primary">
               Tạo tài khoản
             </CardTitle>
             <CardDescription className="glass-text-secondary">
@@ -91,7 +93,8 @@ export default function RegisterPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Họ và tên */}
-              <div className="space-y-4">
+              {/* SỬA ĐỔI: Đồng bộ space-y-2 cho nhất quán */}
+              <div className="space-y-2">
                 <Label htmlFor="fullName" className="glass-text-primary">
                   Họ và tên
                 </Label>
@@ -105,7 +108,6 @@ export default function RegisterPage() {
                     onChange={(e) => setFullName(e.target.value)}
                     className="glass-input pl-10 border-0"
                     required
-                    // aria-describedby="fullName-description"
                     autoComplete="name"
                   />
                 </div>
@@ -126,7 +128,6 @@ export default function RegisterPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 glass-input border-0"
                     required
-                    // aria-describedby="email-description"
                     autoComplete="email"
                   />
                 </div>
@@ -147,7 +148,6 @@ export default function RegisterPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10 glass-input"
                     required
-                    // aria-describedby="password-description"
                     autoComplete="new-password"
                   />
                   <Button
@@ -182,7 +182,6 @@ export default function RegisterPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10 pr-10 glass-input border-0"
                     required
-                    // aria-describedby="confirmPassword-description"
                     autoComplete="new-password"
                     aria-invalid={
                       !!(confirmPassword && confirmPassword !== password)
@@ -223,6 +222,7 @@ export default function RegisterPage() {
                 )}
               </div>
 
+              {/* Đồng ý điều khoản */}
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
@@ -254,6 +254,7 @@ export default function RegisterPage() {
                   </label>
                 </div>
               </div>
+
               {/* Nút đăng ký */}
               <Button
                 type="submit"
@@ -263,7 +264,7 @@ export default function RegisterPage() {
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
                     Đang tạo tài khoản...
                   </>
                 ) : (

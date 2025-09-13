@@ -1,6 +1,5 @@
 "use client";
 import type React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,7 +60,7 @@ export default function PolicyPageLayout({
           <CardFooter className="flex justify-center mt-6 ">
             <Button
               className="glass-button border-0 text-white"
-              onClick={() => router.back()} 
+              onClick={() => router.back()}
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               Quay lại trang trước

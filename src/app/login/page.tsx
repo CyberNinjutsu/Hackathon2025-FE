@@ -18,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-import bg from "@/assets/gold-gemstone.png"
+import bg from "@/assets/gold-gemstone.png";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -39,17 +39,19 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="auth-background flex items-center justify-center p-4">
+    <div className="auth-background flex items-center justify-center p-4 sm:p-6 md:p-8">
       <Image
         src={bg}
         alt="Blockchain background"
         fill
-        className="opacity-70"
+        // SỬA ĐỔI: Thêm object-cover và object-center để ảnh luôn căn giữa
+        className="object-cover object-center opacity-70"
         priority
         quality={85}
         placeholder="blur"
       />
-      <div className="w-full max-w-md space-y-8 relative z-10">
+      {/* SỬA ĐỔI: Giảm space-y trên màn hình nhỏ */}
+      <div className="w-full max-w-md space-y-6 sm:space-y-8 relative z-10">
         {/* Logo và thương hiệu */}
         <div className="text-center space-y-4 floating">
           <div className="flex justify-center">
@@ -58,7 +60,8 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tight text-balance glass-text-warning">
+            {/* SỬA ĐỔI: Thêm cỡ chữ responsive */}
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-balance glass-text-warning">
               MysticalGold
             </h1>
             <p className="glass-text-secondary text-pretty">
@@ -70,7 +73,8 @@ export default function LoginPage() {
         {/* Form đăng nhập */}
         <Card className="glass-card border-0">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-semibold glass-text-primary">
+            {/* SỬA ĐỔI: Thêm cỡ chữ responsive */}
+            <CardTitle className="text-xl sm:text-2xl font-semibold glass-text-primary">
               Chào mừng trở lại
             </CardTitle>
             <CardDescription className="glass-text-secondary">
@@ -139,7 +143,7 @@ export default function LoginPage() {
               </div>
 
               {/* Ghi nhớ & Quên mật khẩu */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-y-2">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     className="border-white/30 data-[state=checked]:bg-white/20"
@@ -173,13 +177,14 @@ export default function LoginPage() {
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
                     Đang đăng nhập...
                   </>
                 ) : (
                   "Đăng nhập"
                 )}
               </Button>
+              {<p className="text-sm text-red-300 mt-2" role="alert"></p>}
             </form>
 
             {/* Thông báo bảo mật */}
