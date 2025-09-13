@@ -54,11 +54,11 @@ export default function AccountPage() {
     bio: "Người đam mê blockchain và đầu tư tiền điện tử với hơn 5 năm kinh nghiệm trong quản lý tài sản số.",
     country: "Việt Nam",
     timezone: "UTC+7 (ICT)",
+    avatarUrl: "",
   });
   const router = useRouter();
   const handleSaveProfile = () => {
     setIsEditing(false);
-    // Xử lý logic lưu tại đây
   };
   const colors = [
     "bg-red-500",
@@ -111,7 +111,7 @@ export default function AccountPage() {
         <Button
           variant="outline"
           className="glass-button text-white"
-          onClick={() => router.back()}
+          onClick={() => router.push('/')}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Quay lại
@@ -233,10 +233,12 @@ export default function AccountPage() {
               <CardContent className="space-y-6 pt-6">
                 <div className="flex items-center space-x-4">
                   <Avatar className="h-20 w-20 ring-4 ring-purple-500/30">
-                    <AvatarImage
-                      src=""
-                      alt={profileData.firstName + " " + profileData.lastName}
-                    />
+                    {profileData.avatarUrl ? (
+                      <AvatarImage
+                        src={profileData.avatarUrl}
+                        alt={`${profileData.firstName} ${profileData.lastName}`}
+                      />
+                    ) : null}
                     <AvatarFallback
                       className={`text-lg text-white ${getColorFromName(
                         profileData.firstName + " " + profileData.lastName
