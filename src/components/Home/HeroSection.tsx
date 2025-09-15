@@ -1,138 +1,84 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select"
-import { ArrowUpDown, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { Star } from "lucide-react";
+import Image from "next/image";
+import dashboard from "@/assets/dashboard.png";
+import WordAnimate from "../WordAnimate";
+
+const StarIcon = ({ filled = true }: { filled?: boolean }) => (
+  <Star
+    className={`h-4 w-4 text-foreground ${
+      filled ? "fill-current" : "fill-current/30"
+    }`}
+  />
+);
 
 export default function HeroSection() {
-  const [fromAmount, setFromAmount] = useState("")
-  const [fromToken, setFromToken] = useState("GOLD")
-  const toToken = "TOKENIZED_ASSET"
-  // Derived numeric state
-  const cleanedAmount = fromAmount.replace(/,/g, "")
-  const parsedAmount = Number.parseFloat(cleanedAmount)
-  const isPositiveAmount = Number.isFinite(parsedAmount) && parsedAmount > 0
-  const estimatedTokens = isPositiveAmount ? parsedAmount : 0
-
   return (
-    <section className='container mx-auto px-4 py-16 text-center relative z-10'>
-      <div className='max-w-4xl mx-auto'>
-        <h2 className='text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent leading-tight text-balance'>
-          Tokenize Real Assets
-          <br />
-          <span className='text-4xl md:text-6xl'>Gold & Real Estate</span>
-        </h2>
-        <p className='text-xl text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed text-pretty'>
-          Transform physical assets into digital tokens. Invest in gold, real
-          estate, and premium assets through blockchain technology with
-          fractional ownership and instant liquidity.
-        </p>
+    <section className="relative px-6 pt-32 pb-20 overflow-hidden md:pt-40 md:pb-24">
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute w-[600px] h-[600px] bg-[#00ffb2]/10 blur-3xl rounded-full -top-[300px] -left-[300px]" />
+        <div className="absolute w-[600px] h-[600px] bg-[#00ffb2]/10 blur-3xl rounded-full -top-[300px] -right-[300px]" />
+        <div className="absolute w-[300px] h-[300px] bg-[#00ffb2]/20 blur-3xl rounded-full -top-[100px] -left-[100px]" />
+        <div className="absolute w-[300px] h-[300px] bg-([#00ffb2])/20 blur-3xl rounded-full -top-[100px] -right-[100px]" />
+      </div>
 
-        {/* Exchange Widget */}
-        <Card className='glass-card max-w-md mx-auto mb-16 p-6'>
-          <CardHeader className='text-center pb-4'>
-            <CardTitle className='text-2xl font-bold text-purple-300'>
-              Asset Tokenization Hub
-            </CardTitle>
-            <CardDescription className='text-white/60'>
-              Submit your assets for digital tokenization
-            </CardDescription>
-          </CardHeader>
-          <CardContent className='space-y-6'>
-            <div className='space-y-4'>
-              <div className='space-y-2'>
-                <label
-                  htmlFor='asset-type'
-                  className='text-sm font-medium text-white/70'
-                >
-                  Asset Type
-                </label>
-                <Select value={fromToken} onValueChange={setFromToken}>
-                  <SelectTrigger
-                    id='asset-type'
-                    className='glass-input w-full text-white'
-                  >
-                    <SelectValue placeholder='Select asset type' />
-                  </SelectTrigger>
-                  <SelectContent className='backdrop-blur-xl bg-slate-900/90 border border-white/20 shadow-2xl'>
-                    <SelectItem value='GOLD'>Physical Gold</SelectItem>
-                    <SelectItem value='SILVER'>Silver Bullion</SelectItem>
-                    <SelectItem value='REAL_ESTATE'>
-                      Real Estate Property
-                    </SelectItem>
-                    <SelectItem value='PRECIOUS_METALS'>
-                      Precious Metals
-                    </SelectItem>
-                    <SelectItem value='COMMODITIES'>Commodities</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      <div className="max-w-7xl mx-auto text-center">
+        <div className="max-w-3xl mx-auto mb-10">
+          <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6 text-foreground">
+            <WordAnimate>Take Control of Your Digital Assets</WordAnimate>
+          </h1>
+          <p className="text-lg md:text-xl leading-relaxed text-muted-foreground">
+            <WordAnimate>
+              Cryptix offers a seamless, secure experience for managing your
+              digital assets. Instant transactions, optimized fees, and premium
+              design.
+            </WordAnimate>
+          </p>
+        </div>
 
-              <div className='space-y-2'>
-                <label
-                  htmlFor='asset-value'
-                  className='text-sm font-medium text-white/70'
-                >
-                  Asset Value (USD)
-                </label>
-                <Input
-                  id='asset-value'
-                  type='number'
-                  min={0}
-                  step='0.01'
-                  placeholder='Enter asset value'
-                  value={fromAmount}
-                  onChange={(e) => setFromAmount(e.target.value)}
-                  className='glass-input text-white placeholder:text-white/50'
-                />
-              </div>
+        <div className="mb-10">
+          <Button
+            size="lg"
+            className="h-14 text-lg bg-[#00ffb2]
+             text-black shadow-[0_0_34px_rgba(0,255,178,0.3)] 
+             transition-transform hover:scale-105 hover:bg-[#00ffb2]/90 rounded-full"
+            asChild
+          >
+            <a
+              href="https://framer.link/BrDre42"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Get started now
+            </a>
+          </Button>
+        </div>
 
-              <div className='flex justify-center'>
-                <div className='glass-card p-2'>
-                  <ArrowUpDown className='w-4 h-4 text-purple-300' />
-                </div>
-              </div>
-
-              <div className='space-y-2'>
-                <label className='text-sm font-medium text-white/70'>
-                  Estimated Tokens
-                </label>
-                <div
-                  className='glass-input p-3 text-white/70'
-                  aria-live='polite'
-                >
-                  {estimatedTokens.toLocaleString()} {toToken} tokens
-                </div>
-              </div>
+        <div className="flex flex-col items-center gap-2 mb-16">
+          <p className="text-sm text-muted-foreground">They trust us</p>
+          <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              <StarIcon />
+              <StarIcon />
+              <StarIcon />
+              <StarIcon />
+              <StarIcon filled={false} />
             </div>
+            <span className="font-medium text-foreground">4,9</span>
+          </div>
+        </div>
 
-            <Button className='glass-button w-full py-6 text-lg font-semibold text-white hover:text-white'>
-              Start Tokenization Process
-              <ChevronRight className='w-5 h-5 ml-2' />
-            </Button>
-
-            <div className='text-center text-sm text-white/60'>
-              Verification Required • Processing: 3-7 business days • Custody
-              Fee: 0.25%
-            </div>
-          </CardContent>
-        </Card>
+        <div className="relative max-w-5xl mx-auto">
+          <Image
+            src={dashboard}
+            alt="Cryptix Dashboard Preview"
+            priority
+            className="w-full"
+          />
+        </div>
       </div>
     </section>
-  )
+  );
 }
