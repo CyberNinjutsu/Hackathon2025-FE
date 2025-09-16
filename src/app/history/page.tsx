@@ -1,7 +1,7 @@
 // app/history/page.tsx
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -29,62 +29,11 @@ import {
   Repeat,
   Search,
 } from "lucide-react";
-
+import { AccountInfo, Connection, ParsedAccountData, ParsedInstruction, PublicKey } from "@solana/web3.js";
+import { TOKEN_2022_PROGRAM_ADDRESS } from "@solana-program/token-2022";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
-
-// TODO: Thay thế bằng dữ liệu thật sau này
-const staticTransactions = [
-  {
-    id: "2024-05-20T10:30:00Z|Send|0x1A...fE2D",
-    type: "Send",
-    assetSymbol: "BTC",
-    amount: 0.5,
-    value: 34000.25,
-    status: "Completed",
-    date: "2024-05-20T10:30:00Z",
-    address: "0x1A...fE2D",
-  },
-  {
-    id: "2024-05-19T15:00:00Z|Receive|0xB3...aC78",
-    type: "Receive",
-    assetSymbol: "ETH",
-    amount: 10,
-    value: 35007.5,
-    status: "Completed",
-    date: "2024-05-19T15:00:00Z",
-    address: "0xB3...aC78",
-  },
-  {
-     id: "2024-05-18T12:00:00Z|Swap",
-    type: "Swap",
-    assetSymbol: "SOL to USDC",
-    amount: 100,
-    value: 15020.0,
-    status: "Pending",
-    date: "2024-05-18T12:00:00Z",
-  },
-  {
-    id: "2024-05-17T09:00:00Z|Send|0x9D...8bFG",
-    type: "Send",
-    assetSymbol: "ADA",
-    amount: 5000,
-    value: 2250.0,
-    status: "Failed",
-    date: "2024-05-17T09:00:00Z",
-    address: "0x9D...8bFG",
-  },
-  {
-    id: "2024-05-16T18:45:00Z|Receive|0x5C...hJkL",
-    type: "Receive",
-    assetSymbol: "DOGE",
-    amount: 100000,
-    value: 15000.0,
-    status: "Completed",
-    date: "2024-05-16T18:45:00Z",
-    address: "0x5C...hJkL",
-  },
-];
+import Link from "next/link";
 
 const transactionIcons = {
   Send: <ArrowUpRight className="h-4 w-4 text-red-400" />,
@@ -92,8 +41,150 @@ const transactionIcons = {
   Swap: <Repeat className="h-4 w-4 text-blue-400" />,
 };
 
+/**
+ * Number.prototype.format(n, x, s, c)
+ * 
+ * @param integer n: length of decimal
+ * @param integer x: length of whole part
+ * @param mixed   s: sections delimiter
+ * @param mixed   c: decimal delimiter
+ */
+export function formatNumber(number: number, n: number, x: number, s: string, c: string = "") {
+  var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+    num = number.toFixed(Math.max(0, ~~n));
+
+  return (c ? num.replace('.', c) : num).replace(new RegExp(re, 'g'), '$&' + (s || ','));
+};
+
 export default function HistoryPage() {
   const router = useRouter();
+
+  interface Transaction {
+    id: string;
+    type: 'Send' | 'Receive' | 'Mint' | 'Other';
+    assetSymbol: string;
+    amount: number;
+    value: number;
+    status: 'Completed' | 'Pending' | 'Failed';
+    date: string;
+    address?: string;
+  }
+
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const mintsInfo = new Map<string, AccountInfo<Buffer | ParsedAccountData> | null>;
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+        const walletPubKey = new PublicKey('Gy2LZ5EEvuZFGDHbak6kmS7EgUhtAtKCDLA4siZDEcwE');//8eqFjpT5Z9Pgr7jNWBYSfk3Goe5DXfmRvCgL9qX3WdAR
+        const walletInfo = await connection.getParsedTokenAccountsByOwner(walletPubKey, { programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS.toString()) });
+        const signatures = await connection.getSignaturesForAddress(walletPubKey, { limit: 20 });
+        const myTokenAddresses = new Map<string, null>;
+        walletInfo.value.map(acc => myTokenAddresses.set(acc.pubkey.toString(), null));
+        console.log('WalletInfo:', walletInfo.value, myTokenAddresses);
+
+        const txList: Transaction[] = [];
+        for (const sigInfo of signatures) {
+          const tx = await connection.getParsedTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0 });
+          // console.log('Fetched transaction:', tx);
+          if (!tx || !tx.blockTime) continue;
+
+          let type: Transaction['type'] = 'Other';
+          let amount = 0;
+          let address = '';
+          let assetSymbol = 'N/A';
+
+          if (tx.meta?.err) {
+            txList.push({
+              id: sigInfo.signature,
+              type: 'Other',
+              assetSymbol,
+              amount: 0,
+              value: 0,
+              status: 'Failed',
+              date: new Date((sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000).toISOString(),
+            });
+            continue;
+          }
+
+          // Parse instructions cho token transfers/mint
+          const instructions = tx.transaction.message.instructions.concat(
+            ((tx.meta ? tx.meta.innerInstructions : []) || []).flatMap(inner => inner.instructions)
+          );
+          tx.transaction.message.instructions[0]
+          for (const instruction of instructions) {
+            let _instruction = instruction as ParsedInstruction;
+            let parsedInstruction = _instruction.parsed;
+            if (!parsedInstruction) continue;
+            if (parsedInstruction.type == "transferChecked") {
+              // console.log('Instruction:', instruction);
+              amount = Number(parsedInstruction.info.tokenAmount.amount) / 1e9; // Decimals=9, điều chỉnh nếu khác
+              address = parsedInstruction.info.destination || parsedInstruction.info.source;
+              if (parsedInstruction.info.destination && myTokenAddresses.size > 0) {
+                type = myTokenAddresses.has(parsedInstruction.info.destination) ? 'Receive' : 'Send';
+              }
+
+              // assetSymbol = ix.parsed?.info.mint;
+              if (!mintsInfo.has(parsedInstruction.info.mint)) {
+                const mintAccount = await connection.getParsedAccountInfo(new PublicKey(parsedInstruction.info.mint));
+                mintsInfo.set(parsedInstruction.info.mint, mintAccount.value);
+                // console.log('Fetched mint account:', mintAccount);
+              }
+
+              if (mintsInfo.get(parsedInstruction.info.mint)?.data) {
+                const mintData = mintsInfo.get(parsedInstruction.info.mint)?.data as ParsedAccountData;
+                if (mintData.parsed?.info?.extensions)
+                  for (const ext of mintData.parsed?.info?.extensions) {
+                    if (ext.extension == 'tokenMetadata') {
+                      assetSymbol = ext.state.symbol || "N/A";
+                      break;
+                    }
+                  }
+              }
+
+              break;
+            }
+            // else if (ix.parsed?.type == 'mintTo') {
+            //   amount = Number(ix.parsed.info.tokenAmount.amount) / 1e9;
+            //   type = 'Mint';
+            //   address = ix.parsed.info.account;
+            // }
+            // Filter chỉ DAMS
+            // if (ix.parsed?.info.mint !== mintPubkey.toString()) {
+            //   amount = 0; // Bỏ nếu không phải DAMS
+            // }
+          }
+
+          if (amount > 0) {
+            txList.push({
+              id: sigInfo.signature,
+              type,
+              assetSymbol,
+              amount,
+              value: 0, // Không có giá, đặt 0
+              status: sigInfo.confirmationStatus === 'confirmed' || sigInfo.confirmationStatus === 'finalized' ? 'Completed' : 'Pending',
+              date: new Date((sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000).toISOString(),
+              address,
+            });
+          }
+        }
+
+        setTransactions(txList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+      } catch (error) {
+        console.error('Error fetching transactions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center text-white">Đang tải lịch sử...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-foreground relative overflow-hidden">
@@ -141,10 +232,10 @@ export default function HistoryPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-              aria-label="Tìm kiếm theo địa chỉ hoặc TxID"
-              placeholder="Tìm kiếm theo địa chỉ, TxID..."
-              className="glass-input pl-10 border-0 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-400"
-            />
+                aria-label="Tìm kiếm theo địa chỉ hoặc TxID"
+                placeholder="Tìm kiếm theo địa chỉ, TxID..."
+                className="glass-input pl-10 border-0 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-400"
+              />
             </div>
             <div>
               <Select>
@@ -192,7 +283,7 @@ export default function HistoryPage() {
               <TableRow className="border-gray-700">
                 <TableHead className="text-white font-semibold">Loại</TableHead>
                 <TableHead className="hidden lg:table-cell text-white font-semibold">
-                  Địa chỉ
+                  Chữ ký
                 </TableHead>
                 <TableHead className="hidden md:table-cell text-white font-semibold">
                   Số lượng
@@ -209,7 +300,7 @@ export default function HistoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {staticTransactions.map((tx) => (
+              {transactions.map((tx) => (
                 <TableRow
                   key={tx.id}
                   className="border-gray-700 hover:bg-white/5 transition-colors duration-200"
@@ -218,17 +309,17 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-3">
                       {
                         transactionIcons[
-                          tx.type as keyof typeof transactionIcons
+                        tx.type as keyof typeof transactionIcons
                         ]
                       }
                       <span className="font-semibold">{tx.type}</span>
                     </div>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 font-mono text-sm">
-                    {tx.address}
+                    <Link href={`https://solscan.io/tx/${tx.id}?cluster=devnet`} target="_blank">{tx.id}</Link>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-white font-semibold">
-                    {tx.amount} {tx.assetSymbol}
+                    {formatNumber(tx.amount, 0, 3, '.')} {tx.assetSymbol}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-green-400 font-bold">
                     ${tx.value.toLocaleString("en-US")}
@@ -240,15 +331,15 @@ export default function HistoryPage() {
                         tx.status === "Completed"
                           ? "text-green-400 border-green-400 bg-green-400/10"
                           : tx.status === "Pending"
-                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                          : "text-red-400 border-red-400 bg-red-400/10"
+                            ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                            : "text-red-400 border-red-400 bg-red-400/10"
                       }
                     >
                       {tx.status === "Completed"
                         ? "Hoàn thành"
                         : tx.status === "Pending"
-                        ? "Chờ xử lý"
-                        : "Thất bại"}
+                          ? "Chờ xử lý"
+                          : "Thất bại"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs text-gray-400">
@@ -261,7 +352,7 @@ export default function HistoryPage() {
 
           {/* Card cho mobile */}
           <div className="sm:hidden space-y-4 p-4">
-            {staticTransactions.map((tx, index) => (
+            {transactions.map((tx, index) => (
               <div
                 key={index}
                 className="glass-card p-4 hover:scale-[1.02] transition-all duration-300"
@@ -277,11 +368,11 @@ export default function HistoryPage() {
                 </div>
                 <div className="mb-3">
                   <div className="text-white font-semibold mb-1">
-                    {tx.amount} {tx.assetSymbol}
+                    {formatNumber(tx.amount, 0, 3, ".")} {tx.assetSymbol}
                   </div>
-                  {tx.address && (
+                  {tx.id && (
                     <div className="text-xs text-gray-400 truncate font-mono">
-                      {tx.address}
+                      {tx.id}
                     </div>
                   )}
                 </div>
@@ -295,15 +386,15 @@ export default function HistoryPage() {
                       tx.status === "Completed"
                         ? "text-green-400 border-green-400 bg-green-400/10"
                         : tx.status === "Pending"
-                        ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                        : "text-red-400 border-red-400 bg-red-400/10"
+                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                          : "text-red-400 border-red-400 bg-red-400/10"
                     }
                   >
                     {tx.status === "Completed"
                       ? "Hoàn thành"
                       : tx.status === "Pending"
-                      ? "Chờ xử lý"
-                      : "Thất bại"}
+                        ? "Chờ xử lý"
+                        : "Thất bại"}
                   </Badge>
                 </div>
               </div>
