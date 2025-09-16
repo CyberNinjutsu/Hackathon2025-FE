@@ -34,8 +34,9 @@ import {
   ParsedAccountData,
   ParsedInstruction,
   PublicKey,
+  clusterApiUrl,
 } from "@solana/web3.js";
-import { TOKEN_2022_PROGRAM_ADDRESS } from "@solana-program/token-2022";
+import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -109,24 +110,28 @@ export default function HistoryPage() {
       setIsLoading(true);
       setTransactions([]);
       try {
-        const connection = new Connection(
-          "https://api.devnet.solana.com",
-          "confirmed"
-        );
+        const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
         const walletPubKey = new PublicKey(userPublicKey); //8eqFjpT5Z9Pgr7jNWBYSfk3Goe5DXfmRvCgL9qX3WdAR
-        const walletInfo = await connection.getParsedTokenAccountsByOwner(
-          walletPubKey,
-          { programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS.toString()) }
-        );
+        const [token2022, tokenLegacy] = await Promise.all([
+          connection.getParsedTokenAccountsByOwner(walletPubKey, {
+            programId: TOKEN_2022_PROGRAM_ID,
+          }),
+          connection.getParsedTokenAccountsByOwner(walletPubKey, {
+            programId: TOKEN_PROGRAM_ID,
+          }),
+        ]);
         const signatures = await connection.getSignaturesForAddress(
           walletPubKey,
           { limit: 20 }
         );
-        const myTokenAddresses = new Map<string, null>();
-        walletInfo.value.map((acc) =>
-          myTokenAddresses.set(acc.pubkey.toString(), null)
+        const myTokenAddresses = new Set<string>();
+        token2022.value.forEach((acc) =>
+          myTokenAddresses.add(acc.pubkey.toString())
         );
-        console.log("WalletInfo:", walletInfo.value, myTokenAddresses);
+        tokenLegacy.value.forEach((acc) =>
+          myTokenAddresses.add(acc.pubkey.toString())
+        );
+        // console.log("WalletInfo:", walletInfo.value, myTokenAddresses);
 
         const txList: Transaction[] = [];
         for (const sigInfo of signatures) {
@@ -167,7 +172,10 @@ export default function HistoryPage() {
             const parsedInstruction = _instruction.parsed;
             if (!parsedInstruction) continue;
             if (parsedInstruction.type == "transferChecked") {
-              amount = Number(parsedInstruction.info.tokenAmount.amount) / 1e9;
+              const t = parsedInstruction.info.tokenAmount;
+              amount =
+                t.uiAmount ?? Number(t.amount) / Math.pow(10, t.decimals || 0);
+                
               address =
                 parsedInstruction.info.destination ||
                 parsedInstruction.info.source;

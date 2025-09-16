@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import images from "@/assets/iconheader.png";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 import {
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenu,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -108,7 +108,7 @@ export default function Header() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                <DropdownMenuItem onClick={() => publicKey && router.push(`/dashboard/${encodeURIComponent(publicKey)}`)} >
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/settings")}>
@@ -173,7 +173,7 @@ export default function Header() {
                       variant="secondary"
                       size="lg"
                       onClick={() => {
-                        router.push("/dashboard");
+                        if (publicKey) router.push(`/dashboard/${encodeURIComponent(publicKey)}`); 
                         setIsOpen(false);
                       }}
                     >
