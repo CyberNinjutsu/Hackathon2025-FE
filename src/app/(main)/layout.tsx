@@ -4,7 +4,7 @@ import Footer from "@/components/Home/Footer";
 import "../globals.css";
 import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/AuthContext";
-import { Toaster } from "@/components/ui/sonner";
+// import { Toaster } from "@/components/ui/sonner";
 import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "v0 App",

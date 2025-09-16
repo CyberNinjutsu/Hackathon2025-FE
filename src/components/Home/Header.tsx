@@ -4,10 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, LogOut, User, LayoutDashboard, Settings } from "lucide-react";
-import { Menu, X, LogOut, User, LayoutDashboard, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useRouter } from "next/navigation";
 import images from "@/assets/iconheader.png";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
@@ -21,17 +19,8 @@ import {
 import { useAuth } from "@/lib/AuthContext";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
-import {
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/lib/AuthContext";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 const navLinks = [
   { label: "Why Cryptix?", href: "#why" },
   { label: "Cryptos", href: "#allcryptos" },

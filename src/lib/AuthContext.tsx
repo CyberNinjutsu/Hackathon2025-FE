@@ -42,6 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       localStorage.setItem("userPublicKey", pubKey);
     } catch (e) {
       // ignore failure to write storage
+      console.error("Lỗi khi ghi vào localStorage:", e);
     }
   };
 
@@ -49,7 +50,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     setPublicKey(null);
     try {
       localStorage.removeItem("userPublicKey");
-    } catch (e) {}
+    } catch (e) {
+      console.error("Lỗi khi xóa khỏi localStorage:", e);
+    }
     // optional: redirect to login
     router.push("/");
   };

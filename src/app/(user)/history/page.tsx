@@ -48,7 +48,7 @@ const transactionIcons = {
   Swap: <Repeat className="h-4 w-4 text-blue-400" />,
 };
 
-export function formatNumber(
+function formatNumber(
   number: number,
   n: number,
   x: number,
