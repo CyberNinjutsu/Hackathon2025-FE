@@ -5,6 +5,8 @@ import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "./globals.css";
+import Header from "@/components/Home/Header";
+import Footer from "@/components/Home/Footer";
 
 export const metadata: Metadata = {
   title: "v0 App",
@@ -18,12 +20,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark antialiased">
+    <html lang="en" className="dark antialiased" suppressHydrationWarning>
       <body
-        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar`}
+        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container`}
       >
-        <Suspense fallback={null}>{children}</Suspense>
-        <Analytics />
+        <Header />
+        <main>
+          <Suspense fallback={null}>{children}</Suspense>
+          <Analytics />
+        </main>
+
+        <Footer />
       </body>
     </html>
   );
