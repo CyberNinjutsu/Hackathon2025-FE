@@ -28,10 +28,8 @@ export default function Header() {
 
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // 3. useEffect để xử lý sự kiện scroll
   useEffect(() => {
     const handleScroll = () => {
-      // Set isScrolled thành true nếu cuộn hơn 10px, ngược lại là false
       setIsScrolled(window.scrollY > 10);
     };
 
@@ -96,15 +94,13 @@ export default function Header() {
           </ul>
         </nav>
 
-        {/* --- DESKTOP ACTIONS (ĐÃ THAY ĐỔI) --- */}
         <div className="hidden md:flex items-center gap-4">
           <Button variant="ghost" className="rounded-full">Connect Wallet</Button>
           <Button asChild className="rounded-full">
-            <Link href="/signup">Sign Up</Link>
+            <Link href="/register">Sign Up</Link>
           </Button>
         </div>
 
-        {/* --- Mobile Menu Toggle --- */}
         <div className="md:hidden">
           <Button
             variant="ghost"
@@ -139,7 +135,7 @@ export default function Header() {
                   Connect Wallet
                 </Button>
                 <Button asChild className="rounded-full" size="lg">
-                  <Link href="/signup">Sign Up</Link>
+                  <Link href="/register">Sign Up</Link>
                 </Button>
               </div>
             </nav>

@@ -21,7 +21,6 @@ const MarqueeRow = ({
         reverse ? "animate-marquee-reverse" : "animate-marquee"
       )}
     >
-      {/* Thủ thuật nhân đôi mảng để animation mượt mà */}
       {[...items, ...items].map((crypto, index) => (
         <CryptoCard key={`${crypto.ticker}-${index}`} {...crypto} />
       ))}
