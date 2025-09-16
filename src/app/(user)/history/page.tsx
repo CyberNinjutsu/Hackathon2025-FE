@@ -33,6 +33,7 @@ import {
   Connection,
   ParsedAccountData,
   ParsedInstruction,
+  PartiallyDecodedInstruction,
   PublicKey,
   clusterApiUrl,
 } from "@solana/web3.js";
@@ -120,10 +121,10 @@ export default function HistoryPage() {
             programId: TOKEN_PROGRAM_ID,
           }),
         ]);
-        const signatures = await connection.getSignaturesForAddress(
-          walletPubKey,
-          { limit: 20 }
-        );
+        // const signatures = await connection.getSignaturesForAddress(
+        //   walletPubKey,
+        //   { limit: 20 }
+        // );
         const myTokenAddresses = new Set<string>();
         token2022.value.forEach((acc) =>
           myTokenAddresses.add(acc.pubkey.toString())
@@ -131,7 +132,24 @@ export default function HistoryPage() {
         tokenLegacy.value.forEach((acc) =>
           myTokenAddresses.add(acc.pubkey.toString())
         );
-        // console.log("WalletInfo:", walletInfo.value, myTokenAddresses);
+        const addrs: PublicKey[] = [
+          walletPubKey,
+          ...Array.from(myTokenAddresses).map((s) => new PublicKey(s)),
+        ];
+        const sigArrays = await Promise.all(
+          addrs.map((addr) =>
+            connection.getSignaturesForAddress(addr, { limit: 10 })
+          )
+        );
+        const signatureMap = new Map<
+          string,
+          (typeof sigArrays)[number][number]
+        >();
+        for (const arr of sigArrays)
+          for (const s of arr) signatureMap.set(s.signature, s);
+        const signatures = Array.from(signatureMap.values())
+          .sort((a, b) => (b.blockTime ?? 0) - (a.blockTime ?? 0))
+          .slice(0, 20);
 
         const txList: Transaction[] = [];
         for (const sigInfo of signatures) {
@@ -159,23 +177,28 @@ export default function HistoryPage() {
             });
             continue;
           }
-
+          const inner =
+            tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
+          const instructions = [
+            ...tx.transaction.message.instructions,
+            ...inner,
+          ];
           // Parse instructions cho token transfers/mint
-          const instructions = tx.transaction.message.instructions.concat(
-            ((tx.meta ? tx.meta.innerInstructions : []) || []).flatMap(
-              (inner) => inner.instructions
-            )
-          );
-          tx.transaction.message.instructions[0];
-          for (const instruction of instructions) {
-            const _instruction = instruction as ParsedInstruction;
-            const parsedInstruction = _instruction.parsed;
+          // const instructions = tx.transaction.message.instructions.concat(
+          //   ((tx.meta ? tx.meta.innerInstructions : []) || []).flatMap(
+          //     (inner) => inner.instructions
+          //   )
+          // );
+          // tx.transaction.message.instructions[0];
+          for (const instruction of instructions as (ParsedInstruction | PartiallyDecodedInstruction)[]) {
+            // const _instruction = instruction as ParsedInstruction;
+            const parsedInstruction =  "parsed" in (instruction as ParsedInstruction) ? (instruction as ParsedInstruction).parsed : undefined;
             if (!parsedInstruction) continue;
             if (parsedInstruction.type == "transferChecked") {
               const t = parsedInstruction.info.tokenAmount;
               amount =
                 t.uiAmount ?? Number(t.amount) / Math.pow(10, t.decimals || 0);
-                
+
               address =
                 parsedInstruction.info.destination ||
                 parsedInstruction.info.source;

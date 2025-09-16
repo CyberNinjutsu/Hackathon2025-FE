@@ -110,7 +110,7 @@ export default function LoginPage() {
       const resp = await window.solana.connect();
       const userPublicKey = resp.publicKey;
 
-      const nonce = `Đăng nhập vào MysticalGold lúc: ${new Date().toISOString()}`;
+      const nonce = `Đăng nhập vào DAMS lúc: ${new Date().toISOString()}`;
       const message = new TextEncoder().encode(nonce);
 
       const signedMessage = await window.solana.signMessage(message, "utf8");
