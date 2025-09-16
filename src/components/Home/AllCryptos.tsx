@@ -4,7 +4,7 @@ import { CryptoCard } from "@/components/ui/crypto-card";
 import { cryptos } from "@/lib/crypto-mock-data";
 import { cn } from "@/lib/utils";
 import { MoveRight } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import WordAnimate from "../WordAnimate";
 
 const MarqueeRow = ({
@@ -29,10 +29,23 @@ const MarqueeRow = ({
 );
 
 export default function AllCryptos() {
-  const row1 = [...cryptos].sort(() => 0.5 - Math.random());
-  const row2 = [...cryptos].sort(() => 0.5 - Math.random());
-  const row3 = [...cryptos].sort(() => 0.5 - Math.random());
-  const row4 = [...cryptos].sort(() => 0.5 - Math.random());
+  const [shuffledRows, setShuffledRows] = useState({
+    row1: cryptos,
+    row2: cryptos,
+    row3: cryptos,
+    row4: cryptos,
+  });
+
+  // 2. Use useEffect to run code only on the client, after the component has mounted.
+  useEffect(() => {
+    // This code will not run during server-side rendering.
+    setShuffledRows({
+      row1: [...cryptos].sort(() => 0.5 - Math.random()),
+      row2: [...cryptos].sort(() => 0.5 - Math.random()),
+      row3: [...cryptos].sort(() => 0.5 - Math.random()),
+      row4: [...cryptos].sort(() => 0.5 - Math.random()),
+    });
+  }, []);
   return (
     <section
       id="allcryptos"
@@ -61,10 +74,11 @@ export default function AllCryptos() {
 
         {/* === Cột phải: Marquee Cards === */}
         <div className="relative flex h-full max-w-full flex-col justify-center gap-4">
-          <MarqueeRow items={row1} />
-          <MarqueeRow items={row2} reverse />
-          <MarqueeRow items={row3} />
-          <MarqueeRow items={row4} reverse />
+          {/* 3. Use the state variables for rendering */}
+          <MarqueeRow items={shuffledRows.row1} />
+          <MarqueeRow items={shuffledRows.row2} reverse />
+          <MarqueeRow items={shuffledRows.row3} />
+          <MarqueeRow items={shuffledRows.row4} reverse />
 
           {/* Lớp phủ mờ dần (Fading effect) */}
           <div className="pointer-events-none absolute inset-y-0 left-0 w-1/6 bg-gradient-to-r from-background to-transparent" />

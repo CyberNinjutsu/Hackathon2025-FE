@@ -1,4 +1,3 @@
-// app/history/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -29,11 +28,19 @@ import {
   Repeat,
   Search,
 } from "lucide-react";
-import { AccountInfo, Connection, ParsedAccountData, ParsedInstruction, PublicKey } from "@solana/web3.js";
+import {
+  AccountInfo,
+  Connection,
+  ParsedAccountData,
+  ParsedInstruction,
+  PublicKey,
+} from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ADDRESS } from "@solana-program/token-2022";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/lib/AuthContext";
+import { toast } from "sonner"; // Thêm toast để thông báo
 
 const transactionIcons = {
   Send: <ArrowUpRight className="h-4 w-4 text-red-400" />,
@@ -41,103 +48,153 @@ const transactionIcons = {
   Swap: <Repeat className="h-4 w-4 text-blue-400" />,
 };
 
-/**
- * Number.prototype.format(n, x, s, c)
- * 
- * @param integer n: length of decimal
- * @param integer x: length of whole part
- * @param mixed   s: sections delimiter
- * @param mixed   c: decimal delimiter
- */
-export function formatNumber(number: number, n: number, x: number, s: string, c: string = "") {
-  var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\D' : '$') + ')',
+export function formatNumber(
+  number: number,
+  n: number,
+  x: number,
+  s: string,
+  c: string = ""
+) {
+  const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\D" : "$") + ")",
     num = number.toFixed(Math.max(0, ~~n));
 
-  return (c ? num.replace('.', c) : num).replace(new RegExp(re, 'g'), '$&' + (s || ','));
-};
+  return (c ? num.replace(".", c) : num).replace(
+    new RegExp(re, "g"),
+    "$&" + (s || ",")
+  );
+}
 
 export default function HistoryPage() {
   const router = useRouter();
-
   interface Transaction {
     id: string;
-    type: 'Send' | 'Receive' | 'Mint' | 'Other';
+    type: "Send" | "Receive" | "Mint" | "Other";
     assetSymbol: string;
     amount: number;
     value: number;
-    status: 'Completed' | 'Pending' | 'Failed';
+    status: "Completed" | "Pending" | "Failed";
     date: string;
     address?: string;
   }
 
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const mintsInfo = new Map<string, AccountInfo<Buffer | ParsedAccountData> | null>;
+  const [isLoading, setIsLoading] = useState(true);
+
+  const {
+    publicKey: userPublicKey,
+    isAuthenticated,
+    isLoading: isAuthLoading,
+  } = useAuth();
+  const mintsInfo = new Map<
+    string,
+    AccountInfo<Buffer | ParsedAccountData> | null
+  >();
 
   useEffect(() => {
+    // Chỉ chạy logic sau khi context đã kiểm tra xong
+    if (!isAuthLoading && !isAuthenticated) {
+      toast.error("Yêu cầu truy cập", {
+        description: "Bạn cần đăng nhập bằng ví để xem trang này.",
+      });
+      router.push("/login");
+    }
+  }, [isAuthLoading, isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!isAuthenticated || !userPublicKey) {
+      if (!isAuthLoading) setIsLoading(false);
+      return;
+    }
     const fetchTransactions = async () => {
+      setIsLoading(true);
+      setTransactions([]);
       try {
-        const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
-        const walletPubKey = new PublicKey('Gy2LZ5EEvuZFGDHbak6kmS7EgUhtAtKCDLA4siZDEcwE');//8eqFjpT5Z9Pgr7jNWBYSfk3Goe5DXfmRvCgL9qX3WdAR
-        const walletInfo = await connection.getParsedTokenAccountsByOwner(walletPubKey, { programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS.toString()) });
-        const signatures = await connection.getSignaturesForAddress(walletPubKey, { limit: 20 });
-        const myTokenAddresses = new Map<string, null>;
-        walletInfo.value.map(acc => myTokenAddresses.set(acc.pubkey.toString(), null));
-        console.log('WalletInfo:', walletInfo.value, myTokenAddresses);
+        const connection = new Connection(
+          "https://api.devnet.solana.com",
+          "confirmed"
+        );
+        const walletPubKey = new PublicKey(userPublicKey); //8eqFjpT5Z9Pgr7jNWBYSfk3Goe5DXfmRvCgL9qX3WdAR
+        const walletInfo = await connection.getParsedTokenAccountsByOwner(
+          walletPubKey,
+          { programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS.toString()) }
+        );
+        const signatures = await connection.getSignaturesForAddress(
+          walletPubKey,
+          { limit: 20 }
+        );
+        const myTokenAddresses = new Map<string, null>();
+        walletInfo.value.map((acc) =>
+          myTokenAddresses.set(acc.pubkey.toString(), null)
+        );
+        console.log("WalletInfo:", walletInfo.value, myTokenAddresses);
 
         const txList: Transaction[] = [];
         for (const sigInfo of signatures) {
-          const tx = await connection.getParsedTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0 });
-          // console.log('Fetched transaction:', tx);
+          const tx = await connection.getParsedTransaction(sigInfo.signature, {
+            maxSupportedTransactionVersion: 0,
+          });
           if (!tx || !tx.blockTime) continue;
 
-          let type: Transaction['type'] = 'Other';
+          let type: Transaction["type"] = "Other";
           let amount = 0;
-          let address = '';
-          let assetSymbol = 'N/A';
+          let address = "";
+          let assetSymbol = "N/A";
 
           if (tx.meta?.err) {
             txList.push({
               id: sigInfo.signature,
-              type: 'Other',
+              type: "Other",
               assetSymbol,
               amount: 0,
               value: 0,
-              status: 'Failed',
-              date: new Date((sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000).toISOString(),
+              status: "Failed",
+              date: new Date(
+                (sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000
+              ).toISOString(),
             });
             continue;
           }
 
           // Parse instructions cho token transfers/mint
           const instructions = tx.transaction.message.instructions.concat(
-            ((tx.meta ? tx.meta.innerInstructions : []) || []).flatMap(inner => inner.instructions)
+            ((tx.meta ? tx.meta.innerInstructions : []) || []).flatMap(
+              (inner) => inner.instructions
+            )
           );
-          tx.transaction.message.instructions[0]
+          tx.transaction.message.instructions[0];
           for (const instruction of instructions) {
-            let _instruction = instruction as ParsedInstruction;
-            let parsedInstruction = _instruction.parsed;
+            const _instruction = instruction as ParsedInstruction;
+            const parsedInstruction = _instruction.parsed;
             if (!parsedInstruction) continue;
             if (parsedInstruction.type == "transferChecked") {
-              // console.log('Instruction:', instruction);
-              amount = Number(parsedInstruction.info.tokenAmount.amount) / 1e9; // Decimals=9, điều chỉnh nếu khác
-              address = parsedInstruction.info.destination || parsedInstruction.info.source;
-              if (parsedInstruction.info.destination && myTokenAddresses.size > 0) {
-                type = myTokenAddresses.has(parsedInstruction.info.destination) ? 'Receive' : 'Send';
+              amount = Number(parsedInstruction.info.tokenAmount.amount) / 1e9;
+              address =
+                parsedInstruction.info.destination ||
+                parsedInstruction.info.source;
+              if (
+                parsedInstruction.info.destination &&
+                myTokenAddresses.size > 0
+              ) {
+                type = myTokenAddresses.has(parsedInstruction.info.destination)
+                  ? "Receive"
+                  : "Send";
               }
 
               // assetSymbol = ix.parsed?.info.mint;
               if (!mintsInfo.has(parsedInstruction.info.mint)) {
-                const mintAccount = await connection.getParsedAccountInfo(new PublicKey(parsedInstruction.info.mint));
+                const mintAccount = await connection.getParsedAccountInfo(
+                  new PublicKey(parsedInstruction.info.mint)
+                );
                 mintsInfo.set(parsedInstruction.info.mint, mintAccount.value);
                 // console.log('Fetched mint account:', mintAccount);
               }
 
               if (mintsInfo.get(parsedInstruction.info.mint)?.data) {
-                const mintData = mintsInfo.get(parsedInstruction.info.mint)?.data as ParsedAccountData;
+                const mintData = mintsInfo.get(parsedInstruction.info.mint)
+                  ?.data as ParsedAccountData;
                 if (mintData.parsed?.info?.extensions)
                   for (const ext of mintData.parsed?.info?.extensions) {
-                    if (ext.extension == 'tokenMetadata') {
+                    if (ext.extension == "tokenMetadata") {
                       assetSymbol = ext.state.symbol || "N/A";
                       break;
                     }
@@ -146,15 +203,6 @@ export default function HistoryPage() {
 
               break;
             }
-            // else if (ix.parsed?.type == 'mintTo') {
-            //   amount = Number(ix.parsed.info.tokenAmount.amount) / 1e9;
-            //   type = 'Mint';
-            //   address = ix.parsed.info.account;
-            // }
-            // Filter chỉ DAMS
-            // if (ix.parsed?.info.mint !== mintPubkey.toString()) {
-            //   amount = 0; // Bỏ nếu không phải DAMS
-            // }
           }
 
           if (amount > 0) {
@@ -164,40 +212,67 @@ export default function HistoryPage() {
               assetSymbol,
               amount,
               value: 0, // Không có giá, đặt 0
-              status: sigInfo.confirmationStatus === 'confirmed' || sigInfo.confirmationStatus === 'finalized' ? 'Completed' : 'Pending',
-              date: new Date((sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000).toISOString(),
+              status:
+                sigInfo.confirmationStatus === "confirmed" ||
+                sigInfo.confirmationStatus === "finalized"
+                  ? "Completed"
+                  : "Pending",
+              date: new Date(
+                (sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000
+              ).toISOString(),
               address,
             });
           }
         }
 
-        setTransactions(txList.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        setTransactions(
+          txList.sort(
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+          )
+        );
       } catch (error) {
-        console.error('Error fetching transactions:', error);
+        console.error("Error fetching transactions:", error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
 
     fetchTransactions();
-  }, []);
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-white">Đang tải lịch sử...</div>;
+  }, [isAuthenticated, userPublicKey, isAuthLoading]);
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Đang kiểm tra phiên đăng nhập...
+      </div>
+    );
+  }
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Đang tải lịch sử...
+      </div>
+    );
+  }
+  if (!isAuthenticated) {
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-foreground relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(120,119,198,0.3),rgba(255,255,255,0))] pointer-events-none" />
-      <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml,%3Csvg width%3D%2260%22 height%3D%2260%22 viewBox%3D%220 0 60 60%22 xmlns%3D%22http://www.w3.org/2000/svg%22%3E%3Cg fill%3D%22none%22 fillRule%3D%22evenodd%22%3E%3Cg fill%3D%22%239C92AC%22 fillOpacity%3D%220.05%22%3E%3Ccircle cx%3D%2230%22 cy%3D%2230%22 r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] pointer-events-none" />
-
+    <div className="min-h-screen bg-transparent text-foreground">
+      <div className="absolute inset-0 overflow-hidden z-1">
+        <div className="absolute w-[600px] h-[600px] bg-[#00ffb2]/10 blur-3xl rounded-full -top-[300px] -left-[300px]" />
+        <div className="absolute w-[600px] h-[600px] bg-[#00ffb2]/10 blur-3xl rounded-full -top-[300px] -right-[300px]" />
+        <div className="absolute w-[300px] h-[300px] bg-[#00ffb2]/20 blur-3xl rounded-full -top-[100px] -left-[100px]" />
+        <div className="absolute w-[300px] h-[300px] bg-[#00ffb2]/20 blur-3xl rounded-full -top-[100px] -right-[100px]" />
+      </div>
       <div className="relative z-10 space-y-6 p-4 sm:p-6">
         <div className="flex flex-col space-y-4">
           {/* Nút quay lại */}
           <div className="flex items-center justify-between">
             <Button
               variant="outline"
-              className="bg-red-500/20 border-red-400/50 text-red-100 hover:bg-red-500/30 hover:border-red-400 hover:text-red-50 hover:scale-105 transition-all duration-300 group backdrop-blur-sm"
+              className="bg-red-500/20 border-red-400/50 text-red-100 hover:bg-red-500/30 hover:border-red-400 hover:text-red-50 hover:scale-105 transition-all 
+                          duration-300 group backdrop-blur-sm"
               onClick={() => router.push("/")}
             >
               <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
@@ -223,7 +298,7 @@ export default function HistoryPage() {
         {/* --- PHẦN BỘ LỌC VÀ TÌM KIẾM --- */}
         <div className="glass-card p-6 space-y-6 hover:scale-[1.02] transition-all duration-300">
           <div className="flex items-center gap-3">
-            <Filter className="h-6 w-6 text-purple-400" />
+            <Filter className="h-6 w-6 text-primary" />
             <h3 className="text-xl font-semibold text-white">
               Bộ lọc & Tìm kiếm
             </h3>
@@ -232,7 +307,6 @@ export default function HistoryPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
-                aria-label="Tìm kiếm theo địa chỉ hoặc TxID"
                 placeholder="Tìm kiếm theo địa chỉ, TxID..."
                 className="glass-input pl-10 border-0 text-white placeholder:text-gray-400 focus:ring-2 focus:ring-purple-400"
               />
@@ -309,17 +383,22 @@ export default function HistoryPage() {
                     <div className="flex items-center gap-3">
                       {
                         transactionIcons[
-                        tx.type as keyof typeof transactionIcons
+                          tx.type as keyof typeof transactionIcons
                         ]
                       }
                       <span className="font-semibold">{tx.type}</span>
                     </div>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 font-mono text-sm">
-                    <Link href={`https://solscan.io/tx/${tx.id}?cluster=devnet`} target="_blank">{tx.id}</Link>
+                    <Link
+                      href={`https://solscan.io/tx/${tx.id}?cluster=devnet`}
+                      target="_blank"
+                    >
+                      {tx.id}
+                    </Link>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-white font-semibold">
-                    {formatNumber(tx.amount, 0, 3, '.')} {tx.assetSymbol}
+                    {formatNumber(tx.amount, 0, 3, ".")} {tx.assetSymbol}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-green-400 font-bold">
                     ${tx.value.toLocaleString("en-US")}
@@ -331,15 +410,15 @@ export default function HistoryPage() {
                         tx.status === "Completed"
                           ? "text-green-400 border-green-400 bg-green-400/10"
                           : tx.status === "Pending"
-                            ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                            : "text-red-400 border-red-400 bg-red-400/10"
+                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                          : "text-red-400 border-red-400 bg-red-400/10"
                       }
                     >
                       {tx.status === "Completed"
                         ? "Hoàn thành"
                         : tx.status === "Pending"
-                          ? "Chờ xử lý"
-                          : "Thất bại"}
+                        ? "Chờ xử lý"
+                        : "Thất bại"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs text-gray-400">
@@ -386,15 +465,15 @@ export default function HistoryPage() {
                       tx.status === "Completed"
                         ? "text-green-400 border-green-400 bg-green-400/10"
                         : tx.status === "Pending"
-                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                          : "text-red-400 border-red-400 bg-red-400/10"
+                        ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                        : "text-red-400 border-red-400 bg-red-400/10"
                     }
                   >
                     {tx.status === "Completed"
                       ? "Hoàn thành"
                       : tx.status === "Pending"
-                        ? "Chờ xử lý"
-                        : "Thất bại"}
+                      ? "Chờ xử lý"
+                      : "Thất bại"}
                   </Badge>
                 </div>
               </div>
