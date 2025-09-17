@@ -70,10 +70,7 @@ export default function Header() {
           <ul className="flex items-center gap-8">
             {navLinks.map((link) => (
               <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-                >
+                <Link href={link.href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
                   {link.label}
                 </Link>
               </li>
@@ -110,24 +107,30 @@ export default function Header() {
                 <DropdownMenuItem
                   onClick={() =>
                     publicKey &&
-                    router.push(`/dashboard/${encodeURIComponent(publicKey)}`)
+                    router.push("/dashboard")
                   }
                 >
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                 </DropdownMenuItem>
+
                 <DropdownMenuItem onClick={() => router.push("/settings")}>
                   <Settings className="mr-2 h-4 w-4" /> Settings
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem onClick={() => router.push("/history")}>
                   <Settings className="mr-2 h-4 w-4" /> History
                 </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
+
                 <DropdownMenuItem
                   onClick={logout}
                   className="text-red-500 focus:text-red-500"
                 >
                   <LogOut className="mr-2 h-4 w-4" /> Log out
+                  
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -178,9 +181,7 @@ export default function Header() {
                       size="lg"
                       onClick={() => {
                         if (publicKey)
-                          router.push(
-                            `/dashboard/${encodeURIComponent(publicKey)}`
-                          );
+                          router.push("/dashboard");
                         setIsOpen(false);
                       }}
                     >

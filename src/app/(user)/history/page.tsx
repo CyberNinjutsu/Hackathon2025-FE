@@ -107,16 +107,11 @@ export default function HistoryPage() {
         const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
         const walletPubKey = new PublicKey(userPublicKey); //8eqFjpT5Z9Pgr7jNWBYSfk3Goe5DXfmRvCgL9qX3WdAR
         const myTokenAddresses = new Set<string>();
-        const addrs: PublicKey[] = [
-          walletPubKey,
-          ...Array.from(myTokenAddresses).map((s) => new PublicKey(s)),
-        ];
-        const sigArrays = await Promise.all(
-          addrs.map((addr) =>
-            connection.getSignaturesForAddress(addr, { limit: 10 })
-          )
-        );
-        const [token2022, tokenLegacy] = await Promise.all([
+        
+        const [signatures] = await Promise.all([
+
+          connection.getSignaturesForAddress(walletPubKey, { limit: 20 }),
+
           connection.getParsedTokenAccountsByOwner(walletPubKey, {
             programId: TOKEN_2022_PROGRAM_ID,
           }),
@@ -124,33 +119,15 @@ export default function HistoryPage() {
             programId: TOKEN_PROGRAM_ID,
           }),
         ]);
+        
         // const signatures = await connection.getSignaturesForAddress(
         //   walletPubKey,
         //   { limit: 20 }
         // );
 
-        token2022.value.forEach((acc) =>
-          myTokenAddresses.add(acc.pubkey.toString())
-        );
-        tokenLegacy.value.forEach((acc) =>
-          myTokenAddresses.add(acc.pubkey.toString())
-        );
-
-        const signatureMap = new Map<string, (typeof sigArrays)[number][number]>();
-
-        for (const arr of sigArrays) {
-          for (const s of arr)  {
-            signatureMap.set(s.signature, s);
-          }
-        }
-
-        const signatures = Array.from(signatureMap.values())
-          .sort((a, b) => (b.blockTime ?? 0) - (a.blockTime ?? 0))
-          .slice(0, 20);
-
         const txList: Transaction[] = [];
         for (const sigInfo of signatures) {
-          const tx = await connection.getParsedTransaction(sigInfo.signature, {maxSupportedTransactionVersion: 0,});
+          const tx = await connection.getParsedTransaction(sigInfo.signature, {maxSupportedTransactionVersion: 0});
 
           if (!tx || !tx.blockTime) continue;
 
@@ -172,12 +149,8 @@ export default function HistoryPage() {
             });
             continue;
           }
-          const inner =
-            tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
-          const instructions = [
-            ...tx.transaction.message.instructions,
-            ...inner,
-          ];
+          const inner = tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
+          const instructions = [...tx.transaction.message.instructions, ...inner];
           // Parse instructions cho token transfers/mint
           // const instructions = tx.transaction.message.instructions.concat(
           //   ((tx.meta ? tx.meta.innerInstructions : []) || []).flatMap(
