@@ -37,18 +37,16 @@ export default function PrivacyPage() {
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
               Privacy Policy
             </h2>
-            <p className="text-gray-400 text-sm">
-              Last updated: May 21, 2025
-            </p>
+            <p className="text-gray-400 text-sm">Last updated: May 21, 2025</p>
           </div>
 
           {/* Content */}
           <div className="p-6 prose prose-invert max-w-none">
             <div className="space-y-6 text-gray-300 leading-relaxed">
               <p>
-                This Privacy Policy describes how Cryptix collects, uses, and shares
-                your personal information when you use our services.
-                We are committed to protecting your privacy.
+                This Privacy Policy describes how Cryptix collects, uses, and
+                shares your personal information when you use our services. We
+                are committed to protecting your privacy.
               </p>
 
               <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
@@ -57,17 +55,24 @@ export default function PrivacyPage() {
               <p>We may collect the following types of information:</p>
               <ul className="list-disc list-inside space-y-2 mb-4 pl-4 text-gray-300">
                 <li>
-                  <strong className="text-white font-semibold">Personal Information:</strong> Name, email address when you register
-                  for an account.
+                  <strong className="text-white font-semibold">
+                    Personal Information:
+                  </strong>{" "}
+                  Name, email address when you register for an account.
                 </li>
                 <li>
-                  <strong className="text-white font-semibold">Transaction Information:</strong> Public wallet addresses, transaction
-                  history. We never collect your private keys.
+                  <strong className="text-white font-semibold">
+                    Transaction Information:
+                  </strong>{" "}
+                  Public wallet addresses, transaction history. We never collect
+                  your private keys.
                 </li>
                 <li>
-                  <strong className="text-white font-semibold">Usage Information:</strong> Data about how you interact with
-                  our services, such as IP address, browser type,
-                  access times.
+                  <strong className="text-white font-semibold">
+                    Usage Information:
+                  </strong>{" "}
+                  Data about how you interact with our services, such as IP
+                  address, browser type, access times.
                 </li>
               </ul>
 
@@ -78,7 +83,10 @@ export default function PrivacyPage() {
               <ul className="list-disc list-inside space-y-2 mb-4 pl-4 text-gray-300">
                 <li>Provide and maintain the service.</li>
                 <li>Improve and personalize user experience.</li>
-                <li>Communicate with you, including sending security notifications.</li>
+                <li>
+                  Communicate with you, including sending security
+                  notifications.
+                </li>
                 <li>Prevent fraud and ensure platform security.</li>
               </ul>
 
@@ -86,18 +94,18 @@ export default function PrivacyPage() {
                 3. Information Sharing
               </h2>
               <p>
-                We do not sell, trade, or rent your personal information
-                to third parties. We may only share information when legally required
-                or to protect our rights and the community.
+                We do not sell, trade, or rent your personal information to
+                third parties. We may only share information when legally
+                required or to protect our rights and the community.
               </p>
 
               <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
                 4. Data Security
               </h2>
               <p>
-                We implement industry-standard security measures, including encryption
-                and access controls, to protect your data from unauthorized access,
-                modification, or destruction.
+                We implement industry-standard security measures, including
+                encryption and access controls, to protect your data from
+                unauthorized access, modification, or destruction.
               </p>
             </div>
           </div>

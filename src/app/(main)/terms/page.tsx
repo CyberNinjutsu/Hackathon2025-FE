@@ -24,9 +24,7 @@ export default function TermsPage() {
             <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
               Terms of Service
             </h2>
-            <p className="text-gray-400 text-sm">
-              Last updated: May 21, 2024
-            </p>
+            <p className="text-gray-400 text-sm">Last updated: May 21, 2024</p>
           </div>
 
           {/* Content */}
@@ -34,17 +32,19 @@ export default function TermsPage() {
             <div className="space-y-6 text-gray-300 leading-relaxed">
               <p>
                 Welcome to Cryptix! Please read these Terms of Service
-                (&ldquo;Terms&rdquo;) carefully before using our service. By accessing
-                or using the Service, you agree to be bound by these Terms.
+                (&ldquo;Terms&rdquo;) carefully before using our service. By
+                accessing or using the Service, you agree to be bound by these
+                Terms.
               </p>
 
               <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
                 1. Acceptance of Terms
               </h2>
               <p>
-                By creating an account or using the services provided by Cryptix,
-                you acknowledge that you have read, understood, and agree to comply with all
-                terms and conditions set forth in this agreement.
+                By creating an account or using the services provided by
+                Cryptix, you acknowledge that you have read, understood, and
+                agree to comply with all terms and conditions set forth in this
+                agreement.
               </p>
 
               <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
@@ -52,8 +52,9 @@ export default function TermsPage() {
               </h2>
               <p>
                 Cryptix provides a digital asset management platform that allows
-                users to track investment portfolios, execute transactions, and interact with
-                blockchain protocols. We are not an exchange, broker, or financial advisor.
+                users to track investment portfolios, execute transactions, and
+                interact with blockchain protocols. We are not an exchange,
+                broker, or financial advisor.
               </p>
 
               <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
@@ -66,10 +67,12 @@ export default function TermsPage() {
                   authentication information.
                 </li>
                 <li>
-                  Ensuring that all information you provide is accurate and up-to-date.
+                  Ensuring that all information you provide is accurate and
+                  up-to-date.
                 </li>
                 <li>
-                  Complying with all applicable laws and regulations in your jurisdiction.
+                  Complying with all applicable laws and regulations in your
+                  jurisdiction.
                 </li>
               </ul>
 
@@ -77,10 +80,11 @@ export default function TermsPage() {
                 4. Limitation of Liability
               </h2>
               <p>
-                The Service is provided &quot;as is&quot; and &quot;as available&quot;. Cryptix is not
-                responsible for any losses arising from the use of the service,
-                including but not limited to asset loss due to security errors,
-                software bugs, or market volatility.
+                The Service is provided &quot;as is&quot; and &quot;as
+                available&quot;. Cryptix is not responsible for any losses
+                arising from the use of the service, including but not limited
+                to asset loss due to security errors, software bugs, or market
+                volatility.
               </p>
             </div>
           </div>

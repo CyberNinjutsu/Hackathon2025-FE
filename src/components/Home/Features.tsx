@@ -1,10 +1,11 @@
-import React from 'react'
+import React from "react";
 import WordAnimate from "@/components/WordAnimate";
 
 const features = [
   {
     title: "Maximum Security",
-    description: "Your assets are protected with cutting-edge security protocols.",
+    description:
+      "Your assets are protected with cutting-edge security protocols.",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -90,8 +91,6 @@ const features = [
   },
 ];
 
-
-
 export default function Features() {
   return (
     <section id="why" className="px-6 py-20 max-w-[1200px] mx-auto">
@@ -120,7 +119,9 @@ export default function Features() {
             key={index}
             className="bg-[var(--dark-card-bg)] border border-[var(--border-color)] rounded-2xl p-8 transition-transform duration-300 hover:-translate-y-2"
           >
-            <div className="mb-6 text-[var(--text-primary)]">{feature.icon}</div>
+            <div className="mb-6 text-[var(--text-primary)]">
+              {feature.icon}
+            </div>
             <WordAnimate
               as="h3"
               className="text-xl font-medium text-[var(--text-primary)] mb-4"
@@ -137,5 +138,5 @@ export default function Features() {
         ))}
       </div>
     </section>
-  )
+  );
 }

@@ -161,7 +161,9 @@ const AccountPage = () => {
             <div className="bg-gradient-to-r from-slate-800 via-gray-800 to-slate-900 rounded-lg p-4 text-white border border-gray-700/50 shadow-lg">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-xs opacity-80 text-gray-300">CARD HOLDER</p>
+                  <p className="text-xs opacity-80 text-gray-300">
+                    CARD HOLDER
+                  </p>
                   <p className="font-semibold text-white">[Your Name]</p>
                 </div>
                 <div className="text-right">
@@ -178,7 +180,9 @@ const AccountPage = () => {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-xs opacity-80 text-gray-300">BALANCE</p>
-                  <p className="font-bold text-primary">${totalBalance.toLocaleString()}</p>
+                  <p className="font-bold text-primary">
+                    ${totalBalance.toLocaleString()}
+                  </p>
                 </div>
                 <div className="text-right">
                   <div className="w-8 h-6 bg-primary/30 rounded"></div>
@@ -218,7 +222,9 @@ const AccountPage = () => {
             <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-cyan-400/30">
               <div className="p-4 border-b border-gray-700/50">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-white">Recent Transactions</span>
+                  <span className="font-semibold text-white">
+                    Recent Transactions
+                  </span>
                   <button className="bg-cyan-400/20 hover:bg-cyan-400/30 border border-cyan-400/40 px-3 py-1 rounded text-xs text-cyan-400 transition-all duration-300">
                     View all <ArrowRightIcon className="w-3 h-3 ml-1 inline" />
                   </button>
@@ -245,7 +251,9 @@ const AccountPage = () => {
             <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-purple-400/30 hover:shadow-purple-400/20">
               <div className="p-4 border-b border-gray-700/50">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-white">Portfolio Chart</span>
+                  <span className="font-semibold text-white">
+                    Portfolio Chart
+                  </span>
                   <div className="bg-purple-400/20 border border-purple-400/30 px-2 py-1 rounded text-xs text-purple-400">
                     Last 7 days
                   </div>
@@ -261,7 +269,7 @@ const AccountPage = () => {
                       style={{
                         backgroundColor: `${asset.color}20`,
                         borderColor: `${asset.color}40`,
-                        color: asset.color
+                        color: asset.color,
                       }}
                     >
                       <div

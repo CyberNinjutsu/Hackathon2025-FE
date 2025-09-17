@@ -1,31 +1,31 @@
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 
 const getTransactionIcon = (type: string) => {
   switch (type) {
     case "buy":
-      return "📈"
+      return "📈";
     case "sell":
-      return "📉"
+      return "📉";
     case "receive":
-      return "⬇️"
+      return "⬇️";
     case "send":
-      return "⬆️"
+      return "⬆️";
     default:
-      return "❓"
+      return "❓";
   }
-}
+};
 
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "completed":
-      return <Badge className='bg-green-600'>Success</Badge>
+      return <Badge className="bg-green-600">Success</Badge>;
     case "pending":
-      return <Badge className='bg-yellow-600'>Progress</Badge>
+      return <Badge className="bg-yellow-600">Progress</Badge>;
     case "failed":
-      return <Badge className='bg-red-600'>Failed</Badge>
+      return <Badge className="bg-red-600">Failed</Badge>;
     default:
-      return null
+      return null;
   }
-}
+};
 
-export { getTransactionIcon, getStatusBadge }
+export { getTransactionIcon, getStatusBadge };

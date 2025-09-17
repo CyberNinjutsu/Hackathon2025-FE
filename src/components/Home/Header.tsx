@@ -72,7 +72,7 @@ export default function Header() {
         "fixed top-0 left-0 z-50 w-full transition-all duration-300",
         isScrolled
           ? "bg-background/90 backdrop-blur-sm border-b border-border"
-          : "bg-transparent"
+          : "bg-transparent",
       )}
     >
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
