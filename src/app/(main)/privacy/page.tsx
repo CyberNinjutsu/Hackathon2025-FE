@@ -1,12 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, Coins } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Coins } from "lucide-react";
 
 export default function PrivacyPage() {
-  const router = useRouter();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white custom-scrollbar">
       {/* Background glow effects */}

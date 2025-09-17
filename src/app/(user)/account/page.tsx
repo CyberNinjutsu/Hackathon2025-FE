@@ -3,9 +3,7 @@
 import AssetChart from "@/components/account/AssetChart";
 import AssetItem from "@/components/account/AssetItem";
 import TransactionItem from "@/components/account/TransactionItem";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { getStatusBadge, getTransactionIcon } from "@/utils/Helper";
 import { Asset, AssetHistory, Transaction } from "@/utils/Types";
 import { ArrowRightIcon, PlusIcon, WalletIcon } from "lucide-react";
