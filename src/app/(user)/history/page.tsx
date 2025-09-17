@@ -162,7 +162,7 @@ export default function HistoryPage() {
           let amount = 0;
           let address = "";
           let assetSymbol = "N/A";
-
+          const blockTimeSec = tx.blockTime ?? sigInfo.blockTime ?? 0;
           if (tx.meta?.err) {
             txList.push({
               id: sigInfo.signature,
@@ -171,9 +171,7 @@ export default function HistoryPage() {
               amount: 0,
               value: 0,
               status: "Failed",
-              date: new Date(
-                (sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000
-              ).toISOString(),
+              date: new Date(blockTimeSec * 1000).toISOString(),
             });
             continue;
           }
@@ -190,9 +188,15 @@ export default function HistoryPage() {
           //   )
           // );
           // tx.transaction.message.instructions[0];
-          for (const instruction of instructions as (ParsedInstruction | PartiallyDecodedInstruction)[]) {
+          for (const instruction of instructions as (
+            | ParsedInstruction
+            | PartiallyDecodedInstruction
+          )[]) {
             // const _instruction = instruction as ParsedInstruction;
-            const parsedInstruction =  "parsed" in (instruction as ParsedInstruction) ? (instruction as ParsedInstruction).parsed : undefined;
+            const parsedInstruction =
+              "parsed" in (instruction as ParsedInstruction)
+                ? (instruction as ParsedInstruction).parsed
+                : undefined;
             if (!parsedInstruction) continue;
             if (parsedInstruction.type == "transferChecked") {
               const t = parsedInstruction.info.tokenAmount;
@@ -248,9 +252,7 @@ export default function HistoryPage() {
                 sigInfo.confirmationStatus === "finalized"
                   ? "Completed"
                   : "Pending",
-              date: new Date(
-                (sigInfo.blockTime ? sigInfo.blockTime : 0) * 1000
-              ).toISOString(),
+              date: new Date(blockTimeSec * 1000).toISOString(),
               address,
             });
           }
