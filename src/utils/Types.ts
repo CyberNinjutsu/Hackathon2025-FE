@@ -25,4 +25,5 @@ interface AssetHistory {
   data: { date: string; value: number }[]
 }
 
+
 export type { Asset, Transaction, AssetHistory }
