@@ -160,6 +160,7 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
+
   }
 
   .glass-button:hover {
@@ -412,6 +413,17 @@
   color: var(--foreground);
   border-radius: 9999px;
 }
+
+.no-autofill-bg:-webkit-autofill,
+.no-autofill-bg:-webkit-autofill:hover,
+.no-autofill-bg:-webkit-autofill:focus,
+.no-autofill-bg:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px transparent  inset; 
+  -webkit-text-fill-color: #ffffff; 
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+
 @keyframes float {
   0%,
   100% {
