@@ -6,7 +6,7 @@
     publicKey: string | null;
     savePublicKey: (pubKey: string) => void;
     logout: () => void;
-    isLoading?: boolean;
+    isLoading: boolean;
     isAuthenticated: boolean;
   };
 
