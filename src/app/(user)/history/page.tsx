@@ -158,7 +158,7 @@ export default function HistoryPage() {
           //   )
           // );
           // tx.transaction.message.instructions[0];
-          for (const instruction of instructions as (| ParsedInstruction| PartiallyDecodedInstruction)[]) {
+          for (const instruction of instructions as (ParsedInstruction| PartiallyDecodedInstruction)[]) {
             // const _instruction = instruction as ParsedInstruction;
             const parsedInstruction =
               "parsed" in (instruction as ParsedInstruction)
