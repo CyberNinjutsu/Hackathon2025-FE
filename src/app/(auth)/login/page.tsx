@@ -51,33 +51,47 @@ declare global {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { savePublicKey } = useAuth();
   const [publicKeyInput, setPublicKeyInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const checkWalletExistence = async (publicKey: PublicKey) => {
+    const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
+    const accountInfo = await connection.getAccountInfo(publicKey);
+    if (accountInfo === null) {
+      throw new Error(
+        "Ví chưa tồn tại hoặc chưa được khởi tạo trên blockchain."
+      );
+    }
+  };
 
+  // Helper: successful handling
+  const handleSuccess = (publicKeyString: string, message?: string) => {
+    savePublicKey(publicKeyString);
+    toast.success(message ?? "Xác thực thành công!", {
+      description: "Bạn sẽ được chuyển hướng sau giây lát...",
+    });
+    setTimeout(() => router.push("/"), 2000);
+  };
+
+  // Helper: failed handling
+  const handleError = (title: string, err: unknown, fallback: string) => {
+    const msg = err instanceof Error ? err.message : fallback;
+    setError(msg);
+    toast.error(title, { description: msg });
+  };
+
+  //  Manual login
   const validateAndLogin = async (publicKeyString: string) => {
     setIsLoading(true);
     setError(null);
     try {
-      const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
       const key = new PublicKey(publicKeyString);
-      const accountInfo = await connection.getAccountInfo(key);
-
-      if (accountInfo === null) {
-        throw new Error("Địa chỉ ví Solana này không tồn tại trên blockchain.");
-      }
-
-      login(publicKeyString);
-      toast.success("Kết nối thành công!", {
-        description: "Bạn sẽ được chuyển hướng sau giây lát...",
-      });
-      setTimeout(() => router.push("/"), 2000);
+      await checkWalletExistence(key);
+      handleSuccess(publicKeyString, "Kết nối thành công!");
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Đã xảy ra lỗi không xác định.";
-      setError("Xác thực ví thất bại: " + errorMessage);
-      toast.error("Xác thực thất bại", { description: errorMessage });
+      handleError("Xác thực thất bại", err, "Đã xảy ra lỗi không xác định.");
     } finally {
       setIsLoading(false);
     }
@@ -88,13 +102,7 @@ export default function LoginPage() {
     await validateAndLogin(publicKeyInput);
   };
 
-  const validateAndProceed = (publicKeyString: string) => {
-    login(publicKeyString);
-    toast.success("Xác thực thành công!", {
-      description: "Bạn sẽ được chuyển hướng sau giây lát...",
-    });
-    setTimeout(() => router.push("/"), 2000);
-  };
+  // Phantom login
   const handleConnectAndSign = async () => {
     if (!window.solana || !window.solana.isPhantom) {
       toast.error("Ví Phantom chưa được cài đặt!", {
@@ -112,7 +120,6 @@ export default function LoginPage() {
 
       const nonce = `Đăng nhập vào DAMS lúc: ${new Date().toISOString()}`;
       const message = new TextEncoder().encode(nonce);
-
       const signedMessage = await window.solana.signMessage(message, "utf8");
 
       const isVerified = nacl.sign.detached.verify(
@@ -125,24 +132,19 @@ export default function LoginPage() {
         throw new Error("Xác thực chữ ký thất bại. Vui lòng thử lại.");
       }
 
-      const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
-      const accountInfo = await connection.getAccountInfo(userPublicKey);
-      if (accountInfo === null) {
-        throw new Error(
-          "Ví đã được xác thực nhưng chưa được khởi tạo trên blockchain."
-        );
-      }
-
-      validateAndProceed(userPublicKey.toString());
+      await checkWalletExistence(userPublicKey);
+      handleSuccess(userPublicKey.toString());
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Người dùng đã từ chối yêu cầu.";
-      setError(msg);
-      toast.error("Kết nối hoặc xác thực thất bại", { description: msg });
+      handleError(
+        "Kết nối hoặc xác thực thất bại",
+        err,
+        "Người dùng đã từ chối yêu cầu."
+      );
     } finally {
       setIsLoading(false);
     }
   };
+
   return (
     <div className="auth-background relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
       <Button
@@ -235,10 +237,7 @@ export default function LoginPage() {
                     )}
                   </Button>
                   {error && (
-                    <p
-                      className="text-sm text-red-300 text-center"
-                      role="alert"
-                    >
+                    <p className="text-sm text-red-300 text-center" role="alert">
                       {error}
                     </p>
                   )}

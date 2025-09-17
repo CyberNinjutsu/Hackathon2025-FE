@@ -50,20 +50,20 @@ const transactionIcons = {
   Swap: <Repeat className="h-4 w-4 text-blue-400" />,
 };
 
-function formatNumber(
-  number: number,
-  n: number,
-  x: number,
-  s: string,
-  c: string = ""
-) {
+/**
+ * Number.prototype.format(n, x, s, c)
+ *
+ * @param integer n: length of decimal
+ * @param integer x: length of whole part
+ * @param mixed   s: sections delimiter
+ * @param mixed   c: decimal delimiter
+ */
+function formatNumber(number: number, n: number, x: number, s: string, c: string = "") {
+
   const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\D" : "$") + ")",
     num = number.toFixed(Math.max(0, ~~n));
 
-  return (c ? num.replace(".", c) : num).replace(
-    new RegExp(re, "g"),
-    "$&" + (s || ",")
-  );
+  return (c ? num.replace(".", c) : num).replace(new RegExp(re, "g"),"$&" + (s || ","));
 }
 
 export default function HistoryPage() {
@@ -82,15 +82,8 @@ export default function HistoryPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const {
-    publicKey: userPublicKey,
-    isAuthenticated,
-    isLoading: isAuthLoading,
-  } = useAuth();
-  const mintsInfo = new Map<
-    string,
-    AccountInfo<Buffer | ParsedAccountData> | null
-  >();
+  const {publicKey: userPublicKey,isAuthenticated,isLoading: isAuthLoading} = useAuth();
+  const mintsInfo = new Map<string, AccountInfo<Buffer | ParsedAccountData> | null>();
 
   useEffect(() => {
     // Chỉ chạy logic sau khi context đã kiểm tra xong
@@ -113,6 +106,16 @@ export default function HistoryPage() {
       try {
         const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
         const walletPubKey = new PublicKey(userPublicKey); //8eqFjpT5Z9Pgr7jNWBYSfk3Goe5DXfmRvCgL9qX3WdAR
+        const myTokenAddresses = new Set<string>();
+        const addrs: PublicKey[] = [
+          walletPubKey,
+          ...Array.from(myTokenAddresses).map((s) => new PublicKey(s)),
+        ];
+        const sigArrays = await Promise.all(
+          addrs.map((addr) =>
+            connection.getSignaturesForAddress(addr, { limit: 10 })
+          )
+        );
         const [token2022, tokenLegacy] = await Promise.all([
           connection.getParsedTokenAccountsByOwner(walletPubKey, {
             programId: TOKEN_2022_PROGRAM_ID,
@@ -125,37 +128,30 @@ export default function HistoryPage() {
         //   walletPubKey,
         //   { limit: 20 }
         // );
-        const myTokenAddresses = new Set<string>();
+
         token2022.value.forEach((acc) =>
           myTokenAddresses.add(acc.pubkey.toString())
         );
         tokenLegacy.value.forEach((acc) =>
           myTokenAddresses.add(acc.pubkey.toString())
         );
-        const addrs: PublicKey[] = [
-          walletPubKey,
-          ...Array.from(myTokenAddresses).map((s) => new PublicKey(s)),
-        ];
-        const sigArrays = await Promise.all(
-          addrs.map((addr) =>
-            connection.getSignaturesForAddress(addr, { limit: 10 })
-          )
-        );
-        const signatureMap = new Map<
-          string,
-          (typeof sigArrays)[number][number]
-        >();
-        for (const arr of sigArrays)
-          for (const s of arr) signatureMap.set(s.signature, s);
+
+        const signatureMap = new Map<string, (typeof sigArrays)[number][number]>();
+
+        for (const arr of sigArrays) {
+          for (const s of arr)  {
+            signatureMap.set(s.signature, s);
+          }
+        }
+
         const signatures = Array.from(signatureMap.values())
           .sort((a, b) => (b.blockTime ?? 0) - (a.blockTime ?? 0))
           .slice(0, 20);
 
         const txList: Transaction[] = [];
         for (const sigInfo of signatures) {
-          const tx = await connection.getParsedTransaction(sigInfo.signature, {
-            maxSupportedTransactionVersion: 0,
-          });
+          const tx = await connection.getParsedTransaction(sigInfo.signature, {maxSupportedTransactionVersion: 0,});
+
           if (!tx || !tx.blockTime) continue;
 
           let type: Transaction["type"] = "Other";
@@ -163,6 +159,7 @@ export default function HistoryPage() {
           let address = "";
           let assetSymbol = "N/A";
           const blockTimeSec = tx.blockTime ?? sigInfo.blockTime ?? 0;
+
           if (tx.meta?.err) {
             txList.push({
               id: sigInfo.signature,
@@ -188,31 +185,21 @@ export default function HistoryPage() {
           //   )
           // );
           // tx.transaction.message.instructions[0];
-          for (const instruction of instructions as (
-            | ParsedInstruction
-            | PartiallyDecodedInstruction
-          )[]) {
+          for (const instruction of instructions as (| ParsedInstruction| PartiallyDecodedInstruction)[]) {
             // const _instruction = instruction as ParsedInstruction;
             const parsedInstruction =
               "parsed" in (instruction as ParsedInstruction)
                 ? (instruction as ParsedInstruction).parsed
                 : undefined;
+
             if (!parsedInstruction) continue;
             if (parsedInstruction.type == "transferChecked") {
               const t = parsedInstruction.info.tokenAmount;
-              amount =
-                t.uiAmount ?? Number(t.amount) / Math.pow(10, t.decimals || 0);
+              amount = t.uiAmount ?? Number(t.amount) / Math.pow(10, t.decimals || 0);
 
-              address =
-                parsedInstruction.info.destination ||
-                parsedInstruction.info.source;
-              if (
-                parsedInstruction.info.destination &&
-                myTokenAddresses.size > 0
-              ) {
-                type = myTokenAddresses.has(parsedInstruction.info.destination)
-                  ? "Receive"
-                  : "Send";
+              address = parsedInstruction.info.destination || parsedInstruction.info.source;
+              if (parsedInstruction.info.destination && myTokenAddresses.size > 0) {
+                type = myTokenAddresses.has(parsedInstruction.info.destination) ? "Receive" : "Send";
               }
 
               // assetSymbol = ix.parsed?.info.mint;
@@ -225,8 +212,7 @@ export default function HistoryPage() {
               }
 
               if (mintsInfo.get(parsedInstruction.info.mint)?.data) {
-                const mintData = mintsInfo.get(parsedInstruction.info.mint)
-                  ?.data as ParsedAccountData;
+                const mintData = mintsInfo.get(parsedInstruction.info.mint)?.data as ParsedAccountData;
                 if (mintData.parsed?.info?.extensions)
                   for (const ext of mintData.parsed?.info?.extensions) {
                     if (ext.extension == "tokenMetadata") {
@@ -247,11 +233,7 @@ export default function HistoryPage() {
               assetSymbol,
               amount,
               value: 0, // Không có giá, đặt 0
-              status:
-                sigInfo.confirmationStatus === "confirmed" ||
-                sigInfo.confirmationStatus === "finalized"
-                  ? "Completed"
-                  : "Pending",
+              status: sigInfo.confirmationStatus === "confirmed" || sigInfo.confirmationStatus === "finalized" ? "Completed" : "Pending",
               date: new Date(blockTimeSec * 1000).toISOString(),
               address,
             });
@@ -272,6 +254,7 @@ export default function HistoryPage() {
 
     fetchTransactions();
   }, [isAuthenticated, userPublicKey, isAuthLoading]);
+  
   if (isAuthLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">

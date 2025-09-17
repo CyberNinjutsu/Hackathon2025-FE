@@ -20,7 +20,6 @@ import { useAuth } from "@/lib/AuthContext";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-
 const navLinks = [
   { label: "Why Cryptix?", href: "#why" },
   { label: "Cryptos", href: "#allcryptos" },
@@ -108,7 +107,12 @@ export default function Header() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => publicKey && router.push(`/dashboard/${encodeURIComponent(publicKey)}`)} >
+                <DropdownMenuItem
+                  onClick={() =>
+                    publicKey &&
+                    router.push(`/dashboard/${encodeURIComponent(publicKey)}`)
+                  }
+                >
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push("/settings")}>
@@ -173,15 +177,16 @@ export default function Header() {
                       variant="secondary"
                       size="lg"
                       onClick={() => {
-                        if (publicKey) router.push(`/dashboard/${encodeURIComponent(publicKey)}`); 
+                        if (publicKey)
+                          router.push(
+                            `/dashboard/${encodeURIComponent(publicKey)}`
+                          );
                         setIsOpen(false);
                       }}
                     >
                       Dashboard
                     </Button>
-                    <Button
-                      variant="destructive"
-                      size="lg"
+                    <Button variant="destructive" size="lg"
                       onClick={() => {
                         logout();
                         setIsOpen(false);
@@ -192,12 +197,7 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      className="rounded-full"
-                      asChild
-                    >
+                    <Button asChild variant="outline" size="lg" className="rounded-full">
                       <Link href="/login" onClick={() => setIsOpen(false)}>
                         Connect Wallet
                       </Link>
