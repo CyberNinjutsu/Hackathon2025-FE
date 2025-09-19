@@ -1,5 +1,6 @@
 import Header from "@/components/account/Header";
 import Footer from "@/components/Home/Footer";
+import { AuthProvider } from "@/lib/AuthContext";
 import type { Metadata } from "next";
 import type React from "react";
 import { GeistSans } from "geist/font/sans";
@@ -38,12 +39,14 @@ export default function UserLayout({
       <body
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container`}
       >
-        <Header />
-        <main className="relative">
-          <Suspense fallback={null}>{children}</Suspense>
-          <Analytics />
-        </main>
-        <Footer />
+        <AuthProvider>
+          <Header />
+          <main className="relative">
+            <Suspense fallback={null}>{children}</Suspense>
+            <Analytics />
+          </main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );

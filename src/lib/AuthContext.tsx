@@ -1,75 +1,61 @@
-  "use client";
-  import React, { createContext, useContext, useEffect, useState } from "react";
-  import { useRouter } from "next/navigation";
+"use client";
 
-  type AuthContextType = {
-    publicKey: string | null;
-    savePublicKey: (pubKey: string) => void;
-    logout: () => void;
-    isLoading: boolean;
-    isAuthenticated: boolean;
+import React, { createContext, useContext, useState, useEffect } from 'react';
+
+interface AuthContextType {
+  publicKey: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  login: (publicKey: string) => void;
+  logout: () => void;
+  savePublicKey: (publicKey: string) => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [publicKey, setPublicKey] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if user is logged in from localStorage
+    const savedPublicKey = localStorage.getItem('userPublicKey');
+    if (savedPublicKey) {
+      setPublicKey(savedPublicKey);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const login = (userPublicKey: string) => {
+    setPublicKey(userPublicKey);
+    localStorage.setItem('userPublicKey', userPublicKey);
   };
 
-  const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-  export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
-    children,
-  }) => {
-    const [publicKey, setPublicKey] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter();
-
-    // load from localStorage on mount (client-only)
-    useEffect(() => {
-      try {
-        const stored =
-          typeof window !== "undefined"
-            ? localStorage.getItem("userPublicKey")
-            : null;
-        if (stored) {
-          setPublicKey(stored);
-        }
-      } catch (e) {
-        console.error("Lỗi khi truy cập localStorage:", e);
-      } finally {
-        setIsLoading(false);
-      }
-    }, []);
-
-    const savePublicKey = (pubKey: string) => {
-      setPublicKey(pubKey);
-      try {
-        localStorage.setItem("userPublicKey", pubKey);
-      } catch (e) {
-        // ignore failure to write storage
-        console.error("Lỗi khi ghi vào localStorage:", e);
-      }
-    };
-
-    const logout = () => {
-      setPublicKey(null);
-      try {
-        localStorage.removeItem("userPublicKey");
-      } catch (e) {
-        console.error("Lỗi khi xóa khỏi localStorage:", e);
-      }
-      // optional: redirect to login
-      router.push("/");
-    };
-
-    const value: AuthContextType = {
-      publicKey,
-      savePublicKey,
-      logout,
-      isLoading,
-      isAuthenticated: !!publicKey,
-    };
-
-    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  const logout = () => {
+    setPublicKey(null);
+    localStorage.removeItem('userPublicKey');
   };
 
-  export function useAuth() {
-    const ctx = useContext(AuthContext);
-    if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
-    return ctx;
+  const value = {
+    publicKey,
+    isAuthenticated: !!publicKey,
+    isLoading,
+    login,
+    logout,
+    savePublicKey: login, // Alias for login
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
   }
+  return context;
+}
