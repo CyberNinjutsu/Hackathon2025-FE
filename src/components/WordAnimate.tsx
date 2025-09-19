@@ -49,7 +49,7 @@ const WordAnimate: React.FC<WordAnimateProps> = ({
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" },
     );
 
     observer.observe(element);
@@ -62,7 +62,7 @@ const WordAnimate: React.FC<WordAnimateProps> = ({
   return React.createElement(
     Tag,
     { ref, className: `word-animate ${className}` },
-    children
+    children,
   );
 };
 

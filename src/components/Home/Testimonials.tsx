@@ -47,7 +47,7 @@ export default function Testimonials() {
   const handlePrev = () => {
     setCurrentIndex(
       (prevIndex) =>
-        (prevIndex - 1 + testimonialsData.length) % testimonialsData.length
+        (prevIndex - 1 + testimonialsData.length) % testimonialsData.length,
     );
   };
 
@@ -86,7 +86,7 @@ export default function Testimonials() {
                   key={index}
                   className={cn(
                     "absolute inset-0 flex flex-col transition-opacity duration-500 ease-in-out",
-                    index === currentIndex ? "opacity-100" : "opacity-0"
+                    index === currentIndex ? "opacity-100" : "opacity-0",
                   )}
                   aria-hidden={index !== currentIndex}
                 >

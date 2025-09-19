@@ -18,7 +18,7 @@ const MarqueeRow = ({
     <div
       className={cn(
         "flex min-w-full flex-shrink-0 items-center justify-around gap-4",
-        reverse ? "animate-marquee-reverse" : "animate-marquee"
+        reverse ? "animate-marquee-reverse" : "animate-marquee",
       )}
     >
       {[...items, ...items].map((crypto, index) => (

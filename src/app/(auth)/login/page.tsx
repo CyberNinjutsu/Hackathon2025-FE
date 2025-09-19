@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import {
@@ -55,7 +54,7 @@ export default function LoginPage() {
   const [publicKeyInput, setPublicKeyInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const checkWalletExistence = async (publicKey: PublicKey) => {
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     const accountInfo = await connection.getAccountInfo(publicKey);
@@ -237,7 +236,10 @@ export default function LoginPage() {
                     )}
                   </Button>
                   {error && (
-                    <p className="text-sm text-red-300 text-center" role="alert">
+                    <p
+                      className="text-sm text-red-300 text-center"
+                      role="alert"
+                    >
                       {error}
                     </p>
                   )}

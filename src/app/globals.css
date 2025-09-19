@@ -51,19 +51,25 @@
 
 .dark {
   /* Enhanced dark mode for mysterious crypto theme */
-  --background: oklch(0.08 0.01 240); /* Very dark mysterious background */
-  --foreground: oklch(0.9 0.02 240); /* Light mystical text */
-  --card: oklch(0.12 0.015 240); /* Dark card with subtle hue */
+  --background: oklch(0.08 0.01 240);
+  /* Very dark mysterious background */
+  --foreground: oklch(0.9 0.02 240);
+  /* Light mystical text */
+  --card: oklch(0.12 0.015 240);
+  /* Dark card with subtle hue */
   --card-foreground: oklch(0.9 0.02 240);
   --popover: oklch(0.12 0.015 240);
   --popover-foreground: oklch(0.9 0.02 240);
-  --primary: oklch(0.9 0.02 240); /* Light primary for dark mode */
+  --primary: oklch(0.9 0.02 240);
+  /* Light primary for dark mode */
   --primary-foreground: oklch(0.08 0.01 240);
-  --secondary: oklch(0.2 0.02 240); /* Dark secondary */
+  --secondary: oklch(0.2 0.02 240);
+  /* Dark secondary */
   --secondary-foreground: oklch(0.9 0.02 240);
   --muted: oklch(0.2 0.02 240);
   --muted-foreground: oklch(0.65 0.015 240);
-  --accent: oklch(0.65 0.18 260); /* Brighter purple accent for dark mode */
+  --accent: oklch(0.65 0.18 260);
+  /* Brighter purple accent for dark mode */
   --accent-foreground: oklch(0.08 0.01 240);
   --destructive: oklch(0.45 0.18 15);
   --destructive-foreground: oklch(0.9 0.02 240);
@@ -130,15 +136,33 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     scroll-behavior: smooth;
   }
 }
 
 @layer utilities {
+  .bg-glow {
+    background-color: #08070e;
+    background-image: radial-gradient(
+        circle 800px at top -20% left -10%,
+        rgba(0, 255, 178, 0.08),
+        transparent 70%
+      ),
+      radial-gradient(
+        circle 600px at bottom -15% right -10%,
+        rgba(0, 255, 178, 0.06),
+        transparent 80%
+      );
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+  }
+
   .glass-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
@@ -160,7 +184,6 @@
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
     transition: all 0.3s ease;
-
   }
 
   .glass-button:hover {
@@ -279,6 +302,7 @@
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(2px);
   }
+
   .floating {
     animation: float 6s ease-in-out infinite;
   }
@@ -309,10 +333,40 @@
     @apply text-yellow-400 hover:text-yellow-300 underline underline-offset-4;
   }
 
+  /* Enhanced prose styling for policy pages */
+  .prose-invert h2 {
+    @apply text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2;
+  }
+
+  .prose-invert h3 {
+    @apply text-lg font-semibold text-cyan-400 mt-6 mb-3;
+  }
+
+  .prose-invert p {
+    @apply leading-relaxed mb-4 text-gray-300;
+  }
+
+  .prose-invert ul {
+    @apply list-disc list-inside space-y-2 mb-4 pl-4 text-gray-300;
+  }
+
+  .prose-invert li {
+    @apply text-gray-300;
+  }
+
+  .prose-invert strong {
+    @apply text-white font-semibold;
+  }
+
+  .prose-invert a {
+    @apply text-primary hover:text-cyan-400 underline underline-offset-4 transition-colors duration-200;
+  }
+
   @keyframes marquee {
     from {
       transform: translateX(0);
     }
+
     to {
       transform: translateX(-50%);
     }
@@ -330,6 +384,7 @@
     @apply bg-background text-foreground;
     scroll-behavior: smooth;
   }
+
   .homepage-container::before,
   .homepage-container::after {
     content: "";
@@ -338,6 +393,7 @@
     pointer-events: none;
     z-index: 0;
   }
+
   .homepage-container::before {
     background: radial-gradient(
         600px 600px at 8% 12%,
@@ -379,6 +435,7 @@
     animation: none;
     opacity: 0.2;
   }
+
   .word-animate {
     display: inline-block;
   }
@@ -418,17 +475,17 @@
 .no-autofill-bg:-webkit-autofill:hover,
 .no-autofill-bg:-webkit-autofill:focus,
 .no-autofill-bg:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0px 1000px transparent  inset; 
-  -webkit-text-fill-color: #ffffff; 
+  -webkit-box-shadow: 0 0 0px 1000px transparent inset;
+  -webkit-text-fill-color: #ffffff;
   transition: background-color 5000s ease-in-out 0s;
 }
-
 
 @keyframes float {
   0%,
   100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-10px);
   }

@@ -1,17 +1,29 @@
-import type React from "react";
-import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Analytics } from "@vercel/analytics/next";
-import { DM_Sans } from "next/font/google";
 import "../globals.css";
-import { AuthProvider } from "@/lib/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/lib/AuthContext";
+import { Analytics } from "@vercel/analytics/next";
+import { Metadata } from "next";
+import { DM_Sans } from "next/font/google";
 
 export const metadata: Metadata = {
-  title: "v0 App",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: "DAMS",
+  description:
+    "DAMS là nền tảng quản lý tài sản số hoá an toàn và minh bạch. Token hoá vàng, bất động sản, và đá quý giúp đầu tư dễ dàng, nhanh chóng và bảo mật.",
+  keywords: [
+    "DAMS",
+    "quản lý token",
+    "token hóa tài sản",
+    "vàng số hóa",
+    "bất động sản số hóa",
+    "đá quý số hóa",
+    "đầu tư blockchain",
+    "token blockchain",
+    "quản lý tài sản số",
+  ],
+  authors: [{ name: "DAMS Team" }],
+  creator: "DAMS",
+  publisher: "DAMS",
+  applicationName: "DAMS - Digital Asset Management System",
 };
 const dmSans = DM_Sans({
   subsets: ["latin"],

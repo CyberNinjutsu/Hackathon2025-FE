@@ -70,7 +70,10 @@ export default function Header() {
           <ul className="flex items-center gap-8">
             {navLinks.map((link) => (
               <li key={link.href}>
-                <Link href={link.href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                <Link
+                  href={link.href}
+                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
                   {link.label}
                 </Link>
               </li>
@@ -105,10 +108,7 @@ export default function Header() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() =>
-                    publicKey &&
-                    router.push("/dashboard")
-                  }
+                  onClick={() => publicKey && router.push("/dashboard")}
                 >
                   <LayoutDashboard className="mr-2 h-4 w-4" /> Dashboard
                 </DropdownMenuItem>
@@ -130,7 +130,6 @@ export default function Header() {
                   className="text-red-500 focus:text-red-500"
                 >
                   <LogOut className="mr-2 h-4 w-4" /> Log out
-                  
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -180,14 +179,15 @@ export default function Header() {
                       variant="secondary"
                       size="lg"
                       onClick={() => {
-                        if (publicKey)
-                          router.push("/dashboard");
+                        if (publicKey) router.push("/dashboard");
                         setIsOpen(false);
                       }}
                     >
                       Dashboard
                     </Button>
-                    <Button variant="destructive" size="lg"
+                    <Button
+                      variant="destructive"
+                      size="lg"
                       onClick={() => {
                         logout();
                         setIsOpen(false);
@@ -198,7 +198,12 @@ export default function Header() {
                   </>
                 ) : (
                   <>
-                    <Button asChild variant="outline" size="lg" className="rounded-full">
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      className="rounded-full"
+                    >
                       <Link href="/login" onClick={() => setIsOpen(false)}>
                         Connect Wallet
                       </Link>

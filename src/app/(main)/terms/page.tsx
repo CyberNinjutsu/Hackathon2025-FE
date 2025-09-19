@@ -1,56 +1,89 @@
-import PolicyPageLayout from "@/components/auth/PolicyPageLayout"
+"use client";
 
 export default function TermsPage() {
   return (
-    <PolicyPageLayout
-      title="Điều khoản Dịch vụ"
-      lastUpdated="Ngày cập nhật cuối: 21/05/2024"
-    >
-      {/* can be changed in the future with practical content */}
-      <p>
-        Chào mừng bạn đến với MysticalGold! Vui lòng đọc kỹ các Điều khoản Dịch vụ
-        (&ldquo;Điều khoản&rdquo;) này trước khi sử dụng dịch vụ của chúng tôi. Bằng việc truy cập
-        hoặc sử dụng Dịch vụ, bạn đồng ý bị ràng buộc bởi các Điều khoản này.
-      </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white custom-scrollbar">
+      {/* Background glow effects */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <div className="absolute top-20 left-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-cyan-400/10 rounded-full blur-3xl"></div>
+      </div>
 
-      <h2>1. Chấp nhận Điều khoản</h2>
-      <p>
-        Bằng cách tạo tài khoản hoặc sử dụng các dịch vụ do MysticalGold cung
-        cấp, bạn xác nhận rằng bạn đã đọc, hiểu và đồng ý tuân thủ tất cả
-        các điều khoản và điều kiện được nêu trong thỏa thuận này.
-      </p>
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-20 relative z-10">
+        {/* Content Card */}
+        <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl">
+          {/* Header */}
+          <div className="p-6 border-b border-gray-700/50 text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
+              Terms of Service
+            </h2>
+            <p className="text-gray-400 text-sm">Last updated: May 21, 2024</p>
+          </div>
 
-      <h2>2. Mô tả Dịch vụ</h2>
-      <p>
-        MysticalGold cung cấp một nền tảng quản lý tài sản số, cho phép người
-        dùng theo dõi danh mục đầu tư, thực hiện giao dịch và tương tác với các
-        giao thức blockchain. Chúng tôi không phải là một sàn giao dịch, nhà môi
-        giới, hay cố vấn tài chính.
-      </p>
+          {/* Content */}
+          <div className="p-6 prose prose-invert max-w-none">
+            <div className="space-y-6 text-gray-300 leading-relaxed">
+              <p>
+                Welcome to Cryptix! Please read these Terms of Service
+                (&ldquo;Terms&rdquo;) carefully before using our service. By
+                accessing or using the Service, you agree to be bound by these
+                Terms.
+              </p>
 
-      <h2>3. Trách nhiệm của Người dùng</h2>
-      <p>Bạn có trách nhiệm:</p>
-      <ul>
-        <li>
-          Bảo mật thông tin đăng nhập, khóa riêng tư (private keys) và các
-          thông tin xác thực khác.
-        </li>
-        <li>
-          Đảm bảo rằng mọi thông tin bạn cung cấp là chính xác và cập nhật.
-        </li>
-        <li>
-          Tuân thủ tất cả các luật và quy định hiện hành tại khu vực pháp lý
-          của bạn.
-        </li>
-      </ul>
+              <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
+                1. Acceptance of Terms
+              </h2>
+              <p>
+                By creating an account or using the services provided by
+                Cryptix, you acknowledge that you have read, understood, and
+                agree to comply with all terms and conditions set forth in this
+                agreement.
+              </p>
 
-      <h2>4. Giới hạn Trách nhiệm</h2>
-      <p>
-        Dịch vụ được cung cấp &quot;nguyên trạng&quot; và &quot;sẵn có&quot;. MysticalGold không
-        chịu trách nhiệm cho bất kỳ tổn thất nào phát sinh từ việc sử dụng dịch
-        vụ, bao gồm nhưng không giới hạn ở việc mất mát tài sản do lỗi bảo mật,
-        lỗi phần mềm, hoặc biến động thị trường.
-      </p>
-    </PolicyPageLayout>
+              <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
+                2. Service Description
+              </h2>
+              <p>
+                Cryptix provides a digital asset management platform that allows
+                users to track investment portfolios, execute transactions, and
+                interact with blockchain protocols. We are not an exchange,
+                broker, or financial advisor.
+              </p>
+
+              <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
+                3. User Responsibilities
+              </h2>
+              <p>You are responsible for:</p>
+              <ul className="list-disc list-inside space-y-2 mb-4 pl-4 text-gray-300">
+                <li>
+                  Securing login information, private keys, and other
+                  authentication information.
+                </li>
+                <li>
+                  Ensuring that all information you provide is accurate and
+                  up-to-date.
+                </li>
+                <li>
+                  Complying with all applicable laws and regulations in your
+                  jurisdiction.
+                </li>
+              </ul>
+
+              <h2 className="text-xl font-semibold text-primary mt-8 mb-4 border-b border-primary/30 pb-2">
+                4. Limitation of Liability
+              </h2>
+              <p>
+                The Service is provided &quot;as is&quot; and &quot;as
+                available&quot;. Cryptix is not responsible for any losses
+                arising from the use of the service, including but not limited
+                to asset loss due to security errors, software bugs, or market
+                volatility.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
