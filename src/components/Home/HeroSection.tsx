@@ -17,7 +17,7 @@ const StarIcon = ({ filled = true }: { filled?: boolean }) => (
 export default function HeroSection() {
   return (
     <section className="relative px-6 pt-32 pb-20 overflow-hidden md:pt-40 md:pb-24">
-      <div className="absolute inset-0 -z-10 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden -z-10 pointer-events-none" aria-hidden="true">
         <div className="absolute w-[600px] h-[600px] bg-[#00ffb2]/10 blur-3xl rounded-full -top-[300px] -left-[300px]" />
         <div className="absolute w-[600px] h-[600px] bg-[#00ffb2]/10 blur-3xl rounded-full -top-[300px] -right-[300px]" />
         <div className="absolute w-[300px] h-[300px] bg-[#00ffb2]/20 blur-3xl rounded-full -top-[100px] -left-[100px]" />

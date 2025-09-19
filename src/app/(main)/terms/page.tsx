@@ -1,12 +1,6 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowLeft, Coins } from "lucide-react";
-import { useRouter } from "next/navigation";
-
 export default function TermsPage() {
-  const router = useRouter();
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white custom-scrollbar">
       {/* Background glow effects */}

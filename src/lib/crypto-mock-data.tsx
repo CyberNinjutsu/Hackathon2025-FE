@@ -1,5 +1,5 @@
 import React from "react";
-import { Bitcoin, Ethereum } from "./crypto-icons";
+import { Bitcoin, Dash, Ethereum, Solana, XRP } from "./crypto-icons";
 
 export type Crypto = {
   name: string;
@@ -34,15 +34,15 @@ export const cryptos: Crypto[] = [
     ticker: "SOL",
     price: "165.72",
     change: 3.1,
-    Icon: () => <div className="font-bold text-black">S</div>,
-    iconBgColor: "bg-[#00ffa3]",
+    Icon: Solana,
+    iconBgColor: "bg-[#00ffa249]",
   },
   {
     name: "XRP",
     ticker: "XRP",
     price: "0.489",
     change: -1.2,
-    Icon: () => <div className="font-bold text-white">X</div>,
+    Icon: XRP,
     iconBgColor: "bg-[#23292f]",
   },
   {
@@ -50,7 +50,7 @@ export const cryptos: Crypto[] = [
     ticker: "DASH",
     price: "28.15",
     change: 2.5,
-    Icon: () => <div className="font-bold text-white">D</div>,
+    Icon: Dash,
     iconBgColor: "bg-[#008ce7]",
   },
 ];
