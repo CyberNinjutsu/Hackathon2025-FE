@@ -116,7 +116,7 @@ export function useTransactionHistory(
 
         let foundValidInstruction = false;
 
-        for (const instruction of instructions as (| ParsedInstruction | PartiallyDecodedInstruction)[]) {
+        for (const instruction of instructions as (ParsedInstruction | PartiallyDecodedInstruction)[]) {
           if (!("parsed" in instruction)) continue;
 
           const detectedType = detectTransactionType(instruction, tokensAccountAddr);
