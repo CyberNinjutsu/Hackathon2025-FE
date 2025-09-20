@@ -1,21 +1,13 @@
 "use client";
 
+import { AuthContextType } from '@/utils/Types';
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface AuthContextType {
-  publicKey: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (publicKey: string) => void;
-  logout: () => void;
-  savePublicKey: (publicKey: string) => void;
-}
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [publicKey, setPublicKey] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     // Check if user is logged in from localStorage

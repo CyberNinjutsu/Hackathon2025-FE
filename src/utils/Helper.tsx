@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { TransactionTypeName } from "./Types";
 
 const getTransactionIcon = (type: string) => {
   switch (type) {
@@ -14,7 +15,21 @@ const getTransactionIcon = (type: string) => {
       return "❓";
   }
 };
-
+const getTypeColorClass = (type: TransactionTypeName): string => {
+  switch (type) {
+    case "Receive":
+      return "text-green-400";
+    case "Send":
+      return "text-red-400";
+    case "Mint":
+      return "text-purple-400";
+    case "Swap":
+      return "text-blue-400";
+    case "Other":
+    default:
+      return "text-gray-400";
+  }
+};
 const getStatusBadge = (status: string) => {
   switch (status) {
     case "completed":
@@ -28,4 +43,4 @@ const getStatusBadge = (status: string) => {
   }
 };
 
-export { getTransactionIcon, getStatusBadge };
+export { getTransactionIcon, getStatusBadge, getTypeColorClass };
