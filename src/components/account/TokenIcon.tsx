@@ -53,7 +53,6 @@ export const TokenIcon: React.FC<TokenIconProps> = ({ symbol, logoURI, mint, siz
       width={size}
       height={size}
       className="rounded-full"
-      // Set the error state if the image fails to load
       onError={() => setHasError(true)}
     />
   );

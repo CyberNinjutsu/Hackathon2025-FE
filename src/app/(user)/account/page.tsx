@@ -26,7 +26,6 @@ import { toast } from "sonner";
 import { useTransactionHistory } from "@/utils/useTransactionHistory";
 import { format } from "date-fns";
 
-
 const assetHistory: AssetHistory[] = [
   {
     id: "1",
@@ -92,11 +91,11 @@ const AccountPage = () => {
 
   useEffect(() => {
     if (!publicKey || !isAuthenticated) {
-      if (!isAuthLoading) setIsLoadingTokens(false);
-      return;
-
-      // router.replace("/login");
-      // dùng replace để tránh back lại
+      if (!isAuthLoading) {
+        setIsLoadingTokens(false);
+        router.replace("/login");
+        return;
+      }
     } else {
       setIsChecking(false);
       const fetchTokenAccounts = async () => {
@@ -357,7 +356,12 @@ const AccountPage = () => {
                       {transactions.map((tx) => {
                         const transactionForUI: Transaction = {
                           id: tx.id,
-                          type: tx.type as  "Send" | "Receive" | "Mint" | "Swap" | "Other" ,
+                          type: tx.type as
+                            | "Send"
+                            | "Receive"
+                            | "Mint"
+                            | "Swap"
+                            | "Other",
                           date: format(new Date(tx.date), "yyyy-MM-dd HH:mm"),
                           amount: tx.amount,
                           assetSymbol: tx.assetSymbol,

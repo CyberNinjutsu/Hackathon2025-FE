@@ -1,41 +1,10 @@
-// components/TokenAccountsDisplay.tsx
 "use client";
 
 import React from "react";
 import Link from "next/link";
 
 import { TokenAccount } from "@/utils/Types";
-
-/** Small icon component for tokens: uses logoURI if present, otherwise shows initial */
-const TokenIcon: React.FC<{
-  mint: string;
-  symbol?: string | null;
-  logoURI?: string | null;
-  size?: number;
-}> = ({ logoURI, symbol, size = 40 }) => {
-  const fallback = (symbol && symbol[0]) || (mintToShort(logoURI ?? "")[0] ?? "?");
-  return logoURI ? (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src={logoURI}
-      alt={symbol ?? "token"}
-      width={size}
-      height={size}
-      className="rounded-full object-cover"
-    />
-  ) : (
-    <div
-      style={{ width: size, height: size }}
-      className="rounded-full bg-white/10 flex items-center justify-center text-sm font-semibold text-white"
-    >
-      {fallback.toUpperCase()}
-    </div>
-  );
-};
-
-function mintToShort(mint: string) {
-  return mint ? mint.slice(0, 6) : "";
-}
+import { TokenIcon } from "./TokenIcon";
 
 /**
  * formatNumber(number, decimals = 0, groupSize = 3, groupSeparator = ",", decimalSeparator = ".")

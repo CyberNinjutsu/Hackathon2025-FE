@@ -72,9 +72,9 @@ export function useTransactionHistory(
     try {
       const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
       const walletPubKey = new PublicKey(publicKey);
-      
+
       const fetchLimit = limit === null ? 1000 : limit;
-      
+
       const signatures = await connection.getSignaturesForAddress(
         walletPubKey,
         {
@@ -82,10 +82,10 @@ export function useTransactionHistory(
         }
       );
 
-    //   console.log(`Fetched ${signatures.length} signatures for limit ${limit}`);
+      //   console.log(`Fetched ${signatures.length} signatures for limit ${limit}`);
 
       const txList: Transaction[] = [];
-      
+
       for (const sigInfo of signatures) {
         // THAY ĐỔI: Dừng khi đã có đủ số lượng transaction cần thiết
         if (limit !== null && txList.length >= limit) {
@@ -131,7 +131,7 @@ export function useTransactionHistory(
           if (!("parsed" in instruction)) continue;
 
           const detectedType = detectTransactionType(instruction, walletPubKey);
-          
+
           if (detectedType !== "Other") {
             type = detectedType;
             foundValidInstruction = true;
@@ -181,7 +181,8 @@ export function useTransactionHistory(
             ) {
               const mintData = mintsInfo.get(instruction.parsed.info.mint)
                 ?.data as ParsedAccountData;
-              if (mintData.parsed?.info?.extensions) {
+              const extensions = mintData.parsed?.info?.extensions;
+              if (extensions) {
                 for (const ext of mintData.parsed?.info?.extensions) {
                   if (ext.extension === "tokenMetadata") {
                     assetSymbol = ext.state.symbol || "N/A";
@@ -248,7 +249,8 @@ export function useTransactionHistory(
             ) {
               const mintData = mintsInfo.get(instruction.parsed.info.mint)
                 ?.data as ParsedAccountData;
-              if (mintData.parsed?.info?.extensions) {
+              const extensions = mintData.parsed?.info?.extensions;
+              if (extensions) {
                 for (const ext of mintData.parsed?.info?.extensions) {
                   if (ext.extension === "tokenMetadata") {
                     assetSymbol = ext.state.symbol || "N/A";
@@ -266,7 +268,6 @@ export function useTransactionHistory(
 
           if (foundValidInstruction) break;
         }
-
 
         txList.push({
           id: sigInfo.signature,
@@ -290,8 +291,9 @@ export function useTransactionHistory(
         (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
       );
 
-      const finalList = limit !== null ? sortedTxList.slice(0, limit) : sortedTxList;
-      
+      const finalList =
+        limit !== null ? sortedTxList.slice(0, limit) : sortedTxList;
+
       setTransactions(finalList);
     } catch (e) {
       console.error("Error fetching transactions:", e);

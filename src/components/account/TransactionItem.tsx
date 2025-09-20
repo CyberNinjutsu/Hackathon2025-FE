@@ -23,7 +23,7 @@ const TransactionItem = ({
             isIncoming ? "bg-[#00FFB2]/20" : "bg-red-500/10"
           }`}
         >
-          <TransactionIcon type={transaction.type as TransactionTypeName} />
+          <TransactionIcon type={transaction.type} />
         </div>
         <div>
           <div className="text-white font-medium capitalize">
