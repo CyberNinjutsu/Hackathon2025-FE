@@ -1,21 +1,7 @@
 "use client";
 
-import type React from "react";
-import Image from "next/image";
-import { useState } from "react";
-import Link from "next/link";
-import {
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
-  Coins,
-  Shield,
-  User,
-  Check,
-} from "lucide-react";
+import BackgroundGlow from "@/components/BackgroundGlow";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -23,10 +9,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Check,
+  Coins,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Shield,
+  User,
+} from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import goldbarBg from "@/assets/goldbar-bg.jpg";
+import type React from "react";
+import { useState } from "react";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -43,6 +42,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setIsLoading(true);
 
+    // Simulate API request
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     router.push("/");
@@ -50,60 +50,41 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-background with-image flex items-center justify-center p-4 sm:p-6 md:p-8">
-      <Image
-        src={goldbarBg}
-        alt="Blockchain background"
-        fill
-        priority
-        quality={85}
-        placeholder="blur"
-        className="object-cover object-center"
-      />
+      <BackgroundGlow />
       <div className="w-full max-w-md space-y-6 sm:space-y-8 relative z-10">
-        {/* Logo và thương hiệu */}
-        <div className="text-center space-y-4 floating">
+        {/* Logo and branding */}
+        <div className="text-center space-y-4 floating uppercase font-bold">
           <div className="flex justify-center">
             <div className="glass-logo flex h-16 w-16 items-center justify-center rounded-2xl">
               <Coins className="h-8 w-8 text-white" />
             </div>
           </div>
-          <div className="space-y-2">
-            {/* SỬA ĐỔI: Thêm cỡ chữ responsive */}
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-balance glass-text-warning">
-              MysticalGold
-            </h1>
-            <p className="glass-text-secondary text-pretty">
-              Bắt đầu quản lý tài sản blockchain của bạn ngay hôm nay
-            </p>
-          </div>
+          Create Your Own Wallet
         </div>
 
-        {/* Form Đăng ký */}
+        {/* Registration Form */}
         <Card className="glass-card border-0">
           <CardHeader className="space-y-1 text-center">
-            {/* SỬA ĐỔI: Thêm cỡ chữ responsive */}
             <CardTitle className="text-xl sm:text-2xl font-semibold glass-text-primary">
-              Tạo tài khoản
+              Create Account
             </CardTitle>
             <CardDescription className="glass-text-secondary">
-              Tham gia cùng hàng ngàn người dùng quản lý tài sản số một cách an
-              toàn
+              Join thousands of users managing digital assets securely
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Họ và tên */}
-              {/* SỬA ĐỔI: Đồng bộ space-y-2 cho nhất quán */}
+              {/* Full Name */}
               <div className="space-y-2">
                 <Label htmlFor="fullName" className="glass-text-primary">
-                  Họ và tên
+                  Full Name
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
                   <Input
                     id="fullName"
                     type="text"
-                    placeholder="Nhập họ và tên của bạn"
+                    placeholder="Enter your full name"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="glass-input pl-10 border-0"
@@ -116,14 +97,14 @@ export default function RegisterPage() {
               {/* Email */}
               <div className="space-y-2">
                 <Label htmlFor="email" className="glass-text-primary">
-                  Địa chỉ Email
+                  Email Address
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="Nhập email của bạn"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 glass-input border-0"
@@ -133,17 +114,17 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Mật khẩu */}
+              {/* Password */}
               <div className="space-y-2">
                 <Label htmlFor="password" className="glass-text-primary">
-                  Mật khẩu
+                  Password
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Tạo mật khẩu mạnh"
+                    placeholder="Create a strong password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-10 pr-10 glass-input"
@@ -156,7 +137,9 @@ export default function RegisterPage() {
                     size="icon"
                     className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-white/70 hover:text-white hover:bg-white/10"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -167,17 +150,17 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              {/* Xác nhận mật khẩu */}
+              {/* Confirm Password */}
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="glass-text-primary">
-                  Xác nhận mật khẩu
+                  Confirm Password
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/70" />
                   <Input
                     id="confirmPassword"
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Nhập lại mật khẩu"
+                    placeholder="Re-enter password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-10 pr-10 glass-input border-0"
@@ -199,7 +182,7 @@ export default function RegisterPage() {
                     className="absolute right-1 top-1/2 h-7 w-7 -translate-y-1/2 text-white/70 hover:text-white hover:bg-white/10"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     aria-label={
-                      showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"
+                      showConfirmPassword ? "Hide password" : "Show password"
                     }
                   >
                     {showConfirmPassword ? (
@@ -217,12 +200,12 @@ export default function RegisterPage() {
                     id="confirmPassword-error"
                     className="text-sm text-red-800"
                   >
-                    Mật khẩu không khớp
+                    Passwords do not match
                   </p>
                 )}
               </div>
 
-              {/* Đồng ý điều khoản */}
+              {/* Agree to Terms */}
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
@@ -237,25 +220,25 @@ export default function RegisterPage() {
                     htmlFor="terms"
                     className="text-sm font-normal leading-relaxed glass-text-secondary"
                   >
-                    Tôi đồng ý với{" "}
+                    I agree to the{" "}
                     <Link
                       href="/terms"
                       className="font-bold glass-text-secondary hover:text-white underline-offset-4 hover:underline"
                     >
-                      Điều khoản dịch vụ
+                      Terms of Service
                     </Link>{" "}
-                    và{" "}
+                    and{" "}
                     <Link
                       href="/privacy"
                       className="font-bold glass-text-secondary hover:text-white underline-offset-4 hover:underline"
                     >
-                      Chính sách bảo mật
+                      Privacy Policy
                     </Link>
                   </label>
                 </div>
               </div>
 
-              {/* Nút đăng ký */}
+              {/* Register Button */}
               <Button
                 type="submit"
                 className="w-full glass-button border-0"
@@ -265,36 +248,38 @@ export default function RegisterPage() {
                 {isLoading ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent mr-2" />
-                    Đang tạo tài khoản...
+                    Creating Account...
                   </>
                 ) : (
-                  "Tạo tài khoản"
+                  "Create Account"
                 )}
               </Button>
             </form>
 
-            {/* Thông báo bảo mật */}
+            {/* Security Notice */}
             <div className="mt-6 flex items-start space-x-2 glass-notice rounded-lg p-3">
               <Shield className="h-4 w-4 text-white mt-0.5 flex-shrink-0" />
               <div className="text-xs">
                 <p className="glass-text-primary font-medium">
-                  Đăng ký an toàn
+                  Secure Registration
                 </p>
                 <p className="glass-text-muted">
-                  Dữ liệu của bạn được mã hóa và bảo vệ. Chúng tôi không bao giờ
-                  chia sẻ thông tin với bên thứ ba.
+                  Your data is encrypted and protected. We never share
+                  information with third parties.
                 </p>
               </div>
             </div>
 
-            {/* Link đăng nhập */}
+            {/* Login Link */}
             <div className="mt-6 text-center text-sm">
-              <span className="glass-text-muted">Đã có tài khoản? </span>
+              <span className="glass-text-muted">
+                Already have an account?{" "}
+              </span>
               <Link
                 href="/login"
                 className="glass-text-secondary hover:text-white font-medium underline-offset-4 hover:underline"
               >
-                Đăng nhập
+                Login
               </Link>
             </div>
           </CardContent>
@@ -303,13 +288,13 @@ export default function RegisterPage() {
         {/* Footer */}
         <div className="text-center text-xs glass-text-muted">
           <p>
-            Bằng việc tạo tài khoản, bạn đồng ý với{" "}
+            By creating an account, you agree to the{" "}
             <Link href="/terms" className="underline hover:text-white/80">
-              Điều khoản dịch vụ
+              Terms of Service
             </Link>{" "}
-            và{" "}
+            and{" "}
             <Link href="/privacy" className="underline hover:text-white/80">
-              Chính sách bảo mật
+              Privacy Policy
             </Link>
           </p>
         </div>

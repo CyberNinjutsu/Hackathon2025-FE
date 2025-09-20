@@ -7,7 +7,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 // import { Toaster } from "@/components/ui/sonner";
 import { Metadata } from "next";
 export const metadata: Metadata = {
-  title: "v0 App",
+  title: "DAMS - Your trusted blockchain transaction and wallet management",
   description: "Created with v0",
   generator: "v0.app",
 };
