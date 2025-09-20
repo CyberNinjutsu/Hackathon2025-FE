@@ -35,7 +35,7 @@ interface SolanaProvider {
   signTransaction: (transaction: Transaction) => Promise<Transaction>;
   signMessage: (
     message: Uint8Array,
-    display: "utf8" | "hex"
+    display: "utf8" | "hex",
   ) => Promise<{ signature: Uint8Array }>;
   connect: (options?: {
     onlyIfTrusted: boolean;
@@ -51,7 +51,7 @@ declare global {
 export default function LoginPage() {
   const router = useRouter();
   const { savePublicKey } = useAuth();
-  const [publicKeyInput, setPublicKeyInput] = useState("");
+  const [publicKeyInput, setPublicKeyInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
     const accountInfo = await connection.getAccountInfo(publicKey);
     if (accountInfo === null) {
       throw new Error(
-        "Ví chưa tồn tại hoặc chưa được khởi tạo trên blockchain."
+        "Ví chưa tồn tại hoặc chưa được khởi tạo trên blockchain.",
       );
     }
   };
@@ -124,7 +124,7 @@ export default function LoginPage() {
       const isVerified = nacl.sign.detached.verify(
         message,
         signedMessage.signature,
-        userPublicKey.toBytes()
+        userPublicKey.toBytes(),
       );
 
       if (!isVerified) {
@@ -137,7 +137,7 @@ export default function LoginPage() {
       handleError(
         "Kết nối hoặc xác thực thất bại",
         err,
-        "Người dùng đã từ chối yêu cầu."
+        "Người dùng đã từ chối yêu cầu.",
       );
     } finally {
       setIsLoading(false);

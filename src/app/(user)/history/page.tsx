@@ -63,14 +63,14 @@ function formatNumber(
   n: number,
   x: number,
   s: string,
-  c: string = ""
+  c: string = "",
 ) {
   const re = "\\d(?=(\\d{" + (x || 3) + "})+" + (n > 0 ? "\\D" : "$") + ")",
     num = number.toFixed(Math.max(0, ~~n));
 
   return (c ? num.replace(".", c) : num).replace(
     new RegExp(re, "g"),
-    "$&" + (s || ",")
+    "$&" + (s || ","),
   );
 }
 
@@ -209,7 +209,7 @@ export default function HistoryPage() {
               // assetSymbol = ix.parsed?.info.mint;
               if (!mintsInfo.has(parsedInstruction.info.mint)) {
                 const mintAccount = await connection.getParsedAccountInfo(
-                  new PublicKey(parsedInstruction.info.mint)
+                  new PublicKey(parsedInstruction.info.mint),
                 );
                 mintsInfo.set(parsedInstruction.info.mint, mintAccount.value);
                 // console.log('Fetched mint account:', mintAccount);
@@ -251,8 +251,8 @@ export default function HistoryPage() {
 
         setTransactions(
           txList.sort(
-            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-          )
+            (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+          ),
         );
       } catch (error) {
         console.error("Error fetching transactions:", error);
@@ -435,15 +435,15 @@ export default function HistoryPage() {
                         tx.status === "Completed"
                           ? "text-green-400 border-green-400 bg-green-400/10"
                           : tx.status === "Pending"
-                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                          : "text-red-400 border-red-400 bg-red-400/10"
+                            ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                            : "text-red-400 border-red-400 bg-red-400/10"
                       }
                     >
                       {tx.status === "Completed"
                         ? "Hoàn thành"
                         : tx.status === "Pending"
-                        ? "Chờ xử lý"
-                        : "Thất bại"}
+                          ? "Chờ xử lý"
+                          : "Thất bại"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs text-gray-400">
@@ -490,15 +490,15 @@ export default function HistoryPage() {
                       tx.status === "Completed"
                         ? "text-green-400 border-green-400 bg-green-400/10"
                         : tx.status === "Pending"
-                        ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                        : "text-red-400 border-red-400 bg-red-400/10"
+                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                          : "text-red-400 border-red-400 bg-red-400/10"
                     }
                   >
                     {tx.status === "Completed"
                       ? "Hoàn thành"
                       : tx.status === "Pending"
-                      ? "Chờ xử lý"
-                      : "Thất bại"}
+                        ? "Chờ xử lý"
+                        : "Thất bại"}
                   </Badge>
                 </div>
               </div>

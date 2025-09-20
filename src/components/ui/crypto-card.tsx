@@ -16,13 +16,13 @@ export const CryptoCard = ({
         "flex flex-shrink-0 items-center gap-3 whitespace-nowrap rounded-full",
         "border border-black/20 px-4 py-2",
         "transition-transform duration-300 hover:-translate-y-1 hover:brightness-90",
-        iconBgColor
+        iconBgColor,
       )}
     >
       <div
         className={cn(
           "flex h-10 w-10 items-center justify-center rounded-full",
-          "bg-black/20"
+          "bg-black/20",
         )}
       >
         <Icon className="h-5 w-5" />
@@ -37,7 +37,7 @@ export const CryptoCard = ({
       <div
         className={cn(
           "ml-auto rounded-full px-2 py-0.5 text-xs font-semibold",
-          "bg-white/10 text-white"
+          "bg-white/10 text-white",
         )}
       >
         {isPositive ? "+" : ""}
