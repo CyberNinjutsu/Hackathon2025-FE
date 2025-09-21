@@ -21,7 +21,8 @@ export default function HeroSection() {
       <div className="max-w-7xl mx-auto text-center">
         <div className="max-w-3xl mx-auto mb-10">
           <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6 text-foreground">
-            <WordAnimate>Take Control of Your Digital Assets</WordAnimate>
+            <WordAnimate>Take Control of</WordAnimate>
+            <WordAnimate>Your Digital Assets</WordAnimate>
           </h1>
           <p className="text-lg md:text-xl leading-relaxed text-muted-foreground">
             <WordAnimate>
