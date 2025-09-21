@@ -44,11 +44,8 @@ function formatNumber(
 ) {
   const fixed = Number(number || 0).toFixed(decimals);
   const parts = fixed.split(".");
-  parts[0] = parts[0].replace(
-    new RegExp("\\B(?=(\\d{" + groupSize + "})+(?!\\d))", "g"),
-    groupSeparator
-  );
-  return parts.join(decimalSeparator);
+  parts[0] = parts[0].replace(new RegExp("\\B(?=(\\d{" + groupSize + "})+(?!\\d))", "g"), groupSeparator);
+  return parts.join(decimalSeparator).replace(/\.?0+$/, "");
 }
 
 function shortenSignature(sig: string, chars = 6) {
@@ -252,7 +249,7 @@ export default function HistoryPage() {
                     </Link>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-white font-semibold">
-                    {formatNumber(tx.amount, 9)} {tx.assetSymbol}
+                    {formatNumber(tx.amount)} {tx.assetSymbol}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-green-400 font-bold">
                     ${tx.value.toLocaleString("en-US")}
@@ -264,15 +261,13 @@ export default function HistoryPage() {
                         tx.status === "Completed"
                           ? "text-green-400 border-green-400 bg-green-400/10"
                           : tx.status === "Pending"
-                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                          : "text-red-400 border-red-400 bg-red-400/10"
+                            ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                            : "text-red-400 border-red-400 bg-red-400/10"
                       }
                     >
-                      {tx.status === "Completed"
-                        ? "Completed"
-                        : tx.status === "Pending"
-                        ? "Pending"
-                        : "Failed"}
+                      {tx.status === "Completed" ? "Completed"
+                        : tx.status === "Pending" ? "Pending"
+                          : "Failed"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs text-gray-400">
@@ -293,11 +288,11 @@ export default function HistoryPage() {
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-3">
                     <TransactionIcon type={tx.type} />
-                      <span
-                        className={`font-semibold ${getTypeColorClass(tx.type)}`}
-                      >
-                        {tx.type}
-                      </span>
+                    <span
+                      className={`font-semibold ${getTypeColorClass(tx.type)}`}
+                    >
+                      {tx.type}
+                    </span>
                   </div>
                   <span className="text-xs text-gray-400">
                     {format(new Date(tx.date), "dd/MM/yyyy HH:mm")}
@@ -305,7 +300,7 @@ export default function HistoryPage() {
                 </div>
                 <div className="mb-3">
                   <div className="text-white font-semibold mb-1">
-                    {formatNumber(tx.amount, 9)} {tx.assetSymbol}
+                    {formatNumber(tx.amount, 2)} {tx.assetSymbol}
                   </div>
                   {tx.id && (
                     <div className="text-xs text-gray-400 truncate font-mono">
@@ -323,15 +318,15 @@ export default function HistoryPage() {
                       tx.status === "Completed"
                         ? "text-green-400 border-green-400 bg-green-400/10"
                         : tx.status === "Pending"
-                        ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                        : "text-red-400 border-red-400 bg-red-400/10"
+                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                          : "text-red-400 border-red-400 bg-red-400/10"
                     }
                   >
                     {tx.status === "Completed"
                       ? "Completed"
                       : tx.status === "Pending"
-                      ? "Pending"
-                      : "Failed"}
+                        ? "Pending"
+                        : "Failed"}
                   </Badge>
                 </div>
               </div>
