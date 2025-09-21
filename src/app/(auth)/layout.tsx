@@ -1,5 +1,6 @@
 import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
 import { AuthProvider } from "@/lib/AuthContext";
 import { Analytics } from "@vercel/analytics/next";
 import { Metadata } from "next";
@@ -41,6 +42,7 @@ export default function RootLayout({
         <AuthProvider>
           {children}
           <Analytics />
+          <AIInvestmentChatbot />
         </AuthProvider>
         <Toaster position="top-right" richColors />
       </body>

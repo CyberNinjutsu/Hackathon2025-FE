@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Header from "@/components/Home/Header";
 import Footer from "@/components/Home/Footer";
+import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
 import "../globals.css";
 import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/AuthContext";
@@ -35,6 +36,7 @@ export default function MainLayout({
             <Suspense fallback={null}>{children}</Suspense>
           </main>
           <Footer />
+          <AIInvestmentChatbot />
         </AuthProvider>
       </body>
     </html>

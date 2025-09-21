@@ -1,5 +1,6 @@
 import Header from "@/components/account/Header";
 import Footer from "@/components/Home/Footer";
+import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
 import { AuthProvider } from "@/lib/AuthContext";
 import type { Metadata } from "next";
 import type React from "react";
@@ -50,6 +51,7 @@ export default function UserLayout({
           </main>
           <Footer />
           <Toaster position="top-right" richColors />
+          <AIInvestmentChatbot />
         </AuthProvider>
       </body>
     </html>
