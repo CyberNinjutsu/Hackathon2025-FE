@@ -1,3 +1,4 @@
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import AllCryptos from "@/components/Home/AllCryptos";
 import CTA from "@/components/Home/CTA";
 import Faq from "@/components/Home/Faq";

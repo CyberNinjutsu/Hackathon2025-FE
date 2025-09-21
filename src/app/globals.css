@@ -464,7 +464,7 @@
   background: linear-gradient(
     to bottom right,
     #0f172a,
-    /* slate-900 */ #581c87,
+    /* slate-900 */ #00ffb2,
     /* purple-900 */ #0f172a /* slate-900 */
   );
   color: var(--foreground);

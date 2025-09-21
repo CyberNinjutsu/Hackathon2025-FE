@@ -1,6 +1,6 @@
 "use client";
 
-import BackgroundGlow from "@/components/BackgroundGlow";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import { Button } from "@/components/ui/button";
 import {
   Card,

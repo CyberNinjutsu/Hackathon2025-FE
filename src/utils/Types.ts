@@ -16,7 +16,15 @@ interface AuthContextType {
   logout: () => void;
   savePublicKey: (publicKey: string) => void;
 }
-
+interface Token {
+  symbol: string;
+  mint: string;
+  name: string;
+  logo?: string;
+  logoURI?: string;
+  balance: string;
+  price: number; // USD price
+}
 interface Transaction {
   id: string;
   type: TransactionTypeName;
@@ -37,9 +45,10 @@ interface AssetHistory {
 
 interface TokenIconProps {
   symbol?: string;
+  logo?: string;
   logoURI?: string;
-  mint: string; // Used for fallback color generation
-  size?: number; // Size in pixels
+  mint: string;
+  size?: number;
 }
 interface TokenAccount {
   tokenAccountAddress: string;
@@ -50,7 +59,12 @@ interface TokenAccount {
   symbol?: string;
   logoURI?: string;
 }
-export type TransactionTypeName = "Send" | "Receive" | "Mint" | "Swap" | "Other";
+export type TransactionTypeName =
+  | "Send"
+  | "Receive"
+  | "Mint"
+  | "Swap"
+  | "Other";
 
 export type {
   Asset,
@@ -59,4 +73,5 @@ export type {
   AuthContextType,
   TokenIconProps,
   TokenAccount,
+  Token,
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import icon from "@/assets/iconheader.png";
-import BackgroundGlow from "@/components/BackgroundGlow";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import { Button } from "@/components/ui/button";
 import {
   Card,

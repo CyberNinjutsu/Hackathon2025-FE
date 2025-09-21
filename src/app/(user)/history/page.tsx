@@ -21,7 +21,7 @@ import {
 import { ArrowLeft, Download, Filter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import BackgroundGlow from "@/components/BackgroundGlow";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import TransactionIcon from "@/components/TransactionIcon";
 import { useAuth } from "@/lib/AuthContext";
 import { useTransactionHistory } from "@/utils/useTransactionHistory";
