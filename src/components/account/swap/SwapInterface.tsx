@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useRef, useState } from "react";
 import { ArrowUpDown, Loader2, Settings } from "lucide-react";
 import TokenSelectionPopup from "./TokenSelectionPopup";
 import SwapInput from "./SwapInput";
@@ -63,7 +63,7 @@ const SwapInterface: React.FC = () => {
   const { publicKey, isAuthenticated } = useAuth();
   const [walletTokens, setWalletTokens] = useState<Token[]>([]);
   const [isFetchingTokens, setIsFetchingTokens] = useState(false);
-
+ const calcTimeoutRef = useRef<number | null>(null);
   // Calculate exchange rate between two tokens
   const calculateExchangeRate = (from: Token, to: Token): number => {
     if (!from || !to) return 0;
@@ -82,6 +82,11 @@ const SwapInterface: React.FC = () => {
       const rate = calculateExchangeRate(fromToken, toToken);
       setExchangeRate(rate);
     }
+    return () => {
+      if(calcTimeoutRef.current) { 
+      clearTimeout(calcTimeoutRef.current)
+    }
+    }
   }, [fromToken, toToken]);
 
   // Handle amount changes with dynamic calculation
@@ -95,8 +100,10 @@ const SwapInterface: React.FC = () => {
 
     setIsCalculating(true);
 
-    // Simulate API delay for rate calculation
-    setTimeout(() => {
+    if(calcTimeoutRef.current) { 
+      clearTimeout(calcTimeoutRef.current)
+    }
+    calcTimeoutRef.current = window.setTimeout(() => {
       const rate = calculateExchangeRate(fromToken, toToken);
       // Add small random fluctuation (±0.5%) to simulate real market
       const fluctuation = 1 + (Math.random() - 0.5) * 0.01;
@@ -175,7 +182,8 @@ const SwapInterface: React.FC = () => {
             return {
               symbol,
               name: acc.symbol || "Unknown Token",
-              logo: acc.logoURI,
+              logo: acc.logo,
+              logoURI: acc.logoURI,
               mint: acc.mint,
               balance: acc.uiAmount?.toString() ?? "0",
               price: price,

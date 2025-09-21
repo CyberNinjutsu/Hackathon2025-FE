@@ -58,6 +58,7 @@ interface TokenAccount {
   decimals?: number;
   symbol?: string;
   logoURI?: string;
+  logo?:string;
 }
 export type TransactionTypeName =
   | "Send"

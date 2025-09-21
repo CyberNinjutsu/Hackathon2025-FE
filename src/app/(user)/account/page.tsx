@@ -1,31 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import AssetChart from "@/components/account/AssetChart";
 import AssetItem from "@/components/account/AssetItem";
 import TransactionItem from "@/components/account/TransactionItem";
-import { getStatusBadge, getTransactionIcon } from "@/utils/Helper";
-import { Asset, AssetHistory, Transaction } from "@/utils/Types";
-import { ArrowRightIcon, PlusIcon, WalletIcon } from "lucide-react";
-import { TokenListProvider } from "@solana/spl-token-registry";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/AuthContext";
-import {
-  Connection,
-  PublicKey,
-  clusterApiUrl,
-  ParsedAccountData,
-  AccountInfo,
-} from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import BackgroundGlow from "@/components/Glow/BackgroundGlow";
-import { TokenAccount } from "@/utils/Types";
 import Loading from "@/components/Loading";
-import { toast } from "sonner";
+import { useAuth } from "@/lib/AuthContext";
+import { getStatusBadge } from "@/utils/Helper";
+import { AssetHistory, TokenAccount, Transaction } from "@/utils/Types";
+import { fetchTokenAccounts } from "@/utils/useTokenAccount";
 import { useTransactionHistory } from "@/utils/useTransactionHistory";
 import { format } from "date-fns";
-import { fetchTokenAccounts } from "@/utils/useTokenAccount";
+import { ArrowRightIcon, WalletIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const assetHistory: AssetHistory[] = [
   {
@@ -106,8 +96,17 @@ const AccountPage = () => {
         }
       } else {
         setIsChecking(false);
-        const tokenAccs = await fetchTokenAccounts(publicKey);
-        setTokens(tokenAccs);
+        setIsLoadingTokens(true);
+        try{
+          const tokenAccs = await fetchTokenAccounts(publicKey);
+          setTokens(tokenAccs);
+        }
+        catch (e) {
+          toast.error("Failed to load token" + e)
+        }
+        finally {
+          setIsLoadingTokens(false);
+        }
       }
     };
     checkAndFetchTokens();

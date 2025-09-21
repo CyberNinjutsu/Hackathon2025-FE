@@ -116,7 +116,6 @@ export default function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-transparent text-foreground pt-16 max-w-6xl mx-auto">
-      <BackgroundGlow />
       <div className="relative z-10 space-y-6 p-4 sm:p-6">
         <div className="flex flex-col space-y-4">
           {/* Back button / Export */}

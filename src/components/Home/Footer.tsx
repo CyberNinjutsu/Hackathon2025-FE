@@ -41,7 +41,7 @@ const footerLinks = [
 ];
 
 const Logo = () => (
-  <Link href="github.com/CyberNinjutsu/Hackathon2025-FE" className="flex items-center gap-2">
+  <Link href="https://github.com/CyberNinjutsu/Hackathon2025-FE" target="_blank" rel="noopener noreferrer"  className="flex items-center gap-2">
     <Coins className="h-7 w-7 text-primary" />
     <span className="text-xl font-bold text-foreground">DAMS</span>
   </Link>

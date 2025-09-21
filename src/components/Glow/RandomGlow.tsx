@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-
+"use client"
+import { useEffect, useState } from "react";
 export function RandomGlow({
   size = 200,
   color = "#00ffb2",
@@ -19,12 +19,14 @@ export function RandomGlow({
   bottom?: string;
   random?: boolean;
 }) {
-  const randomPos = useMemo(() => {
-    if (!random) return {};
-    return {
+  const [pos, setPos] = useState<{ top?: string; left?: string }>({});
+  useEffect(() => {
+    if (!random) return;
+    // Compute only on client to avoid SSR mismatch
+    setPos({
       top: `${Math.floor(Math.random() * 80)}%`,
       left: `${Math.floor(Math.random() * 80)}%`,
-    };
+    });
   }, [random]);
 
   const style: React.CSSProperties = {
@@ -36,8 +38,14 @@ export function RandomGlow({
     left,
     right,
     bottom,
-    ...randomPos,
+    ...pos,
   };
 
-  return <div className="absolute blur-3xl rounded-full" style={style} />;
-}
+  return (
+    <div
+      className="absolute blur-3xl rounded-full"
+      style={style}
+      aria-hidden="true"
+      role="presentation"
+    />
+  );}
