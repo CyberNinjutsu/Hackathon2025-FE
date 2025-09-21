@@ -45,7 +45,7 @@ interface AssetHistory {
 
 interface TokenIconProps {
   symbol?: string;
-  logo?: string;
+  logo?: React.ReactNode;
   logoURI?: string;
   mint: string;
   size?: number;
@@ -58,14 +58,9 @@ interface TokenAccount {
   decimals?: number;
   symbol?: string;
   logoURI?: string;
-  logo?:string;
+  logo?: string;
 }
-export type TransactionTypeName =
-  | "Send"
-  | "Receive"
-  | "Mint"
-  | "Swap"
-  | "Other";
+export type TransactionTypeName =  | "Send"  | "Receive"  | "Mint"  | "Swap"  | "Other";
 
 export type {
   Asset,

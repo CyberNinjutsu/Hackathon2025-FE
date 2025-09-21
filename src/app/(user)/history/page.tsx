@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/table";
 import { ArrowLeft, Download, Filter, Search } from "lucide-react";
 import { useEffect, useState } from "react";
-
-import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import TransactionIcon from "@/components/TransactionIcon";
 import { useAuth } from "@/lib/AuthContext";
 import { useTransactionHistory } from "@/utils/useTransactionHistory";
@@ -69,7 +67,6 @@ export default function HistoryPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const pageSize = 10;
 
-  // Xử lý chuyển hướng và hiển thị lỗi
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
       toast.error("Access required", {

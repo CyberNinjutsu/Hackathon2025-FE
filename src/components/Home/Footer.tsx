@@ -40,7 +40,7 @@ const footerLinks = [
   },
 ];
 
-const Logo = () => (
+const FooterLogo = () => (
   <Link href="https://github.com/CyberNinjutsu/Hackathon2025-FE" target="_blank" rel="noopener noreferrer"  className="flex items-center gap-2">
     <Coins className="h-7 w-7 text-primary" />
     <span className="text-xl font-bold text-foreground">DAMS</span>
@@ -50,23 +50,25 @@ const Logo = () => (
 export default function Footer() {
   // Determine grid columns based on number of footer sections
   const getGridCols = () => {
-    const count = footerLinks.length;
-    if (count === 1) return "grid-cols-1";
-    if (count === 2) return "grid-cols-1 sm:grid-cols-2";
-    if (count === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
-    if (count === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
-    if (count === 5) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5";
-    if (count === 6) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6";
-    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"; // fallback
+    const byCount: Record<number, string> = {
+      1: "grid-cols-1",
+      2: "grid-cols-1 sm:grid-cols-2",
+      3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+      5: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5",
+      6: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6",
+    };
+    const count = Math.min(footerLinks.length, 6);
+    return byCount[count] ?? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   };
 
   return (
     <footer className="border-t border-border">
       <div className="container mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 gap-12 py-20 lg:grid-cols-2">
-          {/* Logo Column - Always takes up left side on large screens */}
+          {/* FooterLogo Column */}
           <div>
-            <Logo />
+            <FooterLogo />
             <p className="my-6 max-w-sm text-muted-foreground">
               Secure, fast, and seamless crypto trading. DAMS makes digital
               assets effortless.
@@ -84,7 +86,7 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Dynamic Links Grid - Adapts based on number of sections */}
+          {/* Dynamic Links Grid */}
           <div className={`grid gap-8 ${getGridCols()}`}>
             {footerLinks.map((section) => (
               <div key={section.title}>

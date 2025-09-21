@@ -72,10 +72,10 @@ const AccountPage = () => {
   const [isChecking, setIsChecking] = useState<boolean>(true);
   const [showFullKey, setShowFullKey] = useState(false);
 
-  const formatPublicKey = (key: string | null) => {
-    if (!key) return "";
-    if (showFullKey) return key;
-    return `${key.slice(0, 6)}...${key.slice(-6)}`;
+  const formatPublicKey = (pubKey: string | null) => {
+    if (!pubKey) return "";
+    if (showFullKey) return pubKey;
+    return `${pubKey.slice(0, 6)}...${pubKey.slice(-6)}`;
   };
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
@@ -160,6 +160,7 @@ const AccountPage = () => {
                 <button
                   onClick={() => setShowFullKey((prev) => !prev)}
                   className="text-xs px-2 py-1 border rounded-md border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition"
+                  aria-pressed={showFullKey} aria-label={showFullKey ? "Hide full wallet public key" : "Show full wallet public key"}
                 >
                   {showFullKey ? "Hide" : "Show"}
                 </button>
@@ -168,10 +169,10 @@ const AccountPage = () => {
           </div>
         </div>
 
-        {/* Dashboard Grid - Centered với max-width */}
+        {/* Dashboard Grid */}
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:items-stretch">
-            {/* Assets - với enhanced styling */}
+            {/* Assets  */}
             <div className="lg:col-span-1 flex">
               <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-primary/30">
                 <div className="p-4 border-b border-gray-700/50">
@@ -231,7 +232,7 @@ const AccountPage = () => {
               </div>
             </div>
 
-            {/* Transactions - với enhanced styling */}
+            {/* Transactions */}
             <div className="lg:col-span-1 flex">
               <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-cyan-400/30">
                 <div className="p-4 border-b border-gray-700/50">
@@ -293,7 +294,7 @@ const AccountPage = () => {
               </div>
             </div>
 
-            {/* Chart - với enhanced styling */}
+            {/* Chart */}
             <div className="lg:col-span-1 flex">
               <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-purple-400/30 hover:shadow-purple-400/20">
                 <div className="p-4 border-b border-gray-700/50">
