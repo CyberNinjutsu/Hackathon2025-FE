@@ -73,7 +73,7 @@ export default function Testimonials() {
           </WordAnimate>
         </div>
 
-        <div className="mt-16 grid min-h-[450px] grid-cols-1 md:grid-cols-3">
+        <div className="mt-16 grid lg:min-h-[450px] grid-cols-1 md:grid-cols-3">
           <div className="relative overflow-hidden flex flex-col border border-border bg-black p-12 md:col-span-2">
             <div
               aria-hidden="true"
@@ -85,8 +85,8 @@ export default function Testimonials() {
                 <div
                   key={index}
                   className={cn(
-                    "absolute inset-0 flex flex-col transition-opacity duration-500 ease-in-out",
-                    index === currentIndex ? "opacity-100" : "opacity-0",
+                    "flex flex-col transition-opacity duration-500 ease-in-out",
+                    index === currentIndex ? "opacity-100 relative" : "opacity-0 absolute",
                   )}
                   aria-hidden={index !== currentIndex}
                 >
@@ -101,7 +101,7 @@ export default function Testimonials() {
                   </div>
                   <WordAnimate
                     as="blockquote"
-                    className="flex flex-grow items-center text-2xl leading-relaxed text-foreground lg:text-3xl"
+                    className="flex items-center text-2xl leading-relaxed text-foreground lg:text-3xl"
                   >
                     {testimonial.quote}
                   </WordAnimate>
@@ -122,6 +122,7 @@ export default function Testimonials() {
                 </div>
               ))}
             </div>
+            
             <div className="absolute bottom-12 right-12 text-sm text-muted-foreground">
               {currentIndex + 1} / {testimonialsData.length}
             </div>
@@ -147,6 +148,7 @@ export default function Testimonials() {
             </button>
           </div>
         </div>
+        
       </div>
     </section>
   );
