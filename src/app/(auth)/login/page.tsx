@@ -1,7 +1,6 @@
 "use client";
 
 import icon from "@/assets/iconheader.png";
-import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -144,7 +143,6 @@ export default function LoginPage() {
 
   return (
     <div className="auth-background relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
-      <BackgroundGlow />
       <Button
         asChild
         variant="ghost"

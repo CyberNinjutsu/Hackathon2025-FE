@@ -3,7 +3,7 @@ import { RandomGlow } from "./RandomGlow";
 
 export default function BackgroundGlow() {
   return (
-    <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+    <div className="fixed inset-0 overflow-hidden pointer-events-none z-1">
       <CornerGlow position="tl" />
       <CornerGlow position="tr" />
       <CornerGlow position="bl" />

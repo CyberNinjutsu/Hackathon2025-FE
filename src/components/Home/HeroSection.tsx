@@ -41,9 +41,7 @@ export default function HeroSection() {
             asChild
           >
             <a
-              href="https://framer.link/BrDre42"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/login"
             >
               Get started now
             </a>
