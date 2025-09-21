@@ -1,5 +1,6 @@
 import Header from "@/components/account/Header";
 import Footer from "@/components/Home/Footer";
+import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
 import { AuthProvider } from "@/lib/AuthContext";
 import type { Metadata } from "next";
 import type React from "react";
@@ -8,6 +9,8 @@ import { GeistMono } from "geist/font/mono";
 import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "../globals.css";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "DAMS",
@@ -41,11 +44,14 @@ export default function UserLayout({
       >
         <AuthProvider>
           <Header />
+          <BackgroundGlow />
           <main className="relative">
             <Suspense fallback={null}>{children}</Suspense>
             <Analytics />
           </main>
           <Footer />
+          <Toaster position="top-right" richColors />
+          <AIInvestmentChatbot />
         </AuthProvider>
       </body>
     </html>

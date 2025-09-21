@@ -1,9 +1,11 @@
 import "../globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
 import { AuthProvider } from "@/lib/AuthContext";
 import { Analytics } from "@vercel/analytics/next";
 import { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 
 export const metadata: Metadata = {
   title: "DAMS",
@@ -38,9 +40,11 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark antialiased" suppressHydrationWarning>
       <body className={`font-sans ${dmSans.variable} homepage-container`}>
+        <BackgroundGlow />
         <AuthProvider>
           {children}
           <Analytics />
+          <AIInvestmentChatbot />
         </AuthProvider>
         <Toaster position="top-right" richColors />
       </body>

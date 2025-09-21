@@ -1,6 +1,5 @@
 "use client";
 
-import BackgroundGlow from "@/components/BackgroundGlow";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -49,8 +48,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="auth-background with-image flex items-center justify-center p-4 sm:p-6 md:p-8">
-      <BackgroundGlow />
+    <div className="auth-background flex items-center justify-center p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-md space-y-6 sm:space-y-8 relative z-10">
         {/* Logo and branding */}
         <div className="text-center space-y-4 floating uppercase font-bold">

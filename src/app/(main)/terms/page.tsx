@@ -25,7 +25,7 @@ export default function TermsPage() {
           <div className="p-6 prose prose-invert max-w-none">
             <div className="space-y-6 text-gray-300 leading-relaxed">
               <p>
-                Welcome to Cryptix! Please read these Terms of Service
+                Welcome to DAMS! Please read these Terms of Service
                 (&ldquo;Terms&rdquo;) carefully before using our service. By
                 accessing or using the Service, you agree to be bound by these
                 Terms.
@@ -36,7 +36,7 @@ export default function TermsPage() {
               </h2>
               <p>
                 By creating an account or using the services provided by
-                Cryptix, you acknowledge that you have read, understood, and
+                DAMS, you acknowledge that you have read, understood, and
                 agree to comply with all terms and conditions set forth in this
                 agreement.
               </p>
@@ -45,7 +45,7 @@ export default function TermsPage() {
                 2. Service Description
               </h2>
               <p>
-                Cryptix provides a digital asset management platform that allows
+                DAMS provides a digital asset management platform that allows
                 users to track investment portfolios, execute transactions, and
                 interact with blockchain protocols. We are not an exchange,
                 broker, or financial advisor.
@@ -75,7 +75,7 @@ export default function TermsPage() {
               </h2>
               <p>
                 The Service is provided &quot;as is&quot; and &quot;as
-                available&quot;. Cryptix is not responsible for any losses
+                available&quot;. DAMS is not responsible for any losses
                 arising from the use of the service, including but not limited
                 to asset loss due to security errors, software bugs, or market
                 volatility.

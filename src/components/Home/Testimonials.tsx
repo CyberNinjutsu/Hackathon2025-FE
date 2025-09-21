@@ -21,7 +21,7 @@ const testimonialsData: Testimonial[] = [
   {
     avatarSrc: ava1,
     quote:
-      "“Cryptix makes crypto trading effortless. Fast transactions, low fees, and a sleek interface—exactly what I needed.”",
+      "“DAMS makes crypto trading effortless. Fast transactions, low fees, and a sleek interface—exactly what I needed.”",
     authorName: "Alex M.",
     authorTitle: "Blockchain Analyst at NovaChain",
   },
@@ -56,24 +56,24 @@ export default function Testimonials() {
   };
 
   return (
-    <section id="testimonials" className="bg-background py-20 sm:py-24">
+       <section id="testimonials" className="bg-background py-20 sm:py-24">
       <div className="container mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            <WordAnimate>Trusted by Crypto Enthusiasts Worldwide</WordAnimate>
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
-            <WordAnimate>
-              Join a growing community of investors who choose Cryptix for
-            </WordAnimate>
-            <WordAnimate>
-              {" "}
-              its seamless experience, security, and premium design.
-            </WordAnimate>
-          </p>
+          <WordAnimate
+            as="h2"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
+          >
+            Trusted by Crypto Enthusiasts Worldwide
+          </WordAnimate>
+          <WordAnimate
+            as="p"
+            className="mt-6 text-lg leading-8 text-muted-foreground"
+          >
+            Join a growing community of investors who choose DAMS for its seamless experience, security, and premium design.
+          </WordAnimate>
         </div>
 
-        <div className="mt-16 grid min-h-[450px] grid-cols-1 md:grid-cols-3">
+        <div className="mt-16 grid lg:min-h-[450px] grid-cols-1 md:grid-cols-3">
           <div className="relative overflow-hidden flex flex-col border border-border bg-black p-12 md:col-span-2">
             <div
               aria-hidden="true"
@@ -85,8 +85,8 @@ export default function Testimonials() {
                 <div
                   key={index}
                   className={cn(
-                    "absolute inset-0 flex flex-col transition-opacity duration-500 ease-in-out",
-                    index === currentIndex ? "opacity-100" : "opacity-0",
+                    "flex flex-col transition-opacity duration-500 ease-in-out",
+                    index === currentIndex ? "opacity-100 relative" : "opacity-0 absolute",
                   )}
                   aria-hidden={index !== currentIndex}
                 >
@@ -99,20 +99,30 @@ export default function Testimonials() {
                       className="h-auto w-auto rounded-full object-cover"
                     />
                   </div>
-                  <blockquote className="flex flex-grow items-center text-2xl leading-relaxed text-foreground lg:text-3xl">
+                  <WordAnimate
+                    as="blockquote"
+                    className="flex items-center text-2xl leading-relaxed text-foreground lg:text-3xl"
+                  >
                     {testimonial.quote}
-                  </blockquote>
+                  </WordAnimate>
                   <div className="mt-auto pt-8">
-                    <p className="font-bold text-foreground">
+                    <WordAnimate
+                      as="p"
+                      className="font-bold text-foreground"
+                    >
                       {testimonial.authorName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
+                    </WordAnimate>
+                    <WordAnimate
+                      as="p"
+                      className="text-sm text-muted-foreground"
+                    >
                       {testimonial.authorTitle}
-                    </p>
+                    </WordAnimate>
                   </div>
                 </div>
               ))}
             </div>
+            
             <div className="absolute bottom-12 right-12 text-sm text-muted-foreground">
               {currentIndex + 1} / {testimonialsData.length}
             </div>
@@ -126,18 +136,19 @@ export default function Testimonials() {
               className="group flex w-full items-center gap-4 border-t border-border p-8 text-muted-foreground transition-colors hover:bg-zinc-800 hover:text-foreground"
             >
               <ChevronLeft className="h-5 w-5" />
-              <span>Previous</span>
+              <WordAnimate as="span">Previous</WordAnimate>
             </button>
 
             <button
               onClick={handleNext}
               className="group flex w-full items-center justify-end gap-4 border-t border-border p-8 text-muted-foreground transition-colors hover:bg-zinc-800 hover:text-foreground"
             >
-              <span>Next</span>
+              <WordAnimate as="span">Next</WordAnimate>
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
         </div>
+        
       </div>
     </section>
   );

@@ -100,7 +100,7 @@ export default function Features() {
           as="h2"
           className="text-3xl md:text-4xl font-semibold text-[var(--text-primary)]"
         >
-          Why Choose Cryptix?
+          Why Choose DAMS?
         </WordAnimate>
         <br />
         <WordAnimate

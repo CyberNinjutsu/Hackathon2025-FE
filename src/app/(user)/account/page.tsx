@@ -1,30 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import AssetChart from "@/components/account/AssetChart";
 import AssetItem from "@/components/account/AssetItem";
 import TransactionItem from "@/components/account/TransactionItem";
-import { getStatusBadge, getTransactionIcon } from "@/utils/Helper";
-import { Asset, AssetHistory, Transaction } from "@/utils/Types";
-import { ArrowRightIcon, PlusIcon, WalletIcon } from "lucide-react";
-import { TokenListProvider } from "@solana/spl-token-registry";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/AuthContext";
-import {
-  Connection,
-  PublicKey,
-  clusterApiUrl,
-  ParsedAccountData,
-  AccountInfo,
-} from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import BackgroundGlow from "@/components/BackgroundGlow";
-import { TokenAccount } from "@/utils/Types";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import Loading from "@/components/Loading";
-import { toast } from "sonner";
+import { useAuth } from "@/lib/AuthContext";
+import { getStatusBadge } from "@/utils/Helper";
+import { AssetHistory, TokenAccount, Transaction } from "@/utils/Types";
+import { fetchTokenAccounts } from "@/utils/useTokenAccount";
 import { useTransactionHistory } from "@/utils/useTransactionHistory";
 import { format } from "date-fns";
+import { ArrowRightIcon, WalletIcon } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const assetHistory: AssetHistory[] = [
   {
@@ -69,6 +60,7 @@ const AccountPage = () => {
     isLoading: isAuthLoading,
     logout,
   } = useAuth();
+  const router = useRouter();
 
   const [txLimit, setTxLimit] = useState<number>(3);
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
@@ -77,9 +69,14 @@ const AccountPage = () => {
     publicKey,
     txLimit
   );
-  const router = useRouter();
   const [isChecking, setIsChecking] = useState<boolean>(true);
+  const [showFullKey, setShowFullKey] = useState(false);
 
+  const formatPublicKey = (pubKey: string | null) => {
+    if (!pubKey) return "";
+    if (showFullKey) return pubKey;
+    return `${pubKey.slice(0, 6)}...${pubKey.slice(-6)}`;
+  };
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
       toast.error("Access required", {
@@ -90,131 +87,37 @@ const AccountPage = () => {
   }, [isAuthLoading, isAuthenticated, router]);
 
   useEffect(() => {
-    if (!publicKey || !isAuthenticated) {
-      if (!isAuthLoading) {
-        setIsLoadingTokens(false);
-        router.replace("/login");
-        return;
-      }
-    } else {
-      setIsChecking(false);
-      const fetchTokenAccounts = async () => {
+    const checkAndFetchTokens = async () => {
+      if (!publicKey || !isAuthenticated) {
+        if (!isAuthLoading) {
+          setIsLoadingTokens(false);
+          router.replace("/login");
+          return;
+        }
+      } else {
+        setIsChecking(false);
         setIsLoadingTokens(true);
-        try {
-          const connection = new Connection(
-            clusterApiUrl("devnet"),
-            "confirmed"
-          );
-          const walletPubKey = new PublicKey(publicKey);
-
-          // Get token list for metadata
-          const tokenListProvider = new TokenListProvider();
-          const tokenList = (await tokenListProvider.resolve())
-            .filterByClusterSlug("devnet")
-            .getList();
-
-          const tokenMap = tokenList.reduce((map, item) => {
-            map.set(item.address, item);
-            return map;
-          }, new Map());
-
-          // Fetch token accounts
-          const [res1, res2] = await Promise.all([
-            connection.getParsedTokenAccountsByOwner(walletPubKey, {
-              programId: TOKEN_PROGRAM_ID,
-            }),
-            connection.getParsedTokenAccountsByOwner(walletPubKey, {
-              programId: TOKEN_2022_PROGRAM_ID,
-            }),
-          ]);
-
-          const combined = [...res1.value, ...res2.value];
-          const tokenAccounts: TokenAccount[] = [];
-          const mintsInfo = new Map<
-            string,
-            AccountInfo<Buffer | ParsedAccountData> | null
-          >();
-
-          for (const acc of combined) {
-            try {
-              const parsed = acc.account.data as ParsedAccountData;
-              const info = parsed.parsed?.info;
-              if (!info) continue;
-
-              const mint: string = info.mint;
-              const tokenAmount = info.tokenAmount || {};
-              const uiAmount = tokenAmount.uiAmount ?? null;
-              const amountRaw = tokenAmount.amount ?? "0";
-              const decimals = tokenAmount.decimals;
-              const tokenInfo = tokenMap.get(mint);
-
-              let symbol: string | undefined = tokenInfo?.symbol;
-              const logoURI: string | undefined = tokenInfo?.logoURI;
-
-              // Try to get symbol from token metadata if not in token list
-              if (!symbol) {
-                if (!mintsInfo.has(mint)) {
-                  const mintAccount = await connection.getParsedAccountInfo(
-                    new PublicKey(mint)
-                  );
-                  mintsInfo.set(mint, mintAccount.value);
-                }
-                const mintAcc = mintsInfo.get(mint);
-                if (mintAcc?.data) {
-                  const mintData = mintAcc.data as ParsedAccountData;
-                  if (mintData.parsed?.info?.extensions) {
-                    for (const ext of mintData.parsed.info.extensions) {
-                      if (
-                        ext.extension === "tokenMetadata" &&
-                        ext.state?.symbol
-                      ) {
-                        symbol = ext.state.symbol;
-                        break;
-                      }
-                    }
-                  }
-                }
-              }
-
-              tokenAccounts.push({
-                tokenAccountAddress: acc.pubkey.toBase58(),
-                mint,
-                uiAmount,
-                amountRaw,
-                decimals,
-                symbol,
-                logoURI,
-              });
-            } catch (e) {
-              console.warn("Error parsing token account", e);
-            }
-          }
-
-          // Sort by uiAmount desc (nulls go last)
-          tokenAccounts.sort((a, b) => {
-            const va = a.uiAmount ?? -1;
-            const vb = b.uiAmount ?? -1;
-            return vb - va;
-          });
-
-          setTokens(tokenAccounts);
-        } catch (error) {
-          console.error("Error fetching token accounts:", error);
-        } finally {
+        try{
+          const tokenAccs = await fetchTokenAccounts(publicKey);
+          setTokens(tokenAccs);
+        }
+        catch (e) {
+          toast.error("Failed to load token" + e)
+        }
+        finally {
           setIsLoadingTokens(false);
         }
-      };
-      fetchTokenAccounts();
-    }
-  }, [router, isAuthenticated, publicKey]);
+      }
+    };
+    checkAndFetchTokens();
+  }, [router, isAuthenticated, publicKey, isAuthLoading]);
 
   if (isChecking) {
     return <Loading />;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white custom-scrollbar">
-      {/* Background glow effects */}
+    <div className="min-h-screen bg-gradient-to-br text-white custom-scrollbar">
       <BackgroundGlow />
 
       {/* Main Content */}
@@ -229,7 +132,7 @@ const AccountPage = () => {
           </p>
         </div>
 
-        {/* Wallet Card - Centered với max-width */}
+        {/* Wallet Card*/}
         <div className="mb-8 sm:mb-12 max-w-6xl mx-auto">
           <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl">
             <div className="p-6 sm:p-8">
@@ -244,25 +147,32 @@ const AccountPage = () => {
                 </div>
               </div>
 
-              {/* Card Information với enhanced styling */}
+              {/* PUBLIC KEY/WALLET ID */}
               <div className="bg-gradient-to-r from-slate-800 via-gray-800 to-slate-900 rounded-lg p-4 text-white border border-gray-700/50 shadow-lg">
                 <div className="mb-3">
                   <p className="text-xs opacity-80 text-gray-300">
                     PUBLIC KEY/WALLET ID
                   </p>
                   <p className="font-mono text-lg tracking-wider text-white">
-                    {publicKey}
+                    {formatPublicKey(publicKey ?? "")}
                   </p>
                 </div>
+                <button
+                  onClick={() => setShowFullKey((prev) => !prev)}
+                  className="text-xs px-2 py-1 border rounded-md border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition"
+                  aria-pressed={showFullKey} aria-label={showFullKey ? "Hide full wallet public key" : "Show full wallet public key"}
+                >
+                  {showFullKey ? "Hide" : "Show"}
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Dashboard Grid - Centered với max-width */}
+        {/* Dashboard Grid */}
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 lg:items-stretch">
-            {/* Assets - với enhanced styling */}
+            {/* Assets  */}
             <div className="lg:col-span-1 flex">
               <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-primary/30">
                 <div className="p-4 border-b border-gray-700/50">
@@ -322,7 +232,7 @@ const AccountPage = () => {
               </div>
             </div>
 
-            {/* Transactions - với enhanced styling */}
+            {/* Transactions */}
             <div className="lg:col-span-1 flex">
               <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-cyan-400/30">
                 <div className="p-4 border-b border-gray-700/50">
@@ -384,7 +294,7 @@ const AccountPage = () => {
               </div>
             </div>
 
-            {/* Chart - với enhanced styling */}
+            {/* Chart */}
             <div className="lg:col-span-1 flex">
               <div className="bg-gradient-to-r from-gray-900/80 to-black/80 backdrop-blur-xl border border-gray-800 rounded-xl shadow-2xl flex-1 flex flex-col transition-all duration-300 hover:scale-105 hover:border-purple-400/30 hover:shadow-purple-400/20">
                 <div className="p-4 border-b border-gray-700/50">

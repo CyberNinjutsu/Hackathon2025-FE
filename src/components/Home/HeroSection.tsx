@@ -5,7 +5,6 @@ import { Star } from "lucide-react";
 import Image from "next/image";
 import dashboard from "@/assets/dashboard.png";
 import WordAnimate from "../WordAnimate";
-import BackgroundGlow from "../BackgroundGlow";
 
 const StarIcon = ({ filled = true }: { filled?: boolean }) => (
   <Star
@@ -18,16 +17,16 @@ const StarIcon = ({ filled = true }: { filled?: boolean }) => (
 export default function HeroSection() {
   return (
     <section className="relative px-6 pt-32 pb-20 overflow-hidden md:pt-40 md:pb-24">
-      <BackgroundGlow />
 
       <div className="max-w-7xl mx-auto text-center">
         <div className="max-w-3xl mx-auto mb-10">
           <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6 text-foreground">
-            <WordAnimate>Take Control of Your Digital Assets</WordAnimate>
+            <WordAnimate>Take Control of</WordAnimate>
+            <WordAnimate>Your Digital Assets</WordAnimate>
           </h1>
           <p className="text-lg md:text-xl leading-relaxed text-muted-foreground">
             <WordAnimate>
-              Cryptix offers a seamless, secure experience for managing your
+              DAMS offers a seamless, secure experience for managing your
               digital assets. Instant transactions, optimized fees, and premium
               design.
             </WordAnimate>
@@ -43,9 +42,7 @@ export default function HeroSection() {
             asChild
           >
             <a
-              href="https://framer.link/BrDre42"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/login"
             >
               Get started now
             </a>
@@ -69,7 +66,7 @@ export default function HeroSection() {
         <div className="relative max-w-5xl mx-auto">
           <Image
             src={dashboard}
-            alt="Cryptix Dashboard Preview"
+            alt="DAMS Dashboard Preview"
             priority
             className="w-full"
           />

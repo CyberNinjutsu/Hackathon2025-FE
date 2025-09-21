@@ -1,4 +1,4 @@
-import { Coins } from "lucide-react"; // Hoặc một icon phù hợp khác
+import { Coins } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
@@ -6,18 +6,13 @@ const footerLinks = [
   {
     title: "Navigation",
     links: [
-      { label: "Why Cryptix?", href: "#why" },
+      { label: "Why DAMS?", href: "#why" },
       { label: "Cryptos", href: "#allcryptos" },
       { label: "How it works", href: "#howitworks" },
       { label: "Testimonials", href: "#testimonials" },
       { label: "FAQ", href: "#faq" },
     ],
   },
-  {
-    title: "test",
-    links: [{ label: "Why Cryptix?", href: "#why" }],
-  },
-
   {
     title: "Legal",
     links: [
@@ -26,55 +21,80 @@ const footerLinks = [
       { label: "Cookie Policy", href: "#" },
     ],
   },
+  {
+    title: "Support",
+    links: [
+      { label: "Help Center", href: "/help" },
+      { label: "Contact Us", href: "/contact" },
+      { label: "Bug Report", href: "/bug-report" },
+    ],
+  },
+  {
+    title: "Community",
+    links: [
+      { label: "Discord", href: "#" },
+      { label: "Twitter", href: "#" },
+      { label: "Telegram", href: "#" },
+      { label: "Reddit", href: "#" },
+    ],
+  },
 ];
-const Logo = () => (
-  <Link href="/" className="flex items-center gap-2">
+
+const FooterLogo = () => (
+  <Link href="https://github.com/CyberNinjutsu/Hackathon2025-FE" target="_blank" rel="noopener noreferrer"  className="flex items-center gap-2">
     <Coins className="h-7 w-7 text-primary" />
-    <span className="text-xl font-bold text-foreground">Cryptix</span>
+    <span className="text-xl font-bold text-foreground">DAMS</span>
   </Link>
 );
 
 export default function Footer() {
+  // Determine grid columns based on number of footer sections
+  const getGridCols = () => {
+    const byCount: Record<number, string> = {
+      1: "grid-cols-1",
+      2: "grid-cols-1 sm:grid-cols-2",
+      3: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+      4: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4",
+      5: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-5",
+      6: "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6",
+    };
+    const count = Math.min(footerLinks.length, 6);
+    return byCount[count] ?? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+  };
+
   return (
-    <footer className="border-t border-border bg-background">
+    <footer className="border-t border-border">
       <div className="container mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-1 gap-12 py-20 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <Logo />
+        <div className="grid grid-cols-1 gap-12 py-20 lg:grid-cols-2">
+          {/* FooterLogo Column */}
+          <div>
+            <FooterLogo />
             <p className="my-6 max-w-sm text-muted-foreground">
-              Secure, fast, and seamless crypto trading. Cryptix makes digital
+              Secure, fast, and seamless crypto trading. DAMS makes digital
               assets effortless.
             </p>
             <p className="text-sm text-muted-foreground">
               Created by{" "}
               <a
-                href="https://x.com/uxui_arthur"
+                href="github.com/CyberNinjutsu/Hackathon2025-FE"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline hover:text-primary"
               >
-                Arthur
-              </a>{" "}
-              in{" "}
-              <a
-                href="https://www.framer.com?via=arthurdch"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary"
-              >
-                Framer
+                CyberNinjutsu/Hackathon2025
               </a>
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-8 lg:col-span-7 lg:grid-cols-3">
-            {footerLinks.map((column) => (
-              <div key={column.title}>
+          {/* Dynamic Links Grid */}
+          <div className={`grid gap-8 ${getGridCols()}`}>
+            {footerLinks.map((section) => (
+              <div key={section.title}>
                 <h4 className="mb-6 text-lg font-medium text-foreground">
-                  {column.title}
+                  {section.title}
                 </h4>
                 <ul className="space-y-3">
-                  {column.links.map((link) => (
+                  {section.links.map((link) => (
                     <li key={link.label}>
                       <Link
                         href={link.href}
@@ -92,7 +112,13 @@ export default function Footer() {
 
         <div className="border-t border-border py-6 text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Cryptix. All rights reserved.
+            &copy; {new Date().getFullYear()} Created by{" "}
+            <Link 
+              href="github.com/CyberNinjutsu/Hackathon2025-FE" 
+              className="hover:underline"
+            >
+              CyberNinjutsu/Hackathon2025
+            </Link>
           </p>
         </div>
       </div>
