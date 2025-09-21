@@ -259,7 +259,7 @@ export default function AIInvestmentChatbot({
                     </h3>
                     <p className="text-sm text-white/90 flex items-center gap-1">
                       <Sparkles className="h-3 w-3 text-cyan-300" />
-                      Powered by DAMS
+                      Powered by Google Gemini AI
                     </p>
                   </div>
                 </div>
