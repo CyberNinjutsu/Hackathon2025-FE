@@ -17,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/AuthContext";
-
+import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navLinks = [
@@ -49,17 +49,15 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Disable/enable body scroll when mobile menu is open
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    
-    // Cleanup on unmount
+
     return () => {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     };
   }, [isOpen]);
 
@@ -72,7 +70,22 @@ export default function Header() {
     router.push(path);
     setIsOpen(false);
   };
-
+  const handleLogout = () => {
+    setTimeout(() => {
+      logout();
+      if (isOpen) {
+        setIsOpen(false);
+      }
+      toast.success("You have been logged out.", {
+        style: {
+          backgroundColor: "#00ffb21f",
+          color: "white",
+        },
+      });
+      router.push("/");
+      window.location.reload();
+    }, 2500);
+  };
   return (
     <header
       className={cn(
@@ -102,7 +115,7 @@ export default function Header() {
         </nav>
 
         {/* Actions */}
-        <div className="hidden md:flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4 z-1">
           {publicKey ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -144,7 +157,7 @@ export default function Header() {
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={handleLogout}
                   className="text-red-500 focus:text-red-500"
                 >
                   <LogOut className="mr-2 h-4 w-4" /> Log out
@@ -179,11 +192,11 @@ export default function Header() {
       {isOpen && (
         <div className="md:hidden fixed inset-0 top-20 z-40">
           {/* Backdrop */}
-          <div 
-            className="absolute inset-0 bg-black/20 backdrop-blur-sm" 
+          <div
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
-          
+
           {/* Menu Content */}
           <div className="relative h-full bg-background border-t border-border">
             <div className="h-full overflow-y-auto px-6 py-6">
@@ -201,7 +214,7 @@ export default function Header() {
                     </Link>
                   ))}
                 </div>
-                
+
                 <div className="border-t border-border pt-6">
                   {publicKey ? (
                     <div className="space-y-4">
@@ -250,10 +263,7 @@ export default function Header() {
 
                         <button
                           className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors text-red-500"
-                          onClick={() => {
-                            logout();
-                            setIsOpen(false);
-                          }}
+                          onClick={handleLogout}
                         >
                           <LogOut className="h-5 w-5" />
                           <span className="font-medium">Log out</span>
@@ -272,9 +282,9 @@ export default function Header() {
                           Connect Wallet
                         </Link>
                       </Button>
-                      <Button 
-                        asChild 
-                        className="w-full rounded-lg h-12" 
+                      <Button
+                        asChild
+                        className="w-full rounded-lg h-12"
                         size="lg"
                       >
                         <Link href="/register" onClick={() => setIsOpen(false)}>

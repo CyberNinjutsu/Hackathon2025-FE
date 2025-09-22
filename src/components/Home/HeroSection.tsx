@@ -2,8 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
-import Image from "next/image";
-import dashboard from "@/assets/dashboard.png";
 import WordAnimate from "../WordAnimate";
 
 const StarIcon = ({ filled = true }: { filled?: boolean }) => (
@@ -60,14 +58,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-        <div className="relative max-w-5xl mx-auto">
-          <Image
-            src={dashboard}
-            alt="DAMS Dashboard Preview"
-            priority
-            className="w-full"
-          />
-        </div>
+    
       </div>
     </section>
   );

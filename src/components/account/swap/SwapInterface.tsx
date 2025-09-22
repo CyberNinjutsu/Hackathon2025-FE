@@ -12,42 +12,19 @@ import { fetchTokenAccountsSafe } from "@/utils/useTokenAccount";
 // Mock tokens
 const ADDITIONAL_MOCK_TOKENS: Token[] = [
   {
-    symbol: "SOL",
-    name: "Solana",
+    symbol: "DAMS",
+    name: "DAMS",
     logoURI:"https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
     mint: "So11111111111111111111111111111111111111112",
     balance: "1234",
-    price: 145.5,
+    price: 11,
   },
-  {
-    symbol: "USDC",
-    name: "USD Coin",
-    logoURI:"https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png",
-    mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-    balance: "1022",
-    price: 1.0,
-  },
-  {
-    symbol: "UNI",
-    name: "Uniswap",
-    logo: "🦄",
-    mint: "8FU95xFDPWUnpHX5TwVUDsN3G_fake_mint_address",
-    balance: "50",
-    price: 8.5,
-  },
+
 ];
 
 const MOCK_PRICES: { [key: string]: number } = {
-  SOL: 140.5,
-  USDC: 1,
-  USDT: 1,
-  JUP: 0.8,
-  BONK: 0.000025,
-  WIF: 2.5,
-  JitoSOL: 155.0,
-  mSOL: 158.2,
-  GOLD: 1234,
-  DAMS: 123
+  GOLD:0.1,
+  DAMS: 1
 };
 
 const SwapInterface: React.FC = () => {
@@ -65,8 +42,7 @@ const SwapInterface: React.FC = () => {
   const { publicKey, isAuthenticated } = useAuth();
   const [walletTokens, setWalletTokens] = useState<Token[]>([]);
   const [isFetchingTokens, setIsFetchingTokens] = useState(false);
- const calcTimeoutRef = useRef<number | null>(null);
-  // Calculate exchange rate between two tokens
+  const calcTimeoutRef = useRef<number | null>(null);
   const calculateExchangeRate = (from: Token, to: Token): number => {
     if (!from || !to) return 0;
     return from.price / to.price;
@@ -107,7 +83,6 @@ const SwapInterface: React.FC = () => {
     }
     calcTimeoutRef.current = window.setTimeout(() => {
       const rate = calculateExchangeRate(fromToken, toToken);
-      // Add small random fluctuation (±0.5%) to simulate real market
       const fluctuation = 1 + (Math.random() - 0.5) * 0.01;
       const finalRate = rate * fluctuation;
 

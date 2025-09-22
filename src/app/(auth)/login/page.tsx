@@ -23,7 +23,7 @@ import { ArrowLeft, Shield, Wallet } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import nacl from "tweetnacl";
 
@@ -49,7 +49,11 @@ declare global {
 
 export default function LoginPage() {
   const router = useRouter();
-  const { savePublicKey } = useAuth();
+  const {
+    savePublicKey,
+    isAuthenticated,
+    isLoading: isAuthLoading,
+  } = useAuth();
   const [publicKeyInput, setPublicKeyInput] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +62,9 @@ export default function LoginPage() {
     const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
     const accountInfo = await connection.getAccountInfo(publicKey);
     if (accountInfo === null) {
-      throw new Error("Wallet does not exist or hasn’t been initialized on-chain.");
+      throw new Error(
+        "Wallet does not exist or hasn’t been initialized on-chain."
+      );
     }
   };
 
@@ -77,7 +83,18 @@ export default function LoginPage() {
     setError(msg);
     toast.error(title, { description: msg });
   };
+  useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
 
+    if (isAuthenticated) {
+      toast.info("You are already logged in.", {
+        description: "Redirecting to the home page...",
+      });
+      router.push("/");
+    }
+  }, [isAuthenticated, isAuthLoading, router]);
   // Manual login
   const validateAndLogin = async (publicKeyString: string) => {
     setIsLoading(true);
@@ -140,7 +157,9 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
+  if (isAuthLoading || isAuthenticated) {
+    return null;
+  }
   return (
     <div className="auth-background relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
       <Button

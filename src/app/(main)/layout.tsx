@@ -7,6 +7,7 @@ import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/AuthContext";
 import { Metadata } from "next";
 import BackgroundGlow from "@/components/Glow/BackgroundGlow";
+import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "DAMS - Your trusted blockchain transaction and wallet management",
   description: "Created with v0",
@@ -37,6 +38,7 @@ export default function MainLayout({
           </main>
           <Footer />
           <AIInvestmentChatbot />
+          <Toaster position="top-right" closeButton offset={100} richColors />
         </AuthProvider>
       </body>
     </html>
