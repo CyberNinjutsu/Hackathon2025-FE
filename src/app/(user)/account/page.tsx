@@ -277,6 +277,7 @@ const AccountPage = () => {
                           assetSymbol: tx.assetSymbol,
                           status: tx.status,
                           value: tx.value,
+                          fee: tx.fee
                         };
 
                         return (
