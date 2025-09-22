@@ -288,17 +288,20 @@ export function useTransactionHistory(
 
       const fetchLimit = limit === null ? 1000 : limit;
 
-      const tokensAccount = await connection.getParsedTokenAccountsByOwner(
-        walletPubKey,
-        { programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS.toString()) }
-      );
+
+      const [legacyTokenAccounts, token2022Accounts ]= await Promise.all([
+
+        connection.getParsedTokenAccountsByOwner(walletPubKey,{ programId: new PublicKey(TOKEN_2022_PROGRAM_ID) }),
+        connection.getParsedTokenAccountsByOwner(walletPubKey,{ programId: new PublicKey(TOKEN_PROGRAM_ID) })
+      ])
+      
       const signatures = await connection.getSignaturesForAddress(
         walletPubKey,
         { limit: fetchLimit }
       );
 
       tokensAccountAddr.set(walletPubKey.toString(), null);
-      tokensAccount.value.map((tokenAccount) => tokensAccountAddr.set(tokenAccount.pubkey.toString(), null));
+      token2022Accounts.value.map((tokenAccount) => tokensAccountAddr.set(tokenAccount.pubkey.toString(), null));
 
       const txList: Transaction[] = [];
 

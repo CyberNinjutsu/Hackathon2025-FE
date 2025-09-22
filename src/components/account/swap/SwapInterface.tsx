@@ -106,14 +106,14 @@ const SwapInterface: React.FC = () => {
 
   const handleSelectToken = (token: Token) => {
     if (selectingFor === "from") {
-      if (toToken && token.symbol === toToken.symbol) {
-        setToToken(fromToken);
-      }
+      if (toToken && token.mint === toToken.mint) {  
+         setToToken(fromToken);  
+       }
       setFromToken(token);
     } else if (selectingFor === "to") {
-      if (fromToken && token.symbol === fromToken.symbol) {
-        setFromToken(toToken);
-      }
+      if (fromToken && token.mint === fromToken.mint) {  
+         setFromToken(toToken);  
+       }  
       setToToken(token);
     }
     setIsPopupOpen(false);
