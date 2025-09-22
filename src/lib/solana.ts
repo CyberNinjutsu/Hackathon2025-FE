@@ -39,7 +39,7 @@ class SolanaService {
           { limit: 50 } // Lấy 50 giao dịch gần nhất cho mỗi ví
         );
 
-        console.log(`Fetching ${signatures.length} transactions for wallet: ${address}`);
+        // console.log(`Fetching ${signatures.length} transactions for wallet: ${address}`);
 
         for (const sig of signatures) {
           try {
@@ -57,7 +57,7 @@ class SolanaService {
         }
       }
 
-      console.log(`Total transactions fetched: ${transactions.length}`);
+      // console.log(`Total transactions fetched: ${transactions.length}`);
       
       return transactions
         .sort((a, b) => (b.blockTime || 0) - (a.blockTime || 0))

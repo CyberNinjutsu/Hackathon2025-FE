@@ -41,7 +41,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="w-16 xl:w-64 bg-gray-900/80 backdrop-blur-xl border-r border-gray-800 flex flex-col">
+    <div className="w-16 xl:w-64 bg-gray-900/80 backdrop-blur-xl border-r border-gray-800 flex flex-col relative z-10">
       {/* Logo */}
       <div className="p-3 xl:px-6 xl:py-9 border-b border-gray-800">
         <Link href="/admin" className="flex items-center gap-3">
@@ -73,7 +73,7 @@ export default function Sidebar() {
               </Link>
 
               {/* Tooltip for mobile/tablet */}
-              <div className="xl:hidden absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-800/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 whitespace-nowrap border border-gray-700">
+              <div className="xl:hidden absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-800/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-15 whitespace-nowrap border border-gray-700">
                 {item.name}
                 <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-800/90"></div>
               </div>
@@ -94,7 +94,7 @@ export default function Sidebar() {
           </button>
 
           {/* Tooltip for mobile/tablet */}
-          <div className="xl:hidden absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-800/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-50 whitespace-nowrap border border-gray-700">
+          <div className="xl:hidden absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-800/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-15 whitespace-nowrap border border-gray-700">
             Logout
             <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-800/90"></div>
           </div>

@@ -21,7 +21,7 @@ const testimonialsData: Testimonial[] = [
   {
     avatarSrc: ava1,
     quote:
-      "“Cryptix makes crypto trading effortless. Fast transactions, low fees, and a sleek interface—exactly what I needed.”",
+      "“DAMS makes crypto trading effortless. Fast transactions, low fees, and a sleek interface—exactly what I needed.”",
     authorName: "Alex M.",
     authorTitle: "Blockchain Analyst at NovaChain",
   },
@@ -47,7 +47,7 @@ export default function Testimonials() {
   const handlePrev = () => {
     setCurrentIndex(
       (prevIndex) =>
-        (prevIndex - 1 + testimonialsData.length) % testimonialsData.length,
+        (prevIndex - 1 + testimonialsData.length) % testimonialsData.length
     );
   };
 
@@ -64,7 +64,7 @@ export default function Testimonials() {
           </h2>
           <p className="mt-6 text-lg leading-8 text-muted-foreground">
             <WordAnimate>
-              Join a growing community of investors who choose Cryptix for
+              Join a growing community of investors who choose DAMS for
             </WordAnimate>
             <WordAnimate>
               {" "}
@@ -86,7 +86,7 @@ export default function Testimonials() {
                   key={index}
                   className={cn(
                     "absolute inset-0 flex flex-col transition-opacity duration-500 ease-in-out",
-                    index === currentIndex ? "opacity-100" : "opacity-0",
+                    index === currentIndex ? "opacity-100" : "opacity-0"
                   )}
                   aria-hidden={index !== currentIndex}
                 >

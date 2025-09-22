@@ -21,7 +21,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const navLinks = [
-  { label: "Why Cryptix?", href: "#why" },
+  { label: "Why DAMS?", href: "#why" },
   { label: "Cryptos", href: "#allcryptos" },
   { label: "How it works", href: "#howitworks" },
   { label: "Testimonials", href: "#testimonials" },
@@ -31,7 +31,7 @@ const navLinks = [
 const Logo = () => (
   <Link href="/" className="flex items-center gap-2">
     <Image src={images} alt="Logo" className="h-7 w-7 text-primary" />
-    <span className="text-xl font-bold text-foreground">Cryptix</span>
+    <span className="text-xl font-bold text-foreground">DAMS</span>
   </Link>
 );
 export default function Header() {

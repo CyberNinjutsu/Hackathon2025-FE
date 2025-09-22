@@ -31,7 +31,7 @@ export default function Header() {
     setIsProfileOpen(false);
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside or pressing Escape
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -42,14 +42,25 @@ export default function Header() {
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isProfileOpen]);
 
   return (
-    <header className="bg-gray-900/50 backdrop-blur-xl border-b border-gray-800 p-4 lg:p-6">
+    <header className="bg-gray-900/50 backdrop-blur-xl border-b border-gray-800 p-4 lg:p-6 relative z-30">
       <div className="flex items-center justify-between">
         {/* Search */}
         <div className="flex-1 max-w-md ml-0 lg:ml-4">
@@ -83,38 +94,46 @@ export default function Header() {
               <div className="hidden sm:block text-left">
                 <p className="text-sm font-medium text-white">Admin User</p>
                 <p className="text-xs text-gray-400">
-                  {email || "admin@cryptix.com"}
+                  {email || "admin@DAMS.com"}
                 </p>
               </div>
             </button>
 
             {/* Profile dropdown */}
             {isProfileOpen && (
-              <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/90 backdrop-blur-xl border border-gray-700 rounded-lg shadow-xl z-50">
-                <div className="p-2">
-                  <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300">
-                    <User className="w-4 h-4" />
-                    Profile Settings
-                  </button>
-                  <button
-                    onClick={handleSignOut}
-                    disabled={isSigningOut}
-                    className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSigningOut ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
-                        Signing Out...
-                      </>
-                    ) : (
-                      <>
-                        <LogOut className="w-4 h-4" />
-                        Sign Out
-                      </>
-                    )}
-                  </button>
+              <>
+                {/* Invisible backdrop to catch clicks */}
+                <div
+                  className="fixed inset-0 z-[9998]"
+                  onClick={() => setIsProfileOpen(false)}
+                />
+                {/* Dropdown */}
+                <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-xl border border-gray-700 rounded-lg shadow-2xl z-[9999] ring-1 ring-gray-600/50">
+                  <div className="p-2">
+                    <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300">
+                      <User className="w-4 h-4" />
+                      Profile Settings
+                    </button>
+                    <button
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSigningOut ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                          Signing Out...
+                        </>
+                      ) : (
+                        <>
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         </div>

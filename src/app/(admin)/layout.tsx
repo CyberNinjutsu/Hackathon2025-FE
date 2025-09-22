@@ -11,7 +11,7 @@ import AdminAuthProvider from "@/components/admin/AdminAuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Admin Dashboard - Cryptix",
+  title: "Admin Dashboard - DAMS",
   description: "Manage tokens, assets and transactions",
 };
 

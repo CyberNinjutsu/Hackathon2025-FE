@@ -6,7 +6,7 @@ const footerLinks = [
   {
     title: "Navigation",
     links: [
-      { label: "Why Cryptix?", href: "#why" },
+      { label: "Why DAMS?", href: "#why" },
       { label: "Cryptos", href: "#allcryptos" },
       { label: "How it works", href: "#howitworks" },
       { label: "Testimonials", href: "#testimonials" },
@@ -15,7 +15,7 @@ const footerLinks = [
   },
   {
     title: "test",
-    links: [{ label: "Why Cryptix?", href: "#why" }],
+    links: [{ label: "Why DAMS?", href: "#why" }],
   },
 
   {
@@ -30,7 +30,7 @@ const footerLinks = [
 const Logo = () => (
   <Link href="/" className="flex items-center gap-2">
     <Coins className="h-7 w-7 text-primary" />
-    <span className="text-xl font-bold text-foreground">Cryptix</span>
+    <span className="text-xl font-bold text-foreground">DAMS</span>
   </Link>
 );
 
@@ -42,7 +42,7 @@ export default function Footer() {
           <div className="lg:col-span-5">
             <Logo />
             <p className="my-6 max-w-sm text-muted-foreground">
-              Secure, fast, and seamless crypto trading. Cryptix makes digital
+              Secure, fast, and seamless crypto trading. DAMS makes digital
               assets effortless.
             </p>
             <p className="text-sm text-muted-foreground">
@@ -92,7 +92,7 @@ export default function Footer() {
 
         <div className="border-t border-border py-6 text-center">
           <p className="text-sm text-muted-foreground">
-            &copy; {new Date().getFullYear()} Cryptix. All rights reserved.
+            &copy; {new Date().getFullYear()} DAMS. All rights reserved.
           </p>
         </div>
       </div>

@@ -26,14 +26,14 @@ export default function AdminAuthProvider({
 
         // If not authenticated and not on auth page, redirect to auth
         if (!authenticated && pathname !== "/auth") {
-          console.log(`Redirecting to auth from: ${pathname}`);
+          // console.log(`Redirecting to auth from: ${pathname}`);
           router.replace("/auth");
         }
       } catch (error) {
         console.error("Auth check error:", error);
         setIsAuthenticated(false);
         if (pathname !== "/auth") {
-          console.log(`Auth error, redirecting to auth from: ${pathname}`);
+          // console.log(`Auth error, redirecting to auth from: ${pathname}`);
           router.replace("/auth");
         }
       } finally {

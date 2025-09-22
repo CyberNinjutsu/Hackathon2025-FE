@@ -14,9 +14,9 @@ export default function CTA() {
             </h2>
 
             <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-zinc-700 dark:text-zinc-300">
-              Join thousands of users who trust Cryptix for secure, seamless,
-              and efficient cryptocurrency transactions. Start now and unlock
-              the full potential of digital assets.
+              Join thousands of users who trust DAMS for secure, seamless, and
+              efficient cryptocurrency transactions. Start now and unlock the
+              full potential of digital assets.
             </p>
 
             <div className="mt-10 flex items-center justify-center">
