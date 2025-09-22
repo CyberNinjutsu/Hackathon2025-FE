@@ -1,5 +1,5 @@
 "use client";
-import React, {useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ArrowUpDown, Loader2, Settings } from "lucide-react";
 import TokenSelectionPopup from "./TokenSelectionPopup";
 import SwapInput from "./SwapInput";
@@ -14,17 +14,17 @@ const ADDITIONAL_MOCK_TOKENS: Token[] = [
   {
     symbol: "DAMS",
     name: "DAMS",
-    logoURI:"https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
+    logoURI:
+      "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png",
     mint: "So11111111111111111111111111111111111111112",
     balance: "1234",
     price: 11,
   },
-
 ];
 
 const MOCK_PRICES: { [key: string]: number } = {
-  GOLD:0.1,
-  DAMS: 1
+  GOLD: 0.1,
+  DAMS: 1,
 };
 
 const SwapInterface: React.FC = () => {
@@ -56,16 +56,22 @@ const SwapInterface: React.FC = () => {
 
   // Update exchange rate when tokens change
   useEffect(() => {
-    if (fromToken && toToken) {
-      const rate = calculateExchangeRate(fromToken, toToken);
-      setExchangeRate(rate);
+    if (!fromToken || !toToken) return;
+    const rate = calculateExchangeRate(fromToken, toToken);
+    setExchangeRate(rate);
+    // refresh quoted output on token pair change
+    if (fromAmount && Number.isFinite(Number(fromAmount))) {
+      const out = Number(fromAmount) * rate;
+      setToAmount(Number.isFinite(out) ? out.toFixed(6) : "");
+    } else {
+      setToAmount("");
     }
     return () => {
-      if(calcTimeoutRef.current) { 
-      clearTimeout(calcTimeoutRef.current)
-    }
-    }
-  }, [fromToken, toToken]);
+      if (calcTimeoutRef.current) {
+        clearTimeout(calcTimeoutRef.current);
+      }
+    };
+  }, [fromToken, fromAmount, toToken]);
 
   // Handle amount changes with dynamic calculation
   const handleFromAmountChange = (value: string) => {
@@ -78,8 +84,8 @@ const SwapInterface: React.FC = () => {
 
     setIsCalculating(true);
 
-    if(calcTimeoutRef.current) { 
-      clearTimeout(calcTimeoutRef.current)
+    if (calcTimeoutRef.current) {
+      clearTimeout(calcTimeoutRef.current);
     }
     calcTimeoutRef.current = window.setTimeout(() => {
       const rate = calculateExchangeRate(fromToken, toToken);
@@ -122,11 +128,27 @@ const SwapInterface: React.FC = () => {
   };
 
   const handleSwap = () => {
-    if (fromToken && toToken && fromAmount && toAmount) {
-      toast.success("Swap Successful 🎉");
-      setFromAmount("");
-      setToAmount("");
+    if (!fromToken || !toToken) return;
+    const fromVal = Number(fromAmount);
+    const toVal = Number(toAmount);
+    const fromBal = Number(fromToken.balance ?? 0);
+    if (
+      !Number.isFinite(fromVal) ||
+      !Number.isFinite(toVal) ||
+      fromVal <= 0 ||
+      toVal <= 0 ||
+      exchangeRate <= 0
+    ) {
+      toast.error("Invalid amount or rate.");
+      return;
     }
+    if (fromVal > (Number.isFinite(fromBal) ? fromBal : 0)) {
+      toast.error("Insufficient balance.");
+      return;
+    }
+    toast.success("Swap Successful 🎉");
+    setFromAmount("");
+    setToAmount("");
   };
 
   const getButtonText = () => {
@@ -165,7 +187,6 @@ const SwapInterface: React.FC = () => {
               balance: acc.uiAmount?.toString() ?? "0",
               price: price,
             };
-
           });
         } else {
           toast.error("Failed to fetch wallet tokens: " + result.error);
@@ -215,7 +236,17 @@ const SwapInterface: React.FC = () => {
   }, [publicKey, isAuthenticated]);
 
   const isButtonDisabled = () => {
-    return (!isAuthenticated || isFetchingTokens || !fromAmount || !toAmount || !fromToken || !toToken || isCalculating
+    const fromVal = Number(fromAmount); 
+    const toVal = Number(toAmount);
+    const fromBal = Number(fromToken?.balance ?? 0); 
+    return (
+      !isAuthenticated ||
+      isFetchingTokens ||
+      !fromAmount ||
+      !toAmount ||
+      !fromToken ||
+      !toToken ||
+      isCalculating || fromVal <=0 || toVal <=0 || fromVal > (Number.isFinite(fromBal) ? fromBal : 0) || exchangeRate <=0
     );
   };
 
@@ -248,10 +279,8 @@ const SwapInterface: React.FC = () => {
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
             <div className="lg:col-span-8">
               <div className="flex flex-col gap-6 w-full">
-                
                 <div className="flex-1 w-full min-w-0">
                   <SwapInput
                     label="From"
@@ -289,13 +318,15 @@ const SwapInterface: React.FC = () => {
 
             <div className="lg:col-span-4">
               <div className="space-y-6">
-                
                 {/* Exchange Rate Info */}
                 {fromToken && toToken && exchangeRate > 0 && (
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                    <div className="text-sm text-gray-300 mb-2">Exchange Rate</div>
+                    <div className="text-sm text-gray-300 mb-2">
+                      Exchange Rate
+                    </div>
                     <div className="text-white font-semibold text-lg break-words">
-                      1 {fromToken.symbol} = {formatNumber(exchangeRate, 6)} {toToken.symbol}
+                      1 {fromToken.symbol} = {formatNumber(exchangeRate, 6)}{" "}
+                      {toToken.symbol}
                     </div>
                     <div className="text-xs text-gray-400 mt-1">
                       ≈ ${formatNumber(fromToken.price)} per {fromToken.symbol}
@@ -331,7 +362,6 @@ const SwapInterface: React.FC = () => {
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       </div>

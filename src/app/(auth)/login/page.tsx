@@ -23,7 +23,7 @@ import { ArrowLeft, Shield, Wallet } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import nacl from "tweetnacl";
 
@@ -74,7 +74,7 @@ export default function LoginPage() {
     toast.success(message ?? "Authentication successful!", {
       description: "You will be redirected shortly...",
     });
-    setTimeout(() => router.push("/"), 2000);
+    router.replace("/");
   };
 
   // Error handler
@@ -83,12 +83,14 @@ export default function LoginPage() {
     setError(msg);
     toast.error(title, { description: msg });
   };
+
+   const initialAuthRef = useRef(isAuthenticated);
   useEffect(() => {
     if (isAuthLoading) {
       return;
     }
 
-    if (isAuthenticated) {
+    if (initialAuthRef.current && isAuthenticated) {
       toast.info("You are already logged in.", {
         description: "Redirecting to the home page...",
       });

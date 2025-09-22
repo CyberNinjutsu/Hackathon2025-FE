@@ -83,8 +83,7 @@ export default function Header() {
         },
       });
       router.push("/");
-      window.location.reload();
-    }, 2500);
+    });
   };
   return (
     <header

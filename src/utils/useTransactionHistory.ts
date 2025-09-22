@@ -53,7 +53,8 @@ function isLikelyFeeTransaction(
 
       if (type === "transfer" && info?.lamports) {
         const amountSol = info.lamports / LAMPORTS_PER_SOL;
-
+        const transferAmountSol = info.lamports / LAMPORTS_PER_SOL;
+        const feeAmountSol = transactionFee / LAMPORTS_PER_SOL;
         if (amountSol < 0.0000000003) {
           return true;
         }
@@ -67,7 +68,7 @@ function isLikelyFeeTransaction(
       const transferAmount = info.lamports / LAMPORTS_PER_SOL;
       const feeAmount = transactionFee / LAMPORTS_PER_SOL;
 
-      if (transferAmount <= 0.0000000001 && Math.abs(transferAmount - feeAmount) < 0.0000000001) {
+      if (transferAmount <=  1e-9 && Math.abs(transferAmount - feeAmount) <  1e-9) {
         return true;
       }
 
@@ -352,7 +353,7 @@ export function useTransactionHistory(
         let foundValidInstruction = false;
         const isFeeTransaction = false;
 
-        const hasMeaningfulInstruction = instructions.some((inst) => "parsed" in inst && !isLikelyFeeTransaction(inst, tokensAccountAddr, transactionFeeSOL));
+        const hasMeaningfulInstruction = instructions.some((inst) => "parsed" in inst && !isLikelyFeeTransaction(inst, tokensAccountAddr, transactionFeeLamports));
         if (!hasMeaningfulInstruction) {
           continue;
         }
@@ -410,7 +411,7 @@ export function useTransactionHistory(
                 type = "Receive";
                 foundValidInstruction = true;
               } else if (solChange < 0) {
-                const amountSentLamports = Math.abs(solChange) - transactionFeeSOL;
+                const amountSentLamports = Math.abs(solChange) - transactionFeeLamports;
 
                 if (amountSentLamports > 5) {
                   amount = amountSentLamports / LAMPORTS_PER_SOL;
@@ -422,7 +423,7 @@ export function useTransactionHistory(
             }
           }
         }
-        if (!foundValidInstruction) {
+        if (!foundValidInstruction && priorityFeeInLamports > 0) {
           let microLamportsPerCu = 0;
           for (const inst of instructions as ParsedInstruction[]) {
             if (
@@ -575,11 +576,6 @@ export function useTransactionHistory(
             if (foundValidInstruction) break;
           }
         }
-
-        if (isFeeTransaction && !foundValidInstruction) {
-          continue;
-        }
-
         if (
           assetSymbol === "SOL" &&
           amount < 0.00000000001 &&
@@ -587,7 +583,7 @@ export function useTransactionHistory(
         ) {
           continue;
         }
-        if (type === "Other" && amount === 0) {
+        if (!isFeeOnly && type === "Other" && amount === 0) {
           const hasComputeBudgetInstruction = instructions.some((inst) =>
             inst.programId.equals(ComputeBudgetProgram.programId)
           );
