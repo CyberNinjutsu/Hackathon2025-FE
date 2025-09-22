@@ -46,6 +46,8 @@ const MOCK_PRICES: { [key: string]: number } = {
   WIF: 2.5,
   JitoSOL: 155.0,
   mSOL: 158.2,
+  GOLD: 1234,
+  DAMS: 123
 };
 
 const SwapInterface: React.FC = () => {

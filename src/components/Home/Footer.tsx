@@ -70,8 +70,10 @@ export default function Footer() {
           <div>
             <FooterLogo />
             <p className="my-6 max-w-sm text-muted-foreground">
-              Secure, fast, and seamless crypto trading. DAMS makes digital
-              assets effortless.
+              Secure, fast, and seamless crypto trading.
+            </p>
+            <p className="my-6 max-w-sm text-muted-foreground">
+              DAMS makes digital assets effortless.
             </p>
             <p className="text-sm text-muted-foreground">
               Created by{" "}

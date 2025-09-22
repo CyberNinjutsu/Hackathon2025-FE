@@ -244,8 +244,25 @@ export default function HistoryPage() {
                       {shortenSignature(tx.id)}
                     </Link>
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-white font-semibold">
-                    {formatNumber(tx.amount)} {tx.assetSymbol}
+                    <TableCell className="font-semibold">
+                    {tx.isFeeOnly ? (
+                      <span className="text-gray-400">
+                        Fee: {formatNumber(tx.fee, 9)} SOL
+                      </span>
+                    ) : (
+                      <span
+                        className={
+                          tx.type === "Send"
+                            ? "text-red-400"
+                            : tx.type === "Receive" || tx.type === "Mint"
+                              ? "text-green-400"
+                              : "text-white"
+                        }
+                      >
+                        {tx.type === "Send" ? "-" : tx.type === "Receive" || tx.type === "Mint" ? "+" : ""}
+                        {formatNumber(tx.amount)} {tx.assetSymbol}
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-green-400 font-bold">
                     ${tx.value.toLocaleString("en-US")}
@@ -295,8 +312,25 @@ export default function HistoryPage() {
                   </span>
                 </div>
                 <div className="mb-3">
-                  <div className="text-white font-semibold mb-1">
-                    {formatNumber(tx.amount, 2)} {tx.assetSymbol}
+                   <div className="font-semibold mb-1">
+                    {tx.isFeeOnly ? (
+                      <span className="text-gray-400 text-sm">
+                        Fee: {formatNumber(tx.fee, 9)} SOL
+                      </span>
+                    ) : (
+                      <span
+                        className={
+                          tx.type === "Send"
+                            ? "text-red-400"
+                            : tx.type === "Receive" || tx.type === "Mint"
+                              ? "text-green-400"
+                              : "text-white"
+                        }
+                      >
+                        {tx.type === "Send" ? "-" : tx.type === "Receive" || tx.type === "Mint" ? "+" : ""}
+                        {formatNumber(tx.amount, 6)} {tx.assetSymbol}
+                      </span>
+                    )}
                   </div>
                   {tx.id && (
                     <div className="text-xs text-gray-400 truncate font-mono">

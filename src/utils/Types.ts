@@ -34,6 +34,8 @@ interface Transaction {
   status: "Completed" | "Pending" | "Failed";
   date: string;
   address?: string;
+  fee: number;
+  isFeeOnly?: boolean;
 }
 
 interface AssetHistory {
@@ -60,7 +62,12 @@ interface TokenAccount {
   logoURI?: string;
   logo?: string;
 }
-export type TransactionTypeName =  | "Send"  | "Receive"  | "Mint"  | "Swap"  | "Other";
+export type TransactionTypeName =
+  | "Send"
+  | "Receive"
+  | "Mint"
+  | "Swap"
+  | "Other";
 
 export type {
   Asset,
