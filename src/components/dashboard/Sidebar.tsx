@@ -12,7 +12,7 @@ const sidebarItems = [
     icon: LayoutDashboard,
   },
   {
-    name: "Assets",
+    name: "Tokens",
     href: "/admin/assets",
     icon: Coins,
   },
