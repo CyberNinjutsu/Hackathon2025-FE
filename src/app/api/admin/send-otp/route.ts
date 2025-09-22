@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-import { storeOTP } from "../verify-otp/route";
+import { storeOTP } from "@/lib/serverOtpStorage";
 
 // Get authorized emails from environment variable
 const getAuthorizedEmails = (): string[] => {
