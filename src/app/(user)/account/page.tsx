@@ -292,8 +292,8 @@ const AccountPage = () => {
                         <div key={token.tokenAccountAddress}>
                           <AssetItem
                             token={token}
-                            // You can add estimated value calculation here if you have price data
-                            // estimatedValue={calculateTokenValue(token)}
+                          // You can add estimated value calculation here if you have price data
+                          // estimatedValue={calculateTokenValue(token)}
                           />
                         </div>
                       ))}
