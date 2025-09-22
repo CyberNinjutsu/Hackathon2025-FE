@@ -48,4 +48,8 @@ const formatNumber = (num: string | number, decimals: number = 2): string => {
   parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return parts.join(".");
 };
+
+
+
+
 export { getTransactionIcon, getStatusBadge, getTypeColorClass, formatNumber };

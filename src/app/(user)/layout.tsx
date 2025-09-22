@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import "../globals.css";
 import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import { Toaster } from "@/components/ui/sonner";
+import { WalletContextProvider } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "DAMS",
@@ -42,17 +43,20 @@ export default function UserLayout({
       <body
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container`}
       >
-        <AuthProvider>
-          <Header />
-          <BackgroundGlow />
-          <main className="relative">
-            <Suspense fallback={null}>{children}</Suspense>
-            <Analytics />
-          </main>
-          <Footer />
-          <Toaster position="top-right" richColors />
-          <AIInvestmentChatbot />
-        </AuthProvider>
+        <BackgroundGlow />
+        <WalletContextProvider>
+          <AuthProvider>
+            <Header />
+
+            <main className="relative">
+              <Suspense fallback={null}>{children}</Suspense>
+              <Analytics />
+            </main>
+            <Footer />
+            <Toaster position="top-right" richColors offset={100}/>
+            <AIInvestmentChatbot />
+          </AuthProvider>
+        </WalletContextProvider>
       </body>
     </html>
   );

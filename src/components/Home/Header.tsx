@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, User, LayoutDashboard, Settings } from "lucide-react";
+import { Menu, X, LogOut, User, LayoutDashboard, Settings, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -148,7 +148,11 @@ export default function Header() {
                 <DropdownMenuItem onClick={() => router.push("/history")}>
                   <Settings className="mr-2 h-4 w-4" /> History
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
 
+                <DropdownMenuItem onClick={() => router.push("/swap")}>
+                  <Settings className="mr-2 h-4 w-4" /> Swap Token
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={() => router.push("/settings")}>
@@ -248,10 +252,16 @@ export default function Header() {
                           className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-muted/50 transition-colors"
                           onClick={() => handleMobileNavigation("/history")}
                         >
-                          <Settings className="h-5 w-5 text-muted-foreground" />
+                          <History className="h-5 w-5 text-muted-foreground" />
                           <span className="font-medium">History</span>
                         </button>
-
+                        <button
+                          className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+                          onClick={() => handleMobileNavigation("/swap")}
+                        >
+                          <Settings className="h-5 w-5 text-muted-foreground" />
+                          <span className="font-medium">Swap Token</span>
+                        </button>
                         <button
                           className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-muted/50 transition-colors"
                           onClick={() => handleMobileNavigation("/settings")}
