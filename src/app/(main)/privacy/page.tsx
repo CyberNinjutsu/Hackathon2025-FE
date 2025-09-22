@@ -23,7 +23,7 @@ export default function PrivacyPage() {
           </Link>
           <div className="space-y-2">
             <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
-              Cryptix
+              DAMS
             </h1>
           </div>
         </div>
@@ -41,7 +41,7 @@ export default function PrivacyPage() {
           <div className="p-6 prose prose-invert max-w-none">
             <div className="space-y-6 text-gray-300 leading-relaxed">
               <p>
-                This Privacy Policy describes how Cryptix collects, uses, and
+                This Privacy Policy describes how DAMS collects, uses, and
                 shares your personal information when you use our services. We
                 are committed to protecting your privacy.
               </p>

@@ -5,8 +5,9 @@ import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
 import "../globals.css";
 import { DM_Sans } from "next/font/google";
 import { AuthProvider } from "@/lib/AuthContext";
-// import { Toaster } from "@/components/ui/sonner";
 import { Metadata } from "next";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
+import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "DAMS - Your trusted blockchain transaction and wallet management",
   description: "Created with v0",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "700"],
-  variable: "--font-sans", // Tùy chọn, để dùng trong CSS nếu cần
+  variable: "--font-sans",
 });
 export default function MainLayout({
   children,
@@ -29,12 +30,15 @@ export default function MainLayout({
         className={`font-sans ${dmSans.variable}  custom-scrollbar homepage-container`}
       >
         <AuthProvider>
+          <BackgroundGlow />
+
           <Header />
           <main>
             <Suspense fallback={null}>{children}</Suspense>
           </main>
           <Footer />
           <AIInvestmentChatbot />
+          <Toaster position="top-right" closeButton offset={100} richColors />
         </AuthProvider>
       </body>
     </html>

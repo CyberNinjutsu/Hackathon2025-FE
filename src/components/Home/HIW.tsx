@@ -27,7 +27,7 @@ const stepsData: Step[] = [
 ];
 export default function HIW() {
   return (
-    <section id="howitworks" className="bg-background py-20 sm:py-24">
+    <section id="howitworks" className="py-20 sm:py-24">
       <div className="container mx-auto max-w-7xl px-6">
         {/* === Header của Section === */}
         <div className="text-center">
