@@ -34,6 +34,7 @@ const Logo = () => (
     <span className="text-xl font-bold text-foreground">DAMS</span>
   </Link>
 );
+
 export default function Header() {
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -48,9 +49,28 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Disable/enable body scroll when mobile menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const getShortenedKey = (key: string | null) => {
     if (!key) return "";
     return `${key.substring(0, 4)}...${key.substring(key.length - 4)}`;
+  };
+
+  const handleMobileNavigation = (path: string) => {
+    router.push(path);
+    setIsOpen(false);
   };
 
   return (
@@ -157,64 +177,115 @@ export default function Header() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden">
-          <div className="absolute top-full left-0 w-full border-t border-border bg-background/95 px-6 pt-4 pb-8">
-            <nav className="flex flex-col gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-lg font-medium text-foreground"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <div className="mt-6 flex flex-col gap-4">
-                {publicKey ? (
-                  <>
-                    <Button
-                      variant="secondary"
-                      size="lg"
-                      onClick={() => {
-                        if (publicKey) router.push("/dashboard");
-                        setIsOpen(false);
-                      }}
+        <div className="md:hidden fixed inset-0 top-20 z-40">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/20 backdrop-blur-sm" 
+            onClick={() => setIsOpen(false)}
+          />
+          
+          {/* Menu Content */}
+          <div className="relative h-full bg-background border-t border-border">
+            <div className="h-full overflow-y-auto px-6 py-6">
+              <nav className="flex flex-col">
+                {/* Navigation Links */}
+                <div className="space-y-1 mb-8">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="block text-lg font-medium text-foreground hover:text-primary transition-colors py-4 px-3 rounded-lg hover:bg-muted/50"
+                      onClick={() => setIsOpen(false)}
                     >
-                      Dashboard
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="lg"
-                      onClick={() => {
-                        logout();
-                        setIsOpen(false);
-                      }}
-                    >
-                      Log Out
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      asChild
-                      variant="outline"
-                      size="lg"
-                      className="rounded-full"
-                    >
-                      <Link href="/login" onClick={() => setIsOpen(false)}>
-                        Connect Wallet
-                      </Link>
-                    </Button>
-                    <Button asChild className="rounded-full" size="lg">
-                      <Link href="/register" onClick={() => setIsOpen(false)}>
-                        Sign Up
-                      </Link>
-                    </Button>
-                  </>
-                )}
-              </div>
-            </nav>
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+                
+                <div className="border-t border-border pt-6">
+                  {publicKey ? (
+                    <div className="space-y-4">
+                      {/* User Info */}
+                      <div className="px-3 py-4 bg-muted/30 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Avatar className="h-12 w-12">
+                            <AvatarFallback className="bg-primary/20">
+                              <User className="h-6 w-6" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <p className="font-medium">My Wallet</p>
+                            <p className="text-sm text-muted-foreground">
+                              {getShortenedKey(publicKey)}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* User Menu Items */}
+                      <div className="space-y-2">
+                        <button
+                          className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+                          onClick={() => handleMobileNavigation("/account")}
+                        >
+                          <LayoutDashboard className="h-5 w-5 text-muted-foreground" />
+                          <span className="font-medium">Account</span>
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+                          onClick={() => handleMobileNavigation("/history")}
+                        >
+                          <Settings className="h-5 w-5 text-muted-foreground" />
+                          <span className="font-medium">History</span>
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-muted/50 transition-colors"
+                          onClick={() => handleMobileNavigation("/settings")}
+                        >
+                          <Settings className="h-5 w-5 text-muted-foreground" />
+                          <span className="font-medium">Settings</span>
+                        </button>
+
+                        <button
+                          className="w-full flex items-center gap-3 text-left py-4 px-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors text-red-500"
+                          onClick={() => {
+                            logout();
+                            setIsOpen(false);
+                          }}
+                        >
+                          <LogOut className="h-5 w-5" />
+                          <span className="font-medium">Log out</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="lg"
+                        className="w-full rounded-lg h-12"
+                      >
+                        <Link href="/login" onClick={() => setIsOpen(false)}>
+                          Connect Wallet
+                        </Link>
+                      </Button>
+                      <Button 
+                        asChild 
+                        className="w-full rounded-lg h-12" 
+                        size="lg"
+                      >
+                        <Link href="/register" onClick={() => setIsOpen(false)}>
+                          Sign Up
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </nav>
+            </div>
           </div>
         </div>
       )}

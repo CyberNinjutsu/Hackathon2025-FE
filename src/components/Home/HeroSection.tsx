@@ -17,7 +17,6 @@ const StarIcon = ({ filled = true }: { filled?: boolean }) => (
 export default function HeroSection() {
   return (
     <section className="relative px-6 pt-32 pb-20 overflow-hidden md:pt-40 md:pb-24">
-
       <div className="max-w-7xl mx-auto text-center">
         <div className="max-w-3xl mx-auto mb-10">
           <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight mb-6 text-foreground">
@@ -27,8 +26,10 @@ export default function HeroSection() {
           <p className="text-lg md:text-xl leading-relaxed text-muted-foreground">
             <WordAnimate>
               DAMS offers a seamless, secure experience for managing your
-              digital assets. Instant transactions, optimized fees, and premium
-              design.
+              digital assets.
+            </WordAnimate>
+            <WordAnimate>
+              Instant transactions, optimized fees, and premium design.
             </WordAnimate>
           </p>
         </div>
@@ -41,11 +42,7 @@ export default function HeroSection() {
              transition-transform hover:scale-105 hover:bg-[#00ffb2]/90 rounded-full"
             asChild
           >
-            <a
-              href="/login"
-            >
-              Get started now
-            </a>
+            <a href="/login">Get started now</a>
           </Button>
         </div>
 

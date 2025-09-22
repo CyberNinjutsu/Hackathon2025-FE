@@ -58,12 +58,18 @@ export default function Testimonials() {
   return (
        <section id="testimonials" className="bg-background py-20 sm:py-24">
       <div className="container mx-auto max-w-7xl px-6">
-        <div className="mx-auto max-w-3xl text-center">
+        <div className="mx-auto max-w-5xl text-center">
           <WordAnimate
             as="h2"
             className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
           >
-            Trusted by Crypto Enthusiasts Worldwide
+            Trusted by 
+          </WordAnimate>
+          <WordAnimate
+            as="h2"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
+          >
+            Crypto Enthusiasts Worldwide
           </WordAnimate>
           <WordAnimate
             as="p"
@@ -136,14 +142,14 @@ export default function Testimonials() {
               className="group flex w-full items-center gap-4 border-t border-border p-8 text-muted-foreground transition-colors hover:bg-zinc-800 hover:text-foreground"
             >
               <ChevronLeft className="h-5 w-5" />
-              <WordAnimate as="span">Previous</WordAnimate>
+              Previous
             </button>
 
             <button
               onClick={handleNext}
               className="group flex w-full items-center justify-end gap-4 border-t border-border p-8 text-muted-foreground transition-colors hover:bg-zinc-800 hover:text-foreground"
             >
-              <WordAnimate as="span">Next</WordAnimate>
+              Next
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
