@@ -111,28 +111,6 @@ export default function AssetsPage() {
 				</div>
 			</div>
 
-			{/* Search and Filters */}
-			<div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-xl p-6">
-				<div className="flex flex-col sm:flex-row gap-4">
-					<div className="flex-1 relative">
-						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-						<input
-							type="text"
-							placeholder="Search assets..."
-							value={searchTerm}
-							onChange={(e) => setSearchTerm(e.target.value)}
-							className="w-full pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300"
-						/>
-					</div>
-					<select className="px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300">
-						<option value="">All Status</option>
-						<option value="active">Active</option>
-						<option value="paused">Paused</option>
-						<option value="deprecated">Deprecated</option>
-					</select>
-				</div>
-			</div>
-
 			{/* Assets Table */}
 			<div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-xl overflow-hidden">
 				{loading ? (
