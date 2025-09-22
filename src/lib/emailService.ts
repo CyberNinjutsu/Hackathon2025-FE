@@ -1,45 +1,57 @@
-import { OTPRequestResult, AdminAuthError } from '@/types/adminAuth';
+import { OTPRequestResult, AdminAuthError } from "@/types/adminAuth";
 
 class EmailService {
   /**
    * Send OTP via email using API route
    */
-  async sendOTP(email: string, otp: string): Promise<OTPRequestResult> {
+  async sendOTP(email: string): Promise<OTPRequestResult> {
     try {
-      const response = await fetch('/api/admin/send-otp', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
+      const response = await fetch("/api/admin/send-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, otp })
+        body: JSON.stringify({ email }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Email sending failed');
+        throw new Error(data.error || "Email sending failed");
+      }
+
+      // In development mode, show OTP in console for testing
+      if (process.env.NODE_ENV === "development" && data.otp) {
+        console.log("🔐 OTP Code for testing:", data.otp);
+        console.log("📧 Email:", email);
+        console.log("⏰ Expires at:", data.expiresAt);
       }
 
       const now = new Date();
-      const expiresAt = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes
+      const expiresAt = data.expiresAt
+        ? new Date(data.expiresAt)
+        : new Date(now.getTime() + 5 * 60 * 1000);
       const canResendAt = new Date(now.getTime() + 1 * 60 * 1000); // 1 minute
 
       return {
         success: true,
         sentAt: now,
         expiresAt,
-        canResendAt
+        canResendAt,
       };
     } catch (error) {
-      console.error('Email sending error:', error);
-      
+      console.error("Email sending error:", error);
+
       return {
         success: false,
         error: {
           type: AdminAuthError.EMAIL_SEND_FAILED,
-          message: error instanceof Error ? error.message : 'Failed to send OTP email. Please try again.',
-          canRetry: true
-        }
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to send OTP email. Please try again.",
+          canRetry: true,
+        },
       };
     }
   }
@@ -185,7 +197,7 @@ class EmailService {
     // In production, this could check the actual email service status
     return {
       available: true,
-      provider: 'Mock Service (Development)'
+      provider: "Mock Service (Development)",
     };
   }
 }

@@ -6,23 +6,23 @@ import {
   AdminAuthError,
   AuthError,
   ADMIN_EMAIL,
-  SESSION_DURATION_HOURS
-} from '@/types/adminAuth';
+  SESSION_DURATION_HOURS,
+} from "@/types/adminAuth";
 
 class AdminAuthService {
-  private readonly STORAGE_KEY = 'admin_auth';
-  private readonly SESSION_KEY = 'admin_session';
+  private readonly STORAGE_KEY = "admin_auth";
+  private readonly SESSION_KEY = "admin_session";
 
   /**
    * Validate email address
    */
   validateEmail(email: string): boolean {
-    if (!email || typeof email !== 'string') {
+    if (!email || typeof email !== "string") {
       return false;
     }
 
     const trimmedEmail = email.trim().toLowerCase();
-    return ADMIN_EMAIL.some(admin => admin.toLowerCase() === trimmedEmail);
+    return ADMIN_EMAIL.some((admin) => admin.toLowerCase() === trimmedEmail);
   }
 
   /**
@@ -31,14 +31,16 @@ class AdminAuthService {
   createSession(email: string): string {
     const token = this.generateSecureToken();
     const now = new Date();
-    const expiresAt = new Date(now.getTime() + SESSION_DURATION_HOURS * 60 * 60 * 1000);
+    const expiresAt = new Date(
+      now.getTime() + SESSION_DURATION_HOURS * 60 * 60 * 1000
+    );
 
     const session: AdminSession = {
       token,
       email,
       createdAt: now,
       expiresAt,
-      isValid: true
+      isValid: true,
     };
 
     // Store session in localStorage
@@ -72,7 +74,7 @@ class AdminAuthService {
       // Check if session is valid
       return session.isValid && this.validateEmail(session.email);
     } catch (error) {
-      console.error('Session validation error:', error);
+      console.error("Session validation error:", error);
       return false;
     }
   }
@@ -100,7 +102,7 @@ class AdminAuthService {
 
       return null;
     } catch (error) {
-      console.error('Get session error:', error);
+      console.error("Get session error:", error);
       return null;
     }
   }
@@ -116,9 +118,10 @@ class AdminAuthService {
           success: false,
           error: {
             type: AdminAuthError.INVALID_EMAIL,
-            message: 'Invalid email address. Only authorized admin email is allowed.',
-            canRetry: true
-          }
+            message:
+              "Invalid email address. Only authorized admin email is allowed.",
+            canRetry: true,
+          },
         };
       }
 
@@ -129,26 +132,28 @@ class AdminAuthService {
           success: false,
           error: {
             type: AdminAuthError.ACCOUNT_LOCKED,
-            message: `Account is locked due to too many failed attempts. Try again in ${Math.ceil(remainingTime / 60)} minutes.`,
+            message: `Account is locked due to too many failed attempts. Try again in ${Math.ceil(
+              remainingTime / 60
+            )} minutes.`,
             remainingTime,
-            canRetry: false
-          }
+            canRetry: false,
+          },
         };
       }
 
       return {
         success: true,
-        canRequestOtp: true
+        canRequestOtp: true,
       };
     } catch (error) {
-      console.error('Login initiation error:', error);
+      console.error("Login initiation error:", error);
       return {
         success: false,
         error: {
           type: AdminAuthError.EMAIL_SEND_FAILED,
-          message: 'An error occurred during login. Please try again.',
-          canRetry: true
-        }
+          message: "An error occurred during login. Please try again.",
+          canRetry: true,
+        },
       };
     }
   }
@@ -159,8 +164,8 @@ class AdminAuthService {
   async verifyOTP(email: string, otp: string): Promise<VerificationResult> {
     try {
       // Import services dynamically to avoid circular dependencies
-      const { otpService } = await import('./otpService');
-      const { rateLimiter } = await import('./rateLimiter');
+      const { otpService } = await import("./otpService");
+      const { rateLimiter } = await import("./rateLimiter");
 
       // Validate email first
       if (!this.validateEmail(email)) {
@@ -168,9 +173,9 @@ class AdminAuthService {
           success: false,
           error: {
             type: AdminAuthError.INVALID_EMAIL,
-            message: 'Invalid email address.',
-            canRetry: false
-          }
+            message: "Invalid email address.",
+            canRetry: false,
+          },
         };
       }
 
@@ -181,15 +186,17 @@ class AdminAuthService {
           success: false,
           error: {
             type: AdminAuthError.ACCOUNT_LOCKED,
-            message: `Account is locked. Try again in ${Math.ceil(remainingTime / 60)} minutes.`,
+            message: `Account is locked. Try again in ${Math.ceil(
+              remainingTime / 60
+            )} minutes.`,
             remainingTime,
-            canRetry: false
-          }
+            canRetry: false,
+          },
         };
       }
 
-      // Validate OTP
-      const validation = otpService.validateOTP(email, otp);
+      // Validate OTP server-side
+      const validation = await otpService.validateOTP(email, otp);
 
       if (!validation.isValid) {
         // Record failed attempt
@@ -199,10 +206,12 @@ class AdminAuthService {
           success: false,
           error: {
             type: AdminAuthError.OTP_INVALID,
-            message: validation.error || 'Invalid OTP code.',
-            canRetry: validation.remainingAttempts ? validation.remainingAttempts > 0 : true
+            message: validation.error || "Invalid OTP code.",
+            canRetry: validation.remainingAttempts
+              ? validation.remainingAttempts > 0
+              : true,
           },
-          remainingAttempts: validation.remainingAttempts
+          remainingAttempts: validation.remainingAttempts,
         };
       }
 
@@ -214,17 +223,17 @@ class AdminAuthService {
 
       return {
         success: true,
-        sessionToken
+        sessionToken,
       };
     } catch (error) {
-      console.error('OTP verification error:', error);
+      console.error("OTP verification error:", error);
       return {
         success: false,
         error: {
           type: AdminAuthError.OTP_INVALID,
-          message: 'An error occurred during verification. Please try again.',
-          canRetry: true
-        }
+          message: "An error occurred during verification. Please try again.",
+          canRetry: true,
+        },
       };
     }
   }
@@ -253,7 +262,9 @@ class AdminAuthService {
   private generateSecureToken(): string {
     const array = new Uint8Array(32);
     crypto.getRandomValues(array);
-    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+    return Array.from(array, (byte) => byte.toString(16).padStart(2, "0")).join(
+      ""
+    );
   }
 
   /**
@@ -264,7 +275,7 @@ class AdminAuthService {
       const stored = localStorage.getItem(this.STORAGE_KEY);
       return stored ? JSON.parse(stored) : {};
     } catch (error) {
-      console.error('Auth data retrieval error:', error);
+      console.error("Auth data retrieval error:", error);
       return {};
     }
   }
@@ -276,7 +287,7 @@ class AdminAuthService {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error('Auth data save error:', error);
+      console.error("Auth data save error:", error);
     }
   }
 }

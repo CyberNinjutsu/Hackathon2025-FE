@@ -1,53 +1,94 @@
-import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import { NextRequest, NextResponse } from "next/server";
+import nodemailer from "nodemailer";
+import { storeOTP } from "../verify-otp/route";
 
-// Email configuration - you'll need to set these environment variables
+// Get authorized emails from environment variable
+const getAuthorizedEmails = (): string[] => {
+  const emailsString = process.env.NEXT_PUBLIC_EMAIL_ACCESS;
+  if (!emailsString) {
+    return [];
+  }
+  return emailsString.split(" ").filter((email) => email.trim().length > 0);
+};
+
+// Email configuration
 const EMAIL_CONFIG = {
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  port: parseInt(process.env.SMTP_PORT || "587"),
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.SMTP_USER, // Your email
-    pass: process.env.SMTP_PASS, // Your app password
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
+};
+
+// Generate a secure 6-digit OTP
+const generateOTP = (): string => {
+  const array = new Uint8Array(3);
+  crypto.getRandomValues(array);
+  const num = (array[0] << 16) | (array[1] << 8) | array[2];
+  return ((num % 900000) + 100000).toString();
 };
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, otp } = await request.json();
+    const { email } = await request.json();
 
     // Validate input
-    if (!email || !otp) {
+    if (!email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    // Generate OTP server-side
+    const otp = generateOTP();
+
+    // Get authorized emails
+    const authorizedEmails = getAuthorizedEmails();
+
+    // Check if any authorized emails are configured
+    if (authorizedEmails.length === 0) {
       return NextResponse.json(
-        { error: 'Email and OTP are required' },
-        { status: 400 }
+        { error: "No authorized emails configured" },
+        { status: 500 }
       );
     }
 
-    // Validate email is the authorized admin email
-    if (email !== 'buichibao1601@gmail.com') {
+    // Validate email is in the authorized list
+    const normalizedEmail = email.trim().toLowerCase();
+    const isAuthorized = authorizedEmails.some(
+      (authorizedEmail) =>
+        authorizedEmail.trim().toLowerCase() === normalizedEmail
+    );
+
+    if (!isAuthorized) {
       return NextResponse.json(
-        { error: 'Unauthorized email address' },
+        { error: "Unauthorized email address" },
         { status: 403 }
       );
     }
 
+    // Store OTP server-side
+    const expiresAt = storeOTP(email, otp);
+
+    // Debug logging in development
+    if (process.env.NODE_ENV === "development") {
+      console.log("OTP Generation Debug:", {
+        email: normalizedEmail,
+        otp,
+        expiresAt: expiresAt.toISOString(),
+      });
+    }
+
     // Check if email configuration is available
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      console.log('📧 EMAIL CONFIG MISSING - Using console log for development');
-      console.log(`
-🔐 ADMIN LOGIN OTP
-==================
-Email: ${email}
-OTP Code: ${otp}
-Expires: 5 minutes
-==================
-      `);
-      
+      // In development mode, return the OTP for testing
       return NextResponse.json({
         success: true,
-        message: 'OTP logged to console (development mode)',
+        message: "OTP sent successfully (development mode)",
         sentAt: new Date().toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        // Include OTP in development for testing
+        ...(process.env.NODE_ENV === "development" && { otp }),
       });
     }
 
@@ -182,26 +223,25 @@ Expires: 5 minutes
     const info = await transporter.sendMail({
       from: `"Admin Portal" <${process.env.SMTP_USER}>`,
       to: email,
-      subject: 'Admin Login - OTP Verification Code',
+      subject: "Admin Login - OTP Verification Code",
       html: htmlTemplate,
     });
 
-    console.log('Email sent successfully:', info.messageId);
+    console.log("Email sent successfully:", info.messageId);
 
     return NextResponse.json({
       success: true,
-      message: 'OTP sent successfully',
+      message: "OTP sent successfully",
       sentAt: new Date().toISOString(),
       messageId: info.messageId,
     });
-
   } catch (error) {
-    console.error('Email sending error:', error);
-    
+    console.error("Email sending error:", error);
+
     return NextResponse.json(
-      { 
-        error: 'Failed to send email',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      {
+        error: "Failed to send email",
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );

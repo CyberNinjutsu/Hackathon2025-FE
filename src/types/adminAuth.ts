@@ -3,7 +3,7 @@
 export interface AdminAuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
-  step: 'email' | 'otp' | 'authenticated';
+  step: "email" | "otp" | "authenticated";
   email: string | null;
   error: string | null;
   lockoutUntil: Date | null;
@@ -54,13 +54,13 @@ export interface AdminAuthStorage {
 }
 
 export enum AdminAuthError {
-  INVALID_EMAIL = 'INVALID_EMAIL',
-  ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
-  OTP_EXPIRED = 'OTP_EXPIRED',
-  OTP_INVALID = 'OTP_INVALID',
-  RATE_LIMITED = 'RATE_LIMITED',
-  EMAIL_SEND_FAILED = 'EMAIL_SEND_FAILED',
-  SESSION_EXPIRED = 'SESSION_EXPIRED'
+  INVALID_EMAIL = "INVALID_EMAIL",
+  ACCOUNT_LOCKED = "ACCOUNT_LOCKED",
+  OTP_EXPIRED = "OTP_EXPIRED",
+  OTP_INVALID = "OTP_INVALID",
+  RATE_LIMITED = "RATE_LIMITED",
+  EMAIL_SEND_FAILED = "EMAIL_SEND_FAILED",
+  SESSION_EXPIRED = "SESSION_EXPIRED",
 }
 
 export interface AuthError {
@@ -95,7 +95,7 @@ export interface OTPRequestResult {
 // Constants
 export const ADMIN_EMAIL = process.env.NEXT_PUBLIC_EMAIL_ACCESS
   ? process.env.NEXT_PUBLIC_EMAIL_ACCESS.split(" ").filter(Boolean)
-  : [];;
+  : [];
 export const OTP_EXPIRY_MINUTES = 5;
 export const OTP_REQUEST_COOLDOWN_MINUTES = 1;
 export const MAX_OTP_REQUESTS_PER_HOUR = 3;

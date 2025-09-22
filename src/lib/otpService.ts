@@ -1,10 +1,14 @@
-import {
-  OTP_EXPIRY_MINUTES,
-  StoredOTP
-} from '@/types/adminAuth';
+import { OTP_EXPIRY_MINUTES } from "@/types/adminAuth";
+
+interface OTPMetadata {
+  email: string;
+  sentAt: Date;
+  expiresAt: Date;
+  attempts: number;
+}
 
 class OTPService {
-  private readonly STORAGE_KEY = 'admin_otp';
+  private readonly STORAGE_KEY = "admin_otp_metadata";
 
   /**
    * Generate a secure 6-digit OTP
@@ -15,266 +19,184 @@ class OTPService {
 
     // Convert to 6-digit number
     const num = (array[0] << 16) | (array[1] << 8) | array[2];
-    const otp = (num % 900000 + 100000).toString();
+    const otp = ((num % 900000) + 100000).toString();
 
     return otp;
   }
 
   /**
-   * Store OTP for email with expiration
+   * Store OTP metadata in localStorage (not the actual OTP code)
    */
-  storeOTP(email: string, otp: string): Date {
+  storeOTPMetadata(email: string): Date {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + OTP_EXPIRY_MINUTES * 60 * 1000);
 
-    const storedOTP: StoredOTP = {
-      code: otp,
+    const metadata: OTPMetadata = {
       email,
-      createdAt: now,
+      sentAt: now,
       expiresAt,
       attempts: 0,
-      isUsed: false
     };
 
     try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(storedOTP));
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(metadata));
       return expiresAt;
     } catch (error) {
-      console.error('OTP storage error:', error);
-      throw new Error('Failed to store OTP');
+      throw new Error("Failed to store OTP metadata");
     }
   }
 
   /**
-   * Validate OTP against stored value
+   * Get OTP metadata from localStorage
    */
-  validateOTP(email: string, inputOtp: string): { isValid: boolean; error?: string; remainingAttempts?: number } {
+  getOTPMetadata(): OTPMetadata | null {
     try {
-      const storedOTP = this.getStoredOTP();
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (!stored) return null;
 
-      if (!storedOTP) {
-        return {
-          isValid: false,
-          error: 'No OTP found. Please request a new one.'
-        };
-      }
-
-      // Check if OTP is for the correct email
-      if (storedOTP.email !== email) {
-        return {
-          isValid: false,
-          error: 'OTP not found for this email.'
-        };
-      }
-
-      // Check if OTP is already used
-      if (storedOTP.isUsed) {
-        return {
-          isValid: false,
-          error: 'OTP has already been used. Please request a new one.'
-        };
-      }
-
-      // Check if OTP is expired
-      const now = new Date();
-      const expiresAt = new Date(storedOTP.expiresAt);
-
-      if (now > expiresAt) {
-        this.invalidateOTP();
-        return {
-          isValid: false,
-          error: 'OTP has expired. Please request a new one.'
-        };
-      }
-
-      // Increment attempt count
-      storedOTP.attempts += 1;
-      this.updateStoredOTP(storedOTP);
-
-      // Check if OTP matches
-      if (storedOTP.code === inputOtp.trim()) {
-        // Mark as used
-        storedOTP.isUsed = true;
-        this.updateStoredOTP(storedOTP);
-
-        return {
-          isValid: true
-        };
-      } else {
-        const remainingAttempts = Math.max(0, 3 - storedOTP.attempts);
-
-        if (remainingAttempts === 0) {
-          this.invalidateOTP();
-          return {
-            isValid: false,
-            error: 'Too many failed attempts. OTP has been invalidated.',
-            remainingAttempts: 0
-          };
-        }
-
-        return {
-          isValid: false,
-          error: `Invalid OTP. ${remainingAttempts} attempts remaining.`,
-          remainingAttempts
-        };
-      }
+      const metadata = JSON.parse(stored);
+      return {
+        ...metadata,
+        sentAt: new Date(metadata.sentAt),
+        expiresAt: new Date(metadata.expiresAt),
+      };
     } catch (error) {
-      console.error('OTP validation error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get OTP expiration time (for countdown display)
+   */
+  getOTPExpirationTime(): Date {
+    const metadata = this.getOTPMetadata();
+    if (metadata) {
+      return metadata.expiresAt;
+    }
+
+    const now = new Date();
+    return new Date(now.getTime() + OTP_EXPIRY_MINUTES * 60 * 1000);
+  }
+
+  /**
+   * Validate OTP via server API
+   */
+  async validateOTP(
+    email: string,
+    inputOtp: string
+  ): Promise<{ isValid: boolean; error?: string; remainingAttempts?: number }> {
+    try {
+      // Update attempt count in metadata
+      const metadata = this.getOTPMetadata();
+      if (metadata && metadata.email === email) {
+        metadata.attempts += 1;
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(metadata));
+      }
+
+      const response = await fetch("/api/admin/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp: inputOtp }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          isValid: false,
+          error: data.error || "OTP validation failed",
+          remainingAttempts: data.remainingAttempts,
+        };
+      }
+
+      // Clear metadata on successful validation
+      this.invalidateOTP();
+
+      return {
+        isValid: true,
+      };
+    } catch (error) {
       return {
         isValid: false,
-        error: 'An error occurred during OTP validation.'
+        error: "Network error during OTP validation",
       };
     }
   }
 
   /**
-   * Check if OTP exists and is valid
-   */
-  hasValidOTP(email: string): boolean {
-    try {
-      const storedOTP = this.getStoredOTP();
-
-      if (!storedOTP || storedOTP.email !== email || storedOTP.isUsed) {
-        return false;
-      }
-
-      const now = new Date();
-      const expiresAt = new Date(storedOTP.expiresAt);
-
-      return now <= expiresAt;
-    } catch (error) {
-      console.error('OTP validity check error:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Get OTP expiration time
-   */
-  getOTPExpirationTime(email: string): Date | null {
-    try {
-      const storedOTP = this.getStoredOTP();
-
-      if (!storedOTP || storedOTP.email !== email || storedOTP.isUsed) {
-        return null;
-      }
-
-      return new Date(storedOTP.expiresAt);
-    } catch (error) {
-      console.error('OTP expiration check error:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Get remaining OTP time in seconds
+   * Get remaining OTP time in seconds (for display purposes)
    */
   getRemainingOTPTime(email: string): number {
-    try {
-      const expiresAt = this.getOTPExpirationTime(email);
-      if (!expiresAt) return 0;
-
-      const now = new Date();
-      const remainingMs = expiresAt.getTime() - now.getTime();
-
-      return Math.max(0, Math.ceil(remainingMs / 1000));
-    } catch (error) {
-      console.error('Remaining OTP time calculation error:', error);
+    const metadata = this.getOTPMetadata();
+    if (!metadata || metadata.email !== email) {
       return 0;
     }
+
+    const now = new Date();
+    const remainingMs = metadata.expiresAt.getTime() - now.getTime();
+    return Math.max(0, Math.ceil(remainingMs / 1000));
   }
 
   /**
-   * Invalidate current OTP
+   * Clear OTP metadata from localStorage
    */
   invalidateOTP(): void {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (error) {
-      console.error('OTP invalidation error:', error);
+      // Ignore localStorage errors
     }
   }
 
   /**
-   * Check if OTP is expired
+   * Check if OTP metadata exists and is valid
    */
-  isOTPExpired(email: string): boolean {
-    try {
-      const storedOTP = this.getStoredOTP();
-
-      if (!storedOTP || storedOTP.email !== email) {
-        return true;
-      }
-
-      const now = new Date();
-      const expiresAt = new Date(storedOTP.expiresAt);
-
-      return now > expiresAt;
-    } catch (error) {
-      console.error('OTP expiration check error:', error);
-      return true;
+  hasValidOTP(email: string): boolean {
+    const metadata = this.getOTPMetadata();
+    if (!metadata || metadata.email !== email) {
+      return false;
     }
+
+    const now = new Date();
+    return now <= metadata.expiresAt;
   }
 
   /**
-   * Get stored OTP from localStorage
-   */
-  private getStoredOTP(): StoredOTP | null {
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : null;
-    } catch (error) {
-      console.error('OTP retrieval error:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Update stored OTP in localStorage
-   */
-  private updateStoredOTP(otp: StoredOTP): void {
-    try {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(otp));
-    } catch (error) {
-      console.error('OTP update error:', error);
-    }
-  }
-
-  /**
-   * Get OTP attempts count
+   * Get OTP attempts count from metadata
    */
   getOTPAttempts(email: string): number {
-    try {
-      const storedOTP = this.getStoredOTP();
-
-      if (!storedOTP || storedOTP.email !== email) {
-        return 0;
-      }
-
-      return storedOTP.attempts;
-    } catch (error) {
-      console.error('OTP attempts check error:', error);
+    const metadata = this.getOTPMetadata();
+    if (!metadata || metadata.email !== email) {
       return 0;
     }
+    return metadata.attempts;
   }
 
   /**
-   * Clean up expired OTPs
+   * Check if OTP is expired based on metadata
+   */
+  isOTPExpired(email: string): boolean {
+    const metadata = this.getOTPMetadata();
+    if (!metadata || metadata.email !== email) {
+      return true;
+    }
+
+    const now = new Date();
+    return now > metadata.expiresAt;
+  }
+
+  /**
+   * Clean up expired OTP metadata
    */
   cleanupExpiredOTPs(): void {
-    try {
-      const storedOTP = this.getStoredOTP();
-
-      if (storedOTP) {
-        const now = new Date();
-        const expiresAt = new Date(storedOTP.expiresAt);
-
-        if (now > expiresAt) {
-          this.invalidateOTP();
-        }
+    const metadata = this.getOTPMetadata();
+    if (metadata) {
+      const now = new Date();
+      if (now > metadata.expiresAt) {
+        this.invalidateOTP();
       }
-    } catch (error) {
-      console.error('OTP cleanup error:', error);
     }
   }
 }
