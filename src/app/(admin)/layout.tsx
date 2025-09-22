@@ -32,16 +32,12 @@ export default function AdminLayout({
 
 					<div className="flex relative z-10 h-screen overflow-hidden">
 						{/* Sidebar */}
-						<div className="w-64 min-h-[100vh] shrink-0 sticky top-0 h-screen overflow-y-auto border-r border-gray-800">
-							<Sidebar />
-						</div>
+						<Sidebar />
 
 						{/* Main Content */}
-						<div className="flex-1 flex flex-col">
+						<div className="flex-1 flex flex-col min-w-0">
 							{/* Header */}
-							<div className="sticky top-0 z-20 border-b border-gray-800 bg-gradient-to-br from-gray-900 via-black to-gray-900">
-								<Header />
-							</div>
+							<Header />
 
 							{/* Scrollable content */}
 							<main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">

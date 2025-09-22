@@ -1,30 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import AssetChart from "@/components/account/AssetChart";
 import AssetItem from "@/components/account/AssetItem";
 import TransactionItem from "@/components/account/TransactionItem";
-import { getStatusBadge, getTransactionIcon } from "@/utils/Helper";
-import { Asset, AssetHistory, Transaction } from "@/utils/Types";
-import { ArrowRightIcon, PlusIcon, WalletIcon } from "lucide-react";
+import BackgroundGlow from "@/components/BackgroundGlow";
+import Loading from "@/components/Loading";
+import { useAuth } from "@/lib/AuthContext";
+import { getStatusBadge } from "@/utils/Helper";
+import { AssetHistory, TokenAccount, Transaction } from "@/utils/Types";
+import { useTransactionHistory } from "@/utils/useTransactionHistory";
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
+import {
+  AccountInfo,
+  clusterApiUrl,
+  Connection,
+  ParsedAccountData,
+  PublicKey,
+} from "@solana/web3.js";
+import { format } from "date-fns";
+import { ArrowRightIcon, WalletIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/lib/AuthContext";
-import {
-  Connection,
-  PublicKey,
-  clusterApiUrl,
-  ParsedAccountData,
-  AccountInfo,
-} from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
-import BackgroundGlow from "@/components/BackgroundGlow";
-import { TokenAccount } from "@/utils/Types";
-import Loading from "@/components/Loading";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useTransactionHistory } from "@/utils/useTransactionHistory";
-import { format } from "date-fns";
 
 const assetHistory: AssetHistory[] = [
   {
@@ -63,20 +62,12 @@ const assetHistory: AssetHistory[] = [
 ];
 
 const AccountPage = () => {
-  const {
-    publicKey,
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    logout,
-  } = useAuth();
+  const { publicKey, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
   const [txLimit, setTxLimit] = useState<number>(3);
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
-  const { transactions, isLoading, error } = useTransactionHistory(
-    publicKey,
-    txLimit
-  );
+  const { transactions, isLoading } = useTransactionHistory(publicKey, txLimit);
   const router = useRouter();
   const [isChecking, setIsChecking] = useState<boolean>(true);
 
@@ -206,7 +197,7 @@ const AccountPage = () => {
       };
       fetchTokenAccounts();
     }
-  }, [router, isAuthenticated, publicKey]);
+  }, [router, isAuthenticated, publicKey, isAuthLoading]);
 
   if (isChecking) {
     return <Loading />;
