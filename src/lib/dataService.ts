@@ -79,7 +79,7 @@ class DataService {
                   uiAmount,
                   amountRaw,
                   decimals,
-                  symbol: tokenInfo?.symbol || 'UNKNOWN',
+                  symbol: tokenInfo?.symbol || 'DAMS',
                   logoURI: tokenInfo?.logoURI,
                 });
               }
