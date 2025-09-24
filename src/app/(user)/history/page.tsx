@@ -96,10 +96,9 @@ export default function HistoryPage() {
   const totalLoaded = transactions.length;
 
   return (
-    <div className="min-h-screen bg-transparent text-foreground pt-16 max-w-6xl mx-auto">
-      <div className="relative z-10 space-y-6 p-4 sm:p-6">
-        <div className="flex flex-col space-y-4">
-          {/* Back button / Export */}
+    <div className="min-h-screen bg-transparent text-foreground pt-24 max-w-6xl mx-auto">
+      <div className="relative z-10 space-y-6 p-4 sm:p-6 ">
+        <div className="glass-card p-6  space-y-6 hover:scale-[1.02] transition-all duration-300">
           <div className="flex items-center justify-between">
             <Button
               variant="outline"
@@ -116,7 +115,7 @@ export default function HistoryPage() {
             </Button>
           </div>
 
-          {/* Page title */}
+          {/* Page title*/}
           <div className="text-center sm:text-left">
             <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2 floating">
               Transaction History
@@ -125,10 +124,7 @@ export default function HistoryPage() {
               Review and manage all your completed transactions.
             </p>
           </div>
-        </div>
-
-        {/* Filters & Search */}
-        <div className="glass-card p-6 space-y-6 hover:scale-[1.02] transition-all duration-300">
+          
           <div className="flex items-center gap-3">
             <Filter className="h-6 w-6 text-primary" />
             <h3 className="text-xl font-semibold text-white">
@@ -363,7 +359,7 @@ export default function HistoryPage() {
             transactions{" "}
             {!hasMore && totalLoaded > 0 ? (
               <>
-                of <span className="font-medium text-white">{transactions.length}</span>{" "}
+                of{" "} <span className="font-medium text-white">{totalLoaded}</span>{" "}
                 transactions
               </>
             ) : (

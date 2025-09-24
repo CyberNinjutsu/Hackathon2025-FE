@@ -11,7 +11,7 @@ import {
   Send,
   Sparkles,
   User,
-  X,
+  X
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -200,37 +200,34 @@ export default function AIInvestmentChatbot({
 
   return (
     <>
-      {/* Chat Toggle Button - Always visible, đổi icon tùy trạng thái */}
+      {/* Chat Toggle Button - Always visible, completely separate */}
       <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
-        <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 20 }}
-        >
-          <Button
-            onClick={() => setIsOpen(!isOpen)}
-            className="h-14 w-14 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 shadow-lg hover:shadow-xl hover:shadow-teal-500/50 transition-all duration-300 group hover:from-teal-400 hover:to-cyan-400 hover:scale-110"
-          >
-            <div className="relative">
-              {isOpen ? (
-                // Icon khi mở (dấu X để đóng)
-                <X className="h-6 w-6 text-white" />
-              ) : (
-                // Icon khi đóng (MessageCircle để mở)
-                <>
+        <AnimatePresence mode="wait">
+          {!isOpen && (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <Button
+                onClick={() => setIsOpen(true)}
+                className="h-14 w-14 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 shadow-lg hover:shadow-xl hover:shadow-teal-500/50 transition-all duration-300 group hover:from-teal-400 hover:to-cyan-400 hover:scale-110"
+              >
+                <div className="relative">
                   <MessageCircle className="h-6 w-6 text-white" />
                   <motion.div
                     className="absolute -top-1 -right-1 h-3 w-3 bg-green-400 rounded-full border border-white"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   />
-                </>
-              )}
-            </div>
-          </Button>
-        </motion.div>
+                </div>
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
+
       {/* Chat Window - Completely separate fixed positioning */}
       <AnimatePresence mode="wait">
         {isOpen && (
@@ -239,7 +236,7 @@ export default function AIInvestmentChatbot({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.3 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className={`fixed bottom-24 right-6 w-96 h-[600px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
+            className={`fixed bottom-6 right-6 w-96 h-[600px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-teal-500 to-cyan-500 p-4 text-white">
@@ -294,7 +291,7 @@ export default function AIInvestmentChatbot({
                   background: #0d9488;
                 }
               `}</style>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
@@ -326,7 +323,7 @@ export default function AIInvestmentChatbot({
                             {message.content}
                           </p>
                           <p
-                            className={`text-xs mt-2 ${
+                            className={`text-xs mt-1 ${
                               message.sender === "user"
                                 ? "text-white/70"
                                 : "text-slate-400"
