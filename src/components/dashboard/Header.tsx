@@ -1,25 +1,140 @@
-import { Home } from "lucide-react";
-import Link from "next/link";
+"use client";
+
+import { Bell, Search, User, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function Header() {
-  return (
-    <header className="glass-card border-b border-white/10 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="glass-card p-2">
-              <Home
-                className="w-6 h-6"
-                style={{ color: "oklch(0.65 0.18 260)" }}
-              />
-            </div>
-            <span className="text-xl font-bold text-white">AssetVault</span>
-          </Link>
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const { logout, email } = useAdminAuth();
+  const router = useRouter();
+  const profileRef = useRef<HTMLDivElement>(null);
 
-          <div className="flex items-center space-x-4">
-            <div className="glass-card px-4 py-2">
-              <span className="text-white">Xin chào, User</span>
-            </div>
+  const handleSignOut = async () => {
+    if (isSigningOut) return;
+
+    setIsSigningOut(true);
+    try {
+      logout();
+      toast.success("Signed out successfully");
+      // Small delay to show the success message
+      setTimeout(() => {
+        router.push("/auth");
+      }, 500);
+    } catch (error) {
+      toast.error("Error signing out");
+      setIsSigningOut(false);
+    }
+    setIsProfileOpen(false);
+  };
+
+  // Close dropdown when clicking outside or pressing Escape
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isProfileOpen]);
+
+  return (
+    <header className="bg-gray-900/50 backdrop-blur-xl border-b border-gray-800 p-4 lg:p-6 relative z-30">
+      <div className="flex items-center justify-between">
+        {/* Search */}
+        <div className="flex-1 max-w-md ml-0 lg:ml-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300"
+            />
+          </div>
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-4">
+          {/* Notifications */}
+          <button className="relative p-2 text-gray-400 hover:text-white transition-colors duration-300">
+            <Bell className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
+          </button>
+
+          {/* Profile */}
+          <div className="relative" ref={profileRef}>
+            <button
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-800/50 transition-all duration-300"
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+            >
+              <div className="w-8 h-8 bg-primary/20 border border-primary/30 rounded-full flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
+              </div>
+              <div className="hidden sm:block text-left">
+                <p className="text-sm font-medium text-white">Admin User</p>
+                <p className="text-xs text-gray-400">
+                  {email || "admin@DAMS.com"}
+                </p>
+              </div>
+            </button>
+
+            {/* Profile dropdown */}
+            {isProfileOpen && (
+              <>
+                {/* Invisible backdrop to catch clicks */}
+                <div
+                  className="fixed inset-0 z-[9998]"
+                  onClick={() => setIsProfileOpen(false)}
+                />
+                {/* Dropdown */}
+                <div className="absolute right-0 top-full mt-2 w-48 bg-gray-800/95 backdrop-blur-xl border border-gray-700 rounded-lg shadow-2xl z-[9999] ring-1 ring-gray-600/50">
+                  <div className="p-2">
+                    <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:text-white hover:bg-gray-700/50 rounded-lg transition-all duration-300">
+                      <User className="w-4 h-4" />
+                      Profile Settings
+                    </button>
+                    <button
+                      onClick={handleSignOut}
+                      disabled={isSigningOut}
+                      className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isSigningOut ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" />
+                          Signing Out...
+                        </>
+                      ) : (
+                        <>
+                          <LogOut className="w-4 h-4" />
+                          Sign Out
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
