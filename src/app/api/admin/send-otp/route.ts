@@ -67,26 +67,33 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Store OTP server-side
+    // Store OTP server-side and create verification token
     const expiresAt = storeOTP(email, otp);
+    const { createVerificationToken } = await import("@/lib/serverOtpStorage");
+    const verificationToken = createVerificationToken(email, otp, expiresAt);
 
-    // Debug logging in development
-    if (process.env.NODE_ENV === "development") {
-      console.log("OTP Generation Debug:", {
-        email: normalizedEmail,
-        otp,
-        expiresAt: expiresAt.toISOString(),
-      });
-    }
+    // Debug logging for troubleshooting
+    console.log("OTP Generation Debug:", {
+      email: normalizedEmail,
+      otp,
+      expiresAt: expiresAt.toISOString(),
+      environment: process.env.NODE_ENV,
+    });
 
     // Check if email configuration is available
     if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
       // In development mode, return the OTP for testing
+      const { createVerificationToken } = await import(
+        "@/lib/serverOtpStorage"
+      );
+      const verificationToken = createVerificationToken(email, otp, expiresAt);
+
       return NextResponse.json({
         success: true,
         message: "OTP sent successfully (development mode)",
         sentAt: new Date().toISOString(),
         expiresAt: expiresAt.toISOString(),
+        verificationToken,
         // Include OTP in development for testing
         ...(process.env.NODE_ENV === "development" && { otp }),
       });
@@ -234,6 +241,8 @@ export async function POST(request: NextRequest) {
       message: "OTP sent successfully",
       sentAt: new Date().toISOString(),
       messageId: info.messageId,
+      expiresAt: expiresAt.toISOString(),
+      verificationToken,
     });
   } catch (error) {
     console.error("Email sending error:", error);

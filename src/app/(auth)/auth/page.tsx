@@ -92,6 +92,16 @@ export default function AdminLoginPage() {
     // The step will be managed by the hook
   };
 
+  // Debug function to clear rate limit data (temporary)
+  const handleClearRateLimit = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("admin_rate_limit");
+      localStorage.removeItem("admin_otp_metadata");
+      console.log("Rate limit and OTP data cleared");
+      window.location.reload();
+    }
+  };
+
   // Don't render anything if already authenticated (will redirect)
   if (isAuthenticated) {
     return null;
@@ -167,6 +177,18 @@ export default function AdminLoginPage() {
       isLoading={isLoading && step === "authenticated"}
     >
       {renderContent()}
+
+      {/* Debug button - remove in production */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="mt-4 text-center">
+          <button
+            onClick={handleClearRateLimit}
+            className="text-xs text-gray-500 hover:text-gray-700 underline"
+          >
+            [Debug] Clear Rate Limit Data
+          </button>
+        </div>
+      )}
     </LoginLayout>
   );
 }

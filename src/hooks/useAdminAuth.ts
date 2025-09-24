@@ -55,6 +55,13 @@ export const useAdminAuth = () => {
       // Check if account is locked
       const isLocked = rateLimiter.isAccountLocked();
       const lockoutTime = rateLimiter.getRemainingLockoutTime();
+      const rateLimitStatus = rateLimiter.getStatusSummary();
+
+      console.log("Auth initialization - Rate limit status:", {
+        isLocked,
+        lockoutTime,
+        rateLimitStatus,
+      });
 
       setState((prev) => ({
         ...prev,
@@ -109,11 +116,24 @@ export const useAdminAuth = () => {
         }
 
         // Check rate limiting
-        if (!rateLimiter.canRequestOTP(email)) {
+        const canRequest = rateLimiter.canRequestOTP(email);
+        console.log("Rate limit check result:", {
+          canRequest,
+          email,
+          rateLimitStatus: rateLimiter.getStatusSummary(),
+        });
+
+        if (!canRequest) {
           const isLocked = rateLimiter.isAccountLocked();
           const waitTime = isLocked
             ? rateLimiter.getRemainingLockoutTime()
             : rateLimiter.getRemainingWaitTime(email);
+
+          console.log("OTP request blocked:", {
+            isLocked,
+            waitTime,
+            rateLimitData: rateLimiter.getStatusSummary(),
+          });
 
           const result: LoginResult = {
             success: false,

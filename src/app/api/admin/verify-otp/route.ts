@@ -16,7 +16,7 @@ const getAuthorizedEmails = (): string[] => {
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, otp } = await request.json();
+    const { email, otp, verificationToken } = await request.json();
 
     // Validate input
     if (!email || !otp) {
@@ -24,6 +24,35 @@ export async function POST(request: NextRequest) {
         { error: "Email and OTP are required" },
         { status: 400 }
       );
+    }
+
+    // If we have a verification token, use token-based verification
+    if (verificationToken) {
+      const { verifyOTPWithToken } = await import("@/lib/serverOtpStorage");
+      const result = verifyOTPWithToken(verificationToken, otp, email);
+
+      console.log("Token-based OTP verification:", {
+        email: email.trim().toLowerCase(),
+        inputOtp: otp.trim(),
+        isValid: result.isValid,
+        error: result.error,
+        expired: result.expired,
+      });
+
+      if (!result.isValid) {
+        return NextResponse.json(
+          {
+            error: result.error || "Invalid OTP",
+            expired: result.expired,
+          },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "OTP verified successfully",
+      });
     }
 
     // Get authorized emails
@@ -54,13 +83,13 @@ export async function POST(request: NextRequest) {
     // Get stored OTP
     const storedOTP = getStoredOTP(normalizedEmail);
 
-    // Debug logging in development
-    if (process.env.NODE_ENV === "development") {
-      console.log("OTP Verification Debug:", {
-        email: normalizedEmail,
-        hasStoredOTP: !!storedOTP,
-      });
-    }
+    // Debug logging in development and production for troubleshooting
+    console.log("OTP Verification Debug:", {
+      email: normalizedEmail,
+      inputOtp: otp.trim(),
+      hasStoredOTP: !!storedOTP,
+      environment: process.env.NODE_ENV,
+    });
 
     if (!storedOTP) {
       return NextResponse.json(

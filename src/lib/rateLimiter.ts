@@ -3,11 +3,11 @@ import {
   OTP_REQUEST_COOLDOWN_MINUTES,
   MAX_OTP_REQUESTS_PER_HOUR,
   MAX_FAILED_ATTEMPTS,
-  LOCKOUT_DURATION_HOURS
-} from '@/types/adminAuth';
+  LOCKOUT_DURATION_HOURS,
+} from "@/types/adminAuth";
 
 class RateLimiter {
-  private readonly STORAGE_KEY = 'admin_rate_limit';
+  private readonly STORAGE_KEY = "admin_rate_limit";
 
   /**
    * Get lockout duration in milliseconds
@@ -26,29 +26,43 @@ class RateLimiter {
 
       // Check if account is locked due to failed attempts
       if (this.isAccountLocked()) {
+        console.log("OTP request blocked: Account is locked");
         return false;
       }
 
       // Check if user has exceeded hourly OTP request limit
       if (this.hasExceededHourlyLimit()) {
+        console.log("OTP request blocked: Exceeded hourly limit");
         return false;
       }
 
-      // Check cooldown period between requests
+      // Check cooldown period between requests (only if there was a previous request)
       if (rateLimitData.lastOtpRequest) {
         const lastRequest = new Date(rateLimitData.lastOtpRequest);
         const timeSinceLastRequest = now.getTime() - lastRequest.getTime();
         const cooldownMs = OTP_REQUEST_COOLDOWN_MINUTES * 60 * 1000;
 
         if (timeSinceLastRequest < cooldownMs) {
+          console.log("OTP request blocked: Cooldown period active", {
+            timeSinceLastRequest: Math.floor(timeSinceLastRequest / 1000),
+            cooldownSeconds: OTP_REQUEST_COOLDOWN_MINUTES * 60,
+            remainingSeconds: Math.ceil(
+              (cooldownMs - timeSinceLastRequest) / 1000
+            ),
+          });
           return false;
         }
       }
 
+      console.log("OTP request allowed", {
+        hasLastRequest: !!rateLimitData.lastOtpRequest,
+        otpRequests: rateLimitData.otpRequests,
+        isLocked: this.isAccountLocked(),
+      });
       return true;
     } catch (error) {
-      console.error('OTP request check error:', error);
-      return false;
+      console.error("OTP request check error:", error);
+      return true; // Allow request on error to avoid blocking users
     }
   }
 
@@ -70,13 +84,15 @@ class RateLimiter {
       // Check if user has exceeded the hourly limit
       if (rateLimitData.otpRequests >= MAX_OTP_REQUESTS_PER_HOUR) {
         // Lock account
-        const lockoutUntil = new Date(now.getTime() + this.getLockoutDuration());
+        const lockoutUntil = new Date(
+          now.getTime() + this.getLockoutDuration()
+        );
         rateLimitData.lockoutUntil = lockoutUntil.toISOString();
       }
 
       this.saveRateLimitData(rateLimitData);
     } catch (error) {
-      console.error('OTP request recording error:', error);
+      console.error("OTP request recording error:", error);
     }
   }
 
@@ -102,7 +118,7 @@ class RateLimiter {
 
       return Math.ceil((cooldownMs - timeSinceLastRequest) / 1000);
     } catch (error) {
-      console.error('Wait time calculation error:', error);
+      console.error("Wait time calculation error:", error);
       return 0;
     }
   }
@@ -115,18 +131,21 @@ class RateLimiter {
       const rateLimitData = this.getRateLimitData();
       const now = new Date();
 
-      rateLimitData.failedOtpAttempts = (rateLimitData.failedOtpAttempts || 0) + 1;
+      rateLimitData.failedOtpAttempts =
+        (rateLimitData.failedOtpAttempts || 0) + 1;
 
       // Check if user has exceeded failed attempt limit
       if (rateLimitData.failedOtpAttempts >= MAX_FAILED_ATTEMPTS) {
         // Lock account
-        const lockoutUntil = new Date(now.getTime() + this.getLockoutDuration());
+        const lockoutUntil = new Date(
+          now.getTime() + this.getLockoutDuration()
+        );
         rateLimitData.lockoutUntil = lockoutUntil.toISOString();
       }
 
       this.saveRateLimitData(rateLimitData);
     } catch (error) {
-      console.error('Failed attempt recording error:', error);
+      console.error("Failed attempt recording error:", error);
     }
   }
 
@@ -152,7 +171,7 @@ class RateLimiter {
 
       return true;
     } catch (error) {
-      console.error('Account lock check error:', error);
+      console.error("Account lock check error:", error);
       return false;
     }
   }
@@ -174,7 +193,7 @@ class RateLimiter {
 
       return Math.max(0, Math.ceil(remainingMs / 1000));
     } catch (error) {
-      console.error('Lockout time calculation error:', error);
+      console.error("Lockout time calculation error:", error);
       return 0;
     }
   }
@@ -194,7 +213,7 @@ class RateLimiter {
 
       this.saveRateLimitData(rateLimitData);
     } catch (error) {
-      console.error('Failed attempts reset error:', error);
+      console.error("Failed attempts reset error:", error);
     }
   }
 
@@ -207,12 +226,12 @@ class RateLimiter {
         otpRequests: 0,
         lastOtpRequest: null,
         failedOtpAttempts: 0,
-        lockoutUntil: null
+        lockoutUntil: null,
       };
 
       this.saveRateLimitData(rateLimitData);
     } catch (error) {
-      console.error('Counter reset error:', error);
+      console.error("Counter reset error:", error);
     }
   }
 
@@ -224,7 +243,7 @@ class RateLimiter {
       const rateLimitData = this.getRateLimitData();
       return rateLimitData.otpRequests || 0;
     } catch (error) {
-      console.error('OTP request count error:', error);
+      console.error("OTP request count error:", error);
       return 0;
     }
   }
@@ -237,7 +256,7 @@ class RateLimiter {
       const rateLimitData = this.getRateLimitData();
       return rateLimitData.failedOtpAttempts || 0;
     } catch (error) {
-      console.error('Failed attempts count error:', error);
+      console.error("Failed attempts count error:", error);
       return 0;
     }
   }
@@ -254,7 +273,7 @@ class RateLimiter {
 
       return (rateLimitData.otpRequests || 0) >= MAX_OTP_REQUESTS_PER_HOUR;
     } catch (error) {
-      console.error('Hourly limit check error:', error);
+      console.error("Hourly limit check error:", error);
       return false;
     }
   }
@@ -281,7 +300,7 @@ class RateLimiter {
         this.saveRateLimitData(rateLimitData);
       }
     } catch (error) {
-      console.error('Old requests cleanup error:', error);
+      console.error("Old requests cleanup error:", error);
     }
   }
 
@@ -291,19 +310,21 @@ class RateLimiter {
   private getRateLimitData(): RateLimitState {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : {
-        otpRequests: 0,
-        lastOtpRequest: null,
-        failedOtpAttempts: 0,
-        lockoutUntil: null
-      };
+      return stored
+        ? JSON.parse(stored)
+        : {
+            otpRequests: 0,
+            lastOtpRequest: null,
+            failedOtpAttempts: 0,
+            lockoutUntil: null,
+          };
     } catch (error) {
-      console.error('Rate limit data retrieval error:', error);
+      console.error("Rate limit data retrieval error:", error);
       return {
         otpRequests: 0,
         lastOtpRequest: null,
         failedOtpAttempts: 0,
-        lockoutUntil: null
+        lockoutUntil: null,
       };
     }
   }
@@ -315,7 +336,19 @@ class RateLimiter {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error('Rate limit data save error:', error);
+      console.error("Rate limit data save error:", error);
+    }
+  }
+
+  /**
+   * Clear all rate limit data (for debugging/reset purposes)
+   */
+  clearAllData(): void {
+    try {
+      localStorage.removeItem(this.STORAGE_KEY);
+      console.log("Rate limit data cleared");
+    } catch (error) {
+      console.error("Failed to clear rate limit data:", error);
     }
   }
 
@@ -331,12 +364,12 @@ class RateLimiter {
     remainingLockoutTime: number;
   } {
     return {
-      canRequestOTP: this.canRequestOTP(''),
+      canRequestOTP: this.canRequestOTP(""),
       isLocked: this.isAccountLocked(),
       otpRequests: this.getCurrentOTPRequestCount(),
       failedAttempts: this.getCurrentFailedAttempts(),
-      remainingWaitTime: this.getRemainingWaitTime(''),
-      remainingLockoutTime: this.getRemainingLockoutTime()
+      remainingWaitTime: this.getRemainingWaitTime(""),
+      remainingLockoutTime: this.getRemainingLockoutTime(),
     };
   }
 }
