@@ -29,10 +29,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getTypeColorClass } from "@/utils/Helper";
 
-/**
- * formatNumber(number, decimals = 9, groupSize = 3, groupSeparator = ",", decimalSeparator = ".")
- * returns string with grouping and fixed decimals
- */
 function formatNumber(
   number: number,
   decimals: number = 9,
@@ -42,7 +38,10 @@ function formatNumber(
 ) {
   const fixed = Number(number || 0).toFixed(decimals);
   const parts = fixed.split(".");
-  parts[0] = parts[0].replace(new RegExp("\\B(?=(\\d{" + groupSize + "})+(?!\\d))", "g"), groupSeparator);
+  parts[0] = parts[0].replace(
+    new RegExp("\\B(?=(\\d{" + groupSize + "})+(?!\\d))", "g"),
+    groupSeparator
+  );
   return parts.join(decimalSeparator).replace(/\.?0+$/, "");
 }
 
@@ -51,8 +50,11 @@ function shortenSignature(sig: string, chars = 6) {
   if (sig.length <= chars * 2) return sig;
   return `${sig.slice(0, chars)}...${sig.slice(-chars)}`;
 }
+
 export default function HistoryPage() {
   const router = useRouter();
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const pageSize = 10;
 
   const {
     publicKey: userPublicKey,
@@ -60,12 +62,8 @@ export default function HistoryPage() {
     isLoading: isAuthLoading,
   } = useAuth();
 
-  const { transactions, isLoading, error } =
+  const { transactions, isLoading, error, hasMore, fetchTransactions } =
     useTransactionHistory(userPublicKey);
-
-  // pagination state
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 10;
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
@@ -84,18 +82,10 @@ export default function HistoryPage() {
     }
   }, [error]);
 
-  // Logic xử lý UI loading
-  if (isAuthLoading) {
+  if (isAuthLoading || (isLoading && transactions.length === 0)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
-        Checking authentication...
-      </div>
-    );
-  }
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        Loading history...
+        {isAuthLoading ? "Checking authentication..." : "Loading history..."}
       </div>
     );
   }
@@ -103,13 +93,7 @@ export default function HistoryPage() {
     return null;
   }
   // pagination calculations
-  const total = transactions.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-  const startIndex = (safeCurrentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, total);
-  const visibleTransactions = transactions.slice(startIndex, endIndex);
-  const showPaginationControls = total > pageSize;
+  const totalLoaded = transactions.length;
 
   return (
     <div className="min-h-screen bg-transparent text-foreground pt-16 max-w-6xl mx-auto">
@@ -202,6 +186,10 @@ export default function HistoryPage() {
           <Table className="min-w-[600px] hidden sm:table">
             <TableHeader>
               <TableRow className="border-gray-700">
+                <TableHead className="w-[50px] text-white font-semibold">
+                  #
+                </TableHead>
+
                 <TableHead className="text-white font-semibold">Type</TableHead>
                 <TableHead className="hidden lg:table-cell text-white font-semibold">
                   Signature
@@ -221,16 +209,21 @@ export default function HistoryPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visibleTransactions.map((tx) => (
+              {transactions.map((tx, index) => (
                 <TableRow
                   key={tx.id}
                   className="border-gray-700 hover:bg-white/5 transition-colors duration-200"
                 >
+                  <TableCell className="font-medium text-gray-300">
+                    {index + 1}
+                  </TableCell>
                   <TableCell className="text-white">
                     <div className="flex items-center gap-3">
                       <TransactionIcon type={tx.type} />
                       <span
-                        className={`font-semibold ${getTypeColorClass(tx.type)}`}
+                        className={`font-semibold ${getTypeColorClass(
+                          tx.type
+                        )}`}
                       >
                         {tx.type}
                       </span>
@@ -238,31 +231,29 @@ export default function HistoryPage() {
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 font-mono text-sm">
                     <Link
-                      href={`https://solscan.io/tx/${tx.id}?cluster=devnet`}
+                      href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`}
                       target="_blank"
                     >
                       {shortenSignature(tx.id)}
                     </Link>
                   </TableCell>
-                    <TableCell className="font-semibold">
-                    {tx.isFeeOnly ? (
-                      <span className="text-gray-400">
-                        Fee: {formatNumber(tx.fee, 9)} SOL
-                      </span>
-                    ) : (
-                      <span
-                        className={
-                          tx.type === "Send"
-                            ? "text-red-400"
-                            : tx.type === "Receive" || tx.type === "Mint"
-                              ? "text-green-400"
-                              : "text-white"
-                        }
-                      >
-                        {tx.type === "Send" ? "-" : tx.type === "Receive" || tx.type === "Mint" ? "+" : ""}
-                        {formatNumber(tx.amount)} {tx.assetSymbol}
-                      </span>
-                    )}
+                  <TableCell className="font-semibold">
+                    <span
+                      className={
+                        tx.type === "Send"
+                          ? "text-red-400"
+                          : tx.type === "Receive" || tx.type === "Mint"
+                          ? "text-green-400"
+                          : "text-white"
+                      }
+                    >
+                      {tx.type === "Send"
+                        ? "-"
+                        : tx.type === "Receive" || tx.type === "Mint"
+                        ? "+"
+                        : ""}
+                      {formatNumber(tx.amount)} {tx.assetSymbol}
+                    </span>
                   </TableCell>
                   <TableCell className="hidden md:table-cell text-green-400 font-bold">
                     ${tx.value.toLocaleString("en-US")}
@@ -274,13 +265,15 @@ export default function HistoryPage() {
                         tx.status === "Completed"
                           ? "text-green-400 border-green-400 bg-green-400/10"
                           : tx.status === "Pending"
-                            ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                            : "text-red-400 border-red-400 bg-red-400/10"
+                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                          : "text-red-400 border-red-400 bg-red-400/10"
                       }
                     >
-                      {tx.status === "Completed" ? "Completed"
-                        : tx.status === "Pending" ? "Pending"
-                          : "Failed"}
+                      {tx.status === "Completed"
+                        ? "Completed"
+                        : tx.status === "Pending"
+                        ? "Pending"
+                        : "Failed"}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs text-gray-400">
@@ -293,7 +286,7 @@ export default function HistoryPage() {
 
           {/* Mobile cards */}
           <div className="sm:hidden space-y-4 p-4">
-            {visibleTransactions.map((tx, index) => (
+            {transactions.map((tx, index) => (
               <div
                 key={index}
                 className="glass-card p-4 hover:scale-[1.02] transition-all duration-300"
@@ -312,25 +305,23 @@ export default function HistoryPage() {
                   </span>
                 </div>
                 <div className="mb-3">
-                   <div className="font-semibold mb-1">
-                    {tx.isFeeOnly ? (
-                      <span className="text-gray-400 text-sm">
-                        Fee: {formatNumber(tx.fee, 9)} SOL
-                      </span>
-                    ) : (
-                      <span
-                        className={
-                          tx.type === "Send"
-                            ? "text-red-400"
-                            : tx.type === "Receive" || tx.type === "Mint"
-                              ? "text-green-400"
-                              : "text-white"
-                        }
-                      >
-                        {tx.type === "Send" ? "-" : tx.type === "Receive" || tx.type === "Mint" ? "+" : ""}
-                        {formatNumber(tx.amount, 6)} {tx.assetSymbol}
-                      </span>
-                    )}
+                  <div className="font-semibold mb-1">
+                    <span
+                      className={
+                        tx.type === "Send"
+                          ? "text-red-400"
+                          : tx.type === "Receive" || tx.type === "Mint"
+                          ? "text-green-400"
+                          : "text-white"
+                      }
+                    >
+                      {tx.type === "Send"
+                        ? "-"
+                        : tx.type === "Receive" || tx.type === "Mint"
+                        ? "+"
+                        : ""}
+                      {formatNumber(tx.amount, 6)} {tx.assetSymbol}
+                    </span>
                   </div>
                   {tx.id && (
                     <div className="text-xs text-gray-400 truncate font-mono">
@@ -348,15 +339,15 @@ export default function HistoryPage() {
                       tx.status === "Completed"
                         ? "text-green-400 border-green-400 bg-green-400/10"
                         : tx.status === "Pending"
-                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                          : "text-red-400 border-red-400 bg-red-400/10"
+                        ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                        : "text-red-400 border-red-400 bg-red-400/10"
                     }
                   >
                     {tx.status === "Completed"
                       ? "Completed"
                       : tx.status === "Pending"
-                        ? "Pending"
-                        : "Failed"}
+                      ? "Pending"
+                      : "Failed"}
                   </Badge>
                 </div>
               </div>
@@ -364,45 +355,37 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between">
+        {/* Pagination & Load More */}
+        <div className="flex items-center justify-between mt-6">
           <div className="text-sm text-gray-400">
             Showing{" "}
-            <span className="font-medium text-white">
-              {total === 0 ? 0 : startIndex + 1}
-            </span>{" "}
-            - <span className="font-medium text-white">{endIndex}</span> of{" "}
-            <span className="font-medium text-white">{total}</span>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-400">
-              Page {safeCurrentPage} of {totalPages}
-            </span>
-
-            {showPaginationControls && (
-              <div className="space-x-2">
-                <Button
-                  size="sm"
-                  className="bg-purple-500/20 border-purple-400/50 text-purple-100 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={safeCurrentPage <= 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-purple-500/20 border-purple-400/50 text-purple-100 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={safeCurrentPage >= totalPages}
-                >
-                  Next
-                </Button>
-              </div>
+            <span className="font-medium text-white">{totalLoaded}</span>{" "}
+            transactions{" "}
+            {!hasMore && totalLoaded > 0 ? (
+              <>
+                of <span className="font-medium text-white">{transactions.length}</span>{" "}
+                transactions
+              </>
+            ) : (
+              "transactions"
             )}
           </div>
+
+          {hasMore && (
+            <Button
+              className="bg-purple-500/20 border-purple-400/50 text-purple-100 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+              onClick={fetchTransactions}
+              disabled={isLoading}
+            >
+              {isLoading ? "Loading..." : "Load More"}
+            </Button>
+          )}
+
+          {!hasMore && transactions.length > 0 && (
+            <div className="text-sm text-gray-500">
+              You&apos;ve reached the end.
+            </div>
+          )}
         </div>
       </div>
     </div>

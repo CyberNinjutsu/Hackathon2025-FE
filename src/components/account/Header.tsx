@@ -33,10 +33,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Lấy trạng thái xác thực từ AuthContext
   const { publicKey, logout } = useAuth();
 
-  // Hiệu ứng thay đổi nền header khi cuộn trang
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
@@ -87,7 +85,7 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 left-0 z-40 w-full transition-all duration-300",
         isScrolled
           ? "bg-background/90 backdrop-blur-sm border-b border-border"
           : "bg-transparent"

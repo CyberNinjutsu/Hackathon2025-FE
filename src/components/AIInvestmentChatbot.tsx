@@ -11,7 +11,7 @@ import {
   Send,
   Sparkles,
   User,
-  X
+  X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -200,34 +200,37 @@ export default function AIInvestmentChatbot({
 
   return (
     <>
-      {/* Chat Toggle Button - Always visible, completely separate */}
+      {/* Chat Toggle Button - Always visible, đổi icon tùy trạng thái */}
       <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
-        <AnimatePresence mode="wait">
-          {!isOpen && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            >
-              <Button
-                onClick={() => setIsOpen(true)}
-                className="h-14 w-14 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 shadow-lg hover:shadow-xl hover:shadow-teal-500/50 transition-all duration-300 group hover:from-teal-400 hover:to-cyan-400 hover:scale-110"
-              >
-                <div className="relative">
+        <motion.div
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0, opacity: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        >
+          <Button
+            onClick={() => setIsOpen(!isOpen)}
+            className="h-14 w-14 rounded-full bg-gradient-to-r from-teal-500 to-cyan-500 shadow-lg hover:shadow-xl hover:shadow-teal-500/50 transition-all duration-300 group hover:from-teal-400 hover:to-cyan-400 hover:scale-110"
+          >
+            <div className="relative">
+              {isOpen ? (
+                // Icon khi mở (dấu X để đóng)
+                <X className="h-6 w-6 text-white" />
+              ) : (
+                // Icon khi đóng (MessageCircle để mở)
+                <>
                   <MessageCircle className="h-6 w-6 text-white" />
                   <motion.div
                     className="absolute -top-1 -right-1 h-3 w-3 bg-green-400 rounded-full border border-white"
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ repeat: Infinity, duration: 2 }}
                   />
-                </div>
-              </Button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                </>
+              )}
+            </div>
+          </Button>
+        </motion.div>
       </div>
-
       {/* Chat Window - Completely separate fixed positioning */}
       <AnimatePresence mode="wait">
         {isOpen && (

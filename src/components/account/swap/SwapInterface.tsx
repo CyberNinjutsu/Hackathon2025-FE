@@ -3,7 +3,6 @@ import { useAuth } from "@/lib/AuthContext";
 import { formatNumber } from "@/utils/Helper";
 import { Token, TokenAccount } from "@/utils/Types";
 import { fetchTokenAccountsSafe } from "@/utils/useTokenAccount";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios"; // Import AxiosError
 import { Buffer } from "buffer";
@@ -654,7 +653,7 @@ const SwapInterface: React.FC = () => {
                     </div>
                     <div className="text-xs text-gray-400 font-mono">
                       <a
-                        href={`https://solscan.io/tx/${lastSwapTx}?cluster=devnet`}
+                        href={`https://explorer.solana.com/tx/${lastSwapTx}?cluster=devnet`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline hover:text-white transition-colors"

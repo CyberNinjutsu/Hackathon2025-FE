@@ -10,7 +10,7 @@ import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import type React from "react";
 import { Suspense } from "react";
-import "../globals.css";
+import "../globals.css"
 
 export const metadata: Metadata = {
   title: "DAMS",

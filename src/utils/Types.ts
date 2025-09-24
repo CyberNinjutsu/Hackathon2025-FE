@@ -1,3 +1,5 @@
+import { ParsedInstruction, PublicKey } from "@solana/web3.js";
+
 interface Asset {
   id: string;
   name: string;
@@ -34,8 +36,6 @@ interface Transaction {
   status: "Completed" | "Pending" | "Failed";
   date: string;
   address?: string;
-  fee: number;
-  isFeeOnly?: boolean;
 }
 
 interface AssetHistory {
@@ -62,6 +62,58 @@ interface TokenAccount {
   logoURI?: string;
   logo?: string;
 }
+
+interface TokenBalance {
+  accountIndex: number;
+  mint: string;
+  owner?: string;
+  programId?: string;
+  uiTokenAmount: {
+    amount: string;
+    decimals: number;
+    uiAmount: number | null;
+    uiAmountString: string;
+  };
+}
+
+interface TokenMetadataExtension {
+  extension: string;
+  state: {
+    symbol?: string;
+    name?: string;
+  };
+}
+
+interface MintInfo {
+  decimals: number;
+  extensions?: TokenMetadataExtension[];
+}
+
+interface TransactionMeta {
+  err: string | null;
+  fee: number;
+  preTokenBalances: TokenBalance[];
+  postTokenBalances: TokenBalance[];
+  preBalances: number[];
+  postBalances: number[];
+  innerInstructions?: Array<{ instructions: ParsedInstruction[] }>;
+  computeUnitsConsumed?: number;
+  logMessages: [];
+}
+
+interface ParsedTransaction {
+  meta: TransactionMeta | null;
+  blockTime: number | null;
+  transaction: {
+    message: {
+      accountKeys: string[];
+      instructions: ParsedInstruction[];
+    };
+  };
+}
+
+
+
 export type TransactionTypeName =  | "Send"  | "Receive"  | "Mint"  | "Swap"  | "Other";
 
 export type {
@@ -72,4 +124,9 @@ export type {
   TokenIconProps,
   TokenAccount,
   Token,
+  TokenBalance,
+  ParsedInstruction,
+  MintInfo,
+  TokenMetadataExtension,
+  ParsedTransaction
 };
