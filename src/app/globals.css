@@ -149,12 +149,16 @@
 @layer utilities {
   .bg-glow {
     background-color: #08070e;
-    background-image: radial-gradient(circle 800px at top -20% left -10%,
+    background-image: radial-gradient(
+        circle 800px at top -20% left -10%,
         rgba(0, 255, 178, 0.08),
-        transparent 70%),
-      radial-gradient(circle 600px at bottom -15% right -10%,
+        transparent 70%
+      ),
+      radial-gradient(
+        circle 600px at bottom -15% right -10%,
         rgba(0, 255, 178, 0.06),
-        transparent 80%);
+        transparent 80%
+      );
     background-attachment: fixed;
     background-repeat: no-repeat;
   }
@@ -222,9 +226,11 @@
   }
 
   .clay-card {
-    background: linear-gradient(145deg,
-        oklch(var(--card) / 0.95),
-        oklch(var(--card) / 0.8));
+    background: linear-gradient(
+      145deg,
+      oklch(var(--card) / 0.95),
+      oklch(var(--card) / 0.8)
+    );
     box-shadow: 20px 20px 60px oklch(var(--muted) / 0.1),
       -20px -20px 60px oklch(var(--background) / 0.8),
       inset 5px 5px 10px oklch(var(--background) / 0.3),
@@ -234,9 +240,11 @@
   }
 
   .clay-button {
-    background: linear-gradient(145deg,
-        oklch(var(--primary) / 0.9),
-        oklch(var(--primary) / 0.7));
+    background: linear-gradient(
+      145deg,
+      oklch(var(--primary) / 0.9),
+      oklch(var(--primary) / 0.7)
+    );
     box-shadow: 8px 8px 16px oklch(var(--muted) / 0.2),
       -8px -8px 16px oklch(var(--background) / 0.5);
     transition: all 0.3s ease;
@@ -249,9 +257,11 @@
   }
 
   .clay-input {
-    background: linear-gradient(145deg,
-        oklch(var(--input) / 0.8),
-        oklch(var(--input) / 0.95));
+    background: linear-gradient(
+      145deg,
+      oklch(var(--input) / 0.8),
+      oklch(var(--input) / 0.95)
+    );
     box-shadow: inset 8px 8px 16px oklch(var(--muted) / 0.1),
       inset -8px -8px 16px oklch(var(--background) / 0.8);
     border: 1px solid oklch(var(--border) / 0.5);
@@ -260,7 +270,6 @@
   .auth-background {
     position: relative;
     min-height: 100vh;
-    background: black;
     overflow: hidden;
   }
 
@@ -273,26 +282,6 @@
     bottom: 0;
     opacity: 0.3;
   }
-
-  .auth-background.with-image::before {
-    background-image: var(--auth-bg-image);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.7;
-  }
-
-  .auth-background.with-image::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(2px);
-  }
-
   .floating {
     animation: float 6s ease-in-out infinite;
   }
@@ -385,30 +374,40 @@
   }
 
   .homepage-container::before {
-    background: radial-gradient(600px 600px at 8% 12%,
+    background: radial-gradient(
+        600px 600px at 8% 12%,
         rgba(0, 255, 178, 0.09),
-        transparent 70%),
-      radial-gradient(500px 500px at 92% 18%,
+        transparent 70%
+      ),
+      radial-gradient(
+        500px 500px at 92% 18%,
         rgba(0, 255, 178, 0.07),
-        transparent 75%),
-      radial-gradient(700px 700px at 15% 85%,
+        transparent 75%
+      ),
+      radial-gradient(
+        700px 700px at 15% 85%,
         rgba(0, 255, 178, 0.055),
-        transparent 80%),
-      radial-gradient(520px 520px at 88% 88%,
+        transparent 80%
+      ),
+      radial-gradient(
+        520px 520px at 88% 88%,
         rgba(0, 255, 178, 0.045),
-        transparent 80%);
+        transparent 80%
+      );
     filter: blur(2px);
     animation: none;
     opacity: 0.45;
   }
 
   .homepage-container::after {
-    background: linear-gradient(115deg,
-        rgba(0, 255, 178, 0) 10%,
-        rgba(0, 255, 178, 0.08) 35%,
-        rgba(0, 255, 178, 0.12) 50%,
-        rgba(0, 255, 178, 0.08) 65%,
-        rgba(0, 255, 178, 0) 90%);
+    background: linear-gradient(
+      115deg,
+      rgba(0, 255, 178, 0) 10%,
+      rgba(0, 255, 178, 0.08) 35%,
+      rgba(0, 255, 178, 0.12) 50%,
+      rgba(0, 255, 178, 0.08) 65%,
+      rgba(0, 255, 178, 0) 90%
+    );
     mix-blend-mode: screen;
     transform: translate3d(0, 0, 0);
     background-size: 200% 200%;
@@ -441,14 +440,12 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom right,
-      #0f172a,
-      /* slate-900 */
-      #581c87,
-      /* purple-900 */
-      #0f172a
-      /* slate-900 */
-    );
+  background: linear-gradient(
+    to bottom right,
+    #0f172a,
+    /* slate-900 */ #00ffb2,
+    /* purple-900 */ #0f172a /* slate-900 */
+  );
   color: var(--foreground);
   border-radius: 9999px;
 }
@@ -463,7 +460,6 @@
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0px);
@@ -472,21 +468,4 @@
   50% {
     transform: translateY(-10px);
   }
-}
-
-
-/* Dùng cho Chrome, Edge, Safari */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* Dùng cho Firefox */
-html {
-  scrollbar-width: none;
-  /* ẩn scrollbar */
-}
-
-/* Dùng cho IE, Edge cũ */
-html {
-  -ms-overflow-style: none;
 }

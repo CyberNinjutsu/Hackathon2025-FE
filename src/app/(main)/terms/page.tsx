@@ -35,9 +35,9 @@ export default function TermsPage() {
                 1. Acceptance of Terms
               </h2>
               <p>
-                By creating an account or using the services provided by DAMS,
-                you acknowledge that you have read, understood, and agree to
-                comply with all terms and conditions set forth in this
+                By creating an account or using the services provided by
+                DAMS, you acknowledge that you have read, understood, and
+                agree to comply with all terms and conditions set forth in this
                 agreement.
               </p>
 
@@ -75,9 +75,9 @@ export default function TermsPage() {
               </h2>
               <p>
                 The Service is provided &quot;as is&quot; and &quot;as
-                available&quot;. DAMS is not responsible for any losses arising
-                from the use of the service, including but not limited to asset
-                loss due to security errors, software bugs, or market
+                available&quot;. DAMS is not responsible for any losses
+                arising from the use of the service, including but not limited
+                to asset loss due to security errors, software bugs, or market
                 volatility.
               </p>
             </div>

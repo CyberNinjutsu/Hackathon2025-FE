@@ -42,5 +42,10 @@ const getStatusBadge = (status: string) => {
       return null;
   }
 };
-
-export { getTransactionIcon, getStatusBadge, getTypeColorClass };
+const formatNumber = (num: string | number, decimals: number = 2): string => {
+  const numStr = typeof num === "string" ? num : num.toString();
+  const parts = parseFloat(numStr).toFixed(decimals).split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return parts.join(".");
+};
+export { getTransactionIcon, getStatusBadge, getTypeColorClass, formatNumber };

@@ -1,6 +1,5 @@
 "use client";
 
-import BackgroundGlow from "@/components/BackgroundGlow";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,8 +24,9 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import { useAuth } from "@/lib/AuthContext";
+import { toast } from "sonner";
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -36,8 +36,25 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const {
+    savePublicKey,
+    isAuthenticated,
+    isLoading: isAuthLoading,
+  } = useAuth();
   const router = useRouter();
+  useEffect(() => {
+    if (isAuthLoading) {
+      return;
+    }
+
+    if (isAuthenticated) {
+      toast.info("You are already logged in.", {
+        description: "Redirecting to the home page...",
+      });
+      router.push("/");
+    }
+  }, [isAuthenticated, isAuthLoading, router]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -47,10 +64,11 @@ export default function RegisterPage() {
 
     router.push("/");
   };
-
+  if (isAuthLoading || isAuthenticated) {
+    return null;
+  }
   return (
-    <div className="auth-background with-image flex items-center justify-center p-4 sm:p-6 md:p-8">
-      <BackgroundGlow />
+    <div className="auth-background flex items-center justify-center p-4 sm:p-6 md:p-8">
       <div className="w-full max-w-md space-y-6 sm:space-y-8 relative z-10">
         {/* Logo and branding */}
         <div className="text-center space-y-4 floating uppercase font-bold">

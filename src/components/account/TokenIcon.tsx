@@ -3,13 +3,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { TokenIconProps } from "@/utils/Types";
 
-interface TokenIconProps {
-  symbol?: string;
-  logoURI?: string;
-  mint: string; // Used for fallback color generation
-  size?: number; // Size in pixels
-}
 
 // Helper function to generate a consistent color from the mint address
 function colorFromString(s: string) {
@@ -19,41 +14,52 @@ function colorFromString(s: string) {
     h |= 0;
   }
   const hue = Math.abs(h) % 360;
-  // Use HSL for a nice color palette
   return `hsl(${hue}deg 70% 40%)`;
 }
 
-export const TokenIcon: React.FC<TokenIconProps> = ({ symbol, logoURI, mint, size = 40 }) => {
+export const TokenIcon: React.FC<TokenIconProps> = ({ symbol, logo, logoURI, mint, size = 40 }) => {
   const [hasError, setHasError] = useState(false);
 
-  // Show placeholder if logoURI is missing or if the image failed to load
-  const showPlaceholder = !logoURI || hasError;
-  const placeholderChar = symbol ? symbol.charAt(0).toUpperCase() : "?";
+  if (logoURI && !hasError) {
+    return (
+      <Image
+        src={logoURI}
+        alt={`${symbol || mint} logo`}
+        width={size}
+        height={size}
+        className="rounded-full"
+        onError={() => setHasError(true)} 
+      />
+    );
+  }
 
-  if (showPlaceholder) {
+  if (logo) {
     return (
       <div
-        className="flex items-center justify-center rounded-full font-bold text-white select-none"
+        className="flex items-center justify-center rounded-full select-none"
         style={{
           width: `${size}px`,
           height: `${size}px`,
-          backgroundColor: colorFromString(mint),
-          fontSize: `${size * 0.5}px`,
+          fontSize: `${size * 0.6}px`, 
         }}
       >
-        {placeholderChar}
+        {logo}
       </div>
     );
   }
 
+  const placeholderChar = symbol ? symbol.charAt(0).toUpperCase() : "?";
   return (
-    <Image
-      src={logoURI}
-      alt={`${symbol || mint} logo`}
-      width={size}
-      height={size}
-      className="rounded-full"
-      onError={() => setHasError(true)}
-    />
+    <div
+      className="flex items-center justify-center rounded-full font-bold text-white select-none"
+      style={{
+        width: `${size}px`,
+        height: `${size}px`,
+        backgroundColor: colorFromString(mint),
+        fontSize: `${size * 0.5}px`,
+      }}
+    >
+      {placeholderChar}
+    </div>
   );
 };

@@ -20,10 +20,8 @@ export default function Header() {
       setIsScrolled(window.scrollY > 10);
     };
 
-    // Thêm event listener khi component mount
     window.addEventListener("scroll", handleScroll);
 
-    // Dọn dẹp event listener khi component unmount
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 

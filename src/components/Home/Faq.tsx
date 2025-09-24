@@ -57,7 +57,7 @@ export default function Faq() {
           className="mb-4 rounded-2xl border bg-card px-6" // Tạo kiểu card cho từng item
         >
           <AccordionTrigger className="group text-left text-lg font-medium hover:no-underline">
-            <span className="flex-1 pr-4">{faq.question}</span>
+            <WordAnimate className="flex-1 pr-4">{faq.question}</WordAnimate>{" "}
             <FaqIcon />
           </AccordionTrigger>
           <AccordionContent className="pt-2 text-base text-muted-foreground">
@@ -69,21 +69,23 @@ export default function Faq() {
   );
 
   return (
-    <section id="faq" className="bg-background py-20 sm:py-24">
+    <section id="faq" className=" py-20 sm:py-24">
       <div className="container mx-auto max-w-7xl px-6">
         {/* === Header của Section === */}
         <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl">
-            <WordAnimate>Your Questions, Answered</WordAnimate>
-          </h2>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">
-            <WordAnimate>
-              Find everything you need to know about DAMS, from security to
-            </WordAnimate>
-            <WordAnimate> supported assets.</WordAnimate>
-          </p>
+          <WordAnimate
+            as="h2"
+            className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
+          >
+            Your Questions, Answered
+          </WordAnimate>
+          <WordAnimate
+            as="p"
+            className="mt-6 text-lg leading-8 text-muted-foreground"
+          >
+            Find everything you need to know about DAMS, from security to supported assets.
+          </WordAnimate>
         </div>
-
         <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-4 lg:grid-cols-2">
           <FaqColumn items={firstColumn} />
           <FaqColumn items={secondColumn} />
