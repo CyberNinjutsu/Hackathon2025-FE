@@ -31,7 +31,7 @@ export default function Header() {
         "fixed top-0 left-0 z-50 w-full transition-all duration-300 py-7 px-16",
         isScrolled
           ? "bg-background/90 backdrop-blur-sm border-b border-border"
-          : "bg-transparent",
+          : "bg-transparent"
       )}
     >
       <Logo />
