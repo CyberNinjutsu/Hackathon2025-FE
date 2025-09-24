@@ -1,17 +1,16 @@
 import Header from "@/components/account/Header";
-import Footer from "@/components/Home/Footer";
 import AIInvestmentChatbot from "@/components/AIInvestmentChatbot";
+import BackgroundGlow from "@/components/Glow/BackgroundGlow";
+import Footer from "@/components/Home/Footer";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/AuthContext";
+import { Analytics } from "@vercel/analytics/next";
+import { GeistMono } from "geist/font/mono";
+import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import type React from "react";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
-import { Analytics } from "@vercel/analytics/next";
 import { Suspense } from "react";
 import "../globals.css";
-import BackgroundGlow from "@/components/Glow/BackgroundGlow";
-import { Toaster } from "@/components/ui/sonner";
-import { WalletContextProvider } from "@/components/providers";
 
 export const metadata: Metadata = {
   title: "DAMS",
@@ -44,19 +43,17 @@ export default function UserLayout({
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container`}
       >
         <BackgroundGlow />
-        <WalletContextProvider>
-          <AuthProvider>
-            <Header />
+        <AuthProvider>
+          <Header />
 
-            <main className="relative">
-              <Suspense fallback={null}>{children}</Suspense>
-              <Analytics />
-            </main>
-            <Footer />
-            <Toaster position="top-right" richColors offset={100}/>
-            <AIInvestmentChatbot />
-          </AuthProvider>
-        </WalletContextProvider>
+          <main className="relative">
+            <Suspense fallback={null}>{children}</Suspense>
+            <Analytics />
+          </main>
+          <Footer />
+          <Toaster position="top-right" richColors offset={100} />
+          <AIInvestmentChatbot />
+        </AuthProvider>
       </body>
     </html>
   );

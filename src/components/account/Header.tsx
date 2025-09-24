@@ -148,12 +148,10 @@ export default function Header() {
           ) : (
             // Khi người dùng chưa đăng nhập
             <>
-              <Button variant="outline" className="rounded-full" asChild>
+              <Button className="rounded-full" asChild>
                 <Link href="/login">Connect Wallet</Link>
               </Button>
-              <Button asChild className="rounded-full">
-                <Link href="/register">Sign Up</Link>
-              </Button>
+
             </>
           )}
         </div>
@@ -244,14 +242,9 @@ export default function Header() {
                   ) : (
                     // Khi người dùng chưa đăng nhập (mobile)
                     <div className="space-y-4">
-                      <Button asChild variant="outline" size="lg" className="w-full rounded-lg h-12">
+                      <Button asChild  size="lg" className="w-full rounded-lg h-12">
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           Connect Wallet
-                        </Link>
-                      </Button>
-                      <Button asChild className="w-full rounded-lg h-12" size="lg">
-                        <Link href="/register" onClick={() => setIsOpen(false)}>
-                          Sign Up
                         </Link>
                       </Button>
                     </div>

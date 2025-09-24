@@ -62,12 +62,7 @@ interface TokenAccount {
   logoURI?: string;
   logo?: string;
 }
-export type TransactionTypeName =
-  | "Send"
-  | "Receive"
-  | "Mint"
-  | "Swap"
-  | "Other";
+export type TransactionTypeName =  | "Send"  | "Receive"  | "Mint"  | "Swap"  | "Other";
 
 export type {
   Asset,

@@ -49,7 +49,4 @@ const formatNumber = (num: string | number, decimals: number = 2): string => {
   return parts.join(".");
 };
 
-
-
-
 export { getTransactionIcon, getStatusBadge, getTypeColorClass, formatNumber };
