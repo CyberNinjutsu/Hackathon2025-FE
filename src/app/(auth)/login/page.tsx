@@ -159,6 +159,7 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
+  
   if (isAuthLoading || isAuthenticated) {
     return null;
   }
