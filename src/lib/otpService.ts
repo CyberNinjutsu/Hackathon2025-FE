@@ -93,12 +93,19 @@ class OTPService {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(metadata));
       }
 
+      // Get verification token from localStorage
+      const verificationToken = localStorage.getItem("otp_verification_token");
+
       const response = await fetch("/api/admin/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, otp: inputOtp }),
+        body: JSON.stringify({
+          email,
+          otp: inputOtp,
+          verificationToken,
+        }),
       });
 
       const data = await response.json();
@@ -111,8 +118,9 @@ class OTPService {
         };
       }
 
-      // Clear metadata on successful validation
+      // Clear metadata and verification token on successful validation
       this.invalidateOTP();
+      localStorage.removeItem("otp_verification_token");
 
       return {
         isValid: true,
@@ -145,6 +153,7 @@ class OTPService {
   invalidateOTP(): void {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
+      localStorage.removeItem("otp_verification_token");
     } catch (error) {
       // Ignore localStorage errors
     }

@@ -27,6 +27,11 @@ class EmailService {
         console.log("⏰ Expires at:", data.expiresAt);
       }
 
+      // Store verification token for later use
+      if (data.verificationToken) {
+        localStorage.setItem("otp_verification_token", data.verificationToken);
+      }
+
       const now = new Date();
       const expiresAt = data.expiresAt
         ? new Date(data.expiresAt)
