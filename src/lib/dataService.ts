@@ -1,7 +1,7 @@
 import { TokenAccount } from "@/utils/Types";
 import { solanaService } from "./solana";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 
 export interface AssetSummary {

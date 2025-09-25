@@ -36,10 +36,7 @@ import { toast } from "sonner";
 import { getTypeColorClass } from "@/utils/Helper";
 import { Transaction } from "@/utils/Types";
 
-function formatTokenAmount(
-  number: number,
-  decimals: number = 6
-) {
+function formatTokenAmount(number: number, decimals: number = 6) {
   if (number === null || number === undefined || isNaN(number)) return "0";
   return new Intl.NumberFormat("en-US", {
     maximumFractionDigits: decimals,
@@ -50,7 +47,6 @@ function shortenSignature(sig: string, chars = 6) {
   if (!sig) return "";
   if (sig.length <= chars * 2) return sig;
   return `${sig.slice(0, chars)}...${sig.slice(-chars)}`;
-
 }
 function TransactionAmount({ tx }: { tx: Transaction }) {
   if (tx.type === "Swap" && tx.secondaryToken) {
@@ -62,7 +58,8 @@ function TransactionAmount({ tx }: { tx: Transaction }) {
         <div className="flex items-center gap-1 text-gray-400">
           <ArrowRightLeft className="h-3 w-3" />
           <span className="text-green-400 font-normal">
-            +{formatTokenAmount(tx.secondaryToken.amount, 0)} {tx.secondaryToken.symbol}
+            +{formatTokenAmount(tx.secondaryToken.amount, 0)}{" "}
+            {tx.secondaryToken.symbol}
           </span>
         </div>
       </div>
@@ -132,14 +129,12 @@ function MobileTransactionAmount({ tx }: { tx: Transaction }) {
   );
 }
 
-
 function TransactionValue({ tx }: { tx: Transaction }) {
-    if (tx.type === "Swap") {
-      return <span className="text-gray-400">—</span>;
-    }  
-    return <span className="font-bold">${tx.value.toLocaleString("en-US")}</span>;
+  if (tx.type === "Swap") {
+    return <span className="text-gray-400">—</span>;
+  }
+  return <span className="font-bold">${tx.value.toLocaleString("en-US")}</span>;
 }
-
 
 export default function HistoryPage() {
   const router = useRouter();
@@ -267,38 +262,73 @@ export default function HistoryPage() {
           <Table className="min-w-[600px] hidden sm:table">
             <TableHeader>
               <TableRow className="border-gray-700">
-                <TableHead className="w-[50px] text-white font-semibold">#</TableHead>
+                <TableHead className="w-[50px] text-white font-semibold">
+                  #
+                </TableHead>
                 <TableHead className="text-white font-semibold">Type</TableHead>
-                <TableHead className="hidden lg:table-cell text-white font-semibold">Signature</TableHead>
-                <TableHead className="text-white font-semibold">Amount</TableHead>
-                <TableHead className="text-white font-semibold">Value</TableHead>
-                <TableHead className="hidden md:table-cell text-white font-semibold">Status</TableHead>
-                <TableHead className="text-right text-white font-semibold">Date</TableHead>
+                <TableHead className="hidden lg:table-cell text-white font-semibold">
+                  Signature
+                </TableHead>
+                <TableHead className="text-white font-semibold">
+                  Amount
+                </TableHead>
+                <TableHead className="text-white font-semibold">
+                  Value
+                </TableHead>
+                <TableHead className="hidden md:table-cell text-white font-semibold">
+                  Status
+                </TableHead>
+                <TableHead className="text-right text-white font-semibold">
+                  Date
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {transactions.map((tx, index) => (
-                <TableRow key={tx.id} className="border-gray-700 hover:bg-white/5 transition-colors duration-200">
-                  <TableCell className="font-medium text-gray-300">{index + 1}</TableCell>
+                <TableRow
+                  key={tx.id}
+                  className="border-gray-700 hover:bg-white/5 transition-colors duration-200"
+                >
+                  <TableCell className="font-medium text-gray-300">
+                    {index + 1}
+                  </TableCell>
                   <TableCell className="text-white">
                     <div className="flex items-center gap-3">
                       <TransactionIcon type={tx.type} />
-                      <span className={`font-semibold ${getTypeColorClass(tx.type)}`}>{tx.type}</span>
+                      <span
+                        className={`font-semibold ${getTypeColorClass(
+                          tx.type
+                        )}`}
+                      >
+                        {tx.type}
+                      </span>
                     </div>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell text-gray-300 font-mono text-sm hover:text-purple-400 transition-colors">
-                    <Link href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`} target="_blank">
+                    <Link
+                      href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`}
+                      target="_blank"
+                    >
                       {shortenSignature(tx.id)}
                     </Link>
                   </TableCell>
                   <TableCell className="font-semibold">
                     <TransactionAmount tx={tx} />
                   </TableCell>
-                   <TableCell className="hidden md:table-cell text-green-400">
+                  <TableCell className="hidden md:table-cell text-green-400">
                     <TransactionValue tx={tx} />
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge variant="outline" className={ tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10"}>
+                    <Badge
+                      variant="outline"
+                      className={
+                        tx.status === "Completed"
+                          ? "text-green-400 border-green-400 bg-green-400/10"
+                          : tx.status === "Pending"
+                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                          : "text-red-400 border-red-400 bg-red-400/10"
+                      }
+                    >
                       {tx.status}
                     </Badge>
                   </TableCell>
@@ -313,31 +343,50 @@ export default function HistoryPage() {
           {/* Mobile cards */}
           <div className="sm:hidden space-y-4 p-4">
             {transactions.map((tx, index) => (
-              <div key={index} className="glass-card p-4 hover:scale-[1.02] transition-all duration-300">
+              <div
+                key={index}
+                className="glass-card p-4 hover:scale-[1.02] transition-all duration-300"
+              >
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-3">
                     <TransactionIcon type={tx.type} />
-                    <span className={`font-semibold ${getTypeColorClass(tx.type)}`}>{tx.type}</span>
+                    <span
+                      className={`font-semibold ${getTypeColorClass(tx.type)}`}
+                    >
+                      {tx.type}
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-400">{format(new Date(tx.date), "dd/MM/yyyy HH:mm")}</span>
+                  <span className="text-xs text-gray-400">
+                    {format(new Date(tx.date), "dd/MM/yyyy HH:mm")}
+                  </span>
                 </div>
                 <div className="mb-3">
                   <MobileTransactionAmount tx={tx} />
                   {tx.id && (
                     <div className="text-xs text-gray-400 truncate font-mono hover:text-purple-400 transition-colors">
-                      <Link href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`} target="_blank">
+                      <Link
+                        href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`}
+                        target="_blank"
+                      >
                         {shortenSignature(tx.id)}
                       </Link>
                     </div>
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                    {/* CHANGE START: Sử dụng component TransactionValue mới */}
                   <div className="text-green-400 text-lg">
                     <TransactionValue tx={tx} />
                   </div>
-                  {/* CHANGE END */}
-                  <Badge variant="outline" className={ tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10" }>
+                  <Badge
+                    variant="outline"
+                    className={
+                      tx.status === "Completed"
+                        ? "text-green-400 border-green-400 bg-green-400/10"
+                        : tx.status === "Pending"
+                        ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
+                        : "text-red-400 border-red-400 bg-red-400/10"
+                    }
+                  >
                     {tx.status}
                   </Badge>
                 </div>
@@ -350,10 +399,9 @@ export default function HistoryPage() {
         {transactions.length > 0 && (
           <div className="flex items-center justify-between mt-6 px-4 sm:px-0">
             <div className="text-sm text-gray-400">
-              Showing <span className="font-medium text-white">{totalLoaded}</span>
-              {total !== null && (
-                <> of <span className="font-medium text-white">{total}</span> </>
-              )} transactions
+              Showing{" "}
+              <span className="font-medium text-white">{totalLoaded}</span>{" "}
+              transactions
             </div>
             {hasMore ? (
               <Button
@@ -364,7 +412,9 @@ export default function HistoryPage() {
                 {isLoading ? "Loading..." : "Load More"}
               </Button>
             ) : (
-              <div className="text-sm text-gray-500">You&apos;ve reached the end.</div>
+              <div className="text-sm text-gray-500">
+                You&apos;ve reached the end.
+              </div>
             )}
           </div>
         )}

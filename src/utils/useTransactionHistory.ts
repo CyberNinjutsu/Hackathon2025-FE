@@ -95,6 +95,7 @@ function detectTransactionType(
 
   return "Other";
 }
+
 function extractTokenAmountsFromBalanceChanges(
   tx: ParsedTransaction,
   tokensAccountStr: Map<string, null>,
@@ -168,6 +169,37 @@ function extractTokenAmountsFromBalanceChanges(
   return transfers;
 }
 
+function limitTransactionsPerSignature(
+  transactions: Transaction[],
+  maxPerSignature: number = 2
+): Transaction[] {
+  const signatureGroups = new Map<string, Transaction[]>();
+
+  // Group transactions by signature
+  transactions.forEach((tx) => {
+    if (!signatureGroups.has(tx.id)) {
+      signatureGroups.set(tx.id, []);
+    }
+    signatureGroups.get(tx.id)!.push(tx);
+  });
+
+  // Keep only the last N transactions for each signature
+  const limitedTransactions: Transaction[] = [];
+  signatureGroups.forEach((txGroup, signature) => {
+    // Sort by date descending and take the last N
+    const sortedGroup = txGroup.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+    const limitedGroup = sortedGroup.slice(0, maxPerSignature);
+    limitedTransactions.push(...limitedGroup);
+  });
+
+  // Sort final result by date descending
+  return limitedTransactions.sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
+}
+
 export function useTransactionHistory(
   publicKey: string | null,
   pageSize: number | undefined = 10
@@ -178,6 +210,7 @@ export function useTransactionHistory(
   const [beforeSig, setBeforeSig] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState<boolean>(true);
   const [total, setTotal] = useState<number | null>(null);
+  
   const fetchTransactions = useCallback(async () => {
     if (!publicKey || isLoading || !hasMore) {
       setTransactions([]);
@@ -197,7 +230,6 @@ export function useTransactionHistory(
       const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
       const walletPubKey = new PublicKey(publicKey);
 
-      // const fetchLimit = limit === null ? 10 : limit;
       if (beforeSig === undefined) {
         try {
           let allSignaturesCount = 0;
@@ -227,6 +259,7 @@ export function useTransactionHistory(
           console.error("Error fetching total transaction count:", e);
         }
       }
+      
       const [token2022Accounts] = await Promise.all([
         connection.getParsedTokenAccountsByOwner(walletPubKey, {
           programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS),
@@ -238,379 +271,404 @@ export function useTransactionHistory(
         tokensAccountAddr.set(tokenAccount.pubkey.toString(), null)
       );
 
-      const options: SignaturesForAddressOptions = {
-        limit: pageSize,
-        before: beforeSig,
-      };
-
-      const signatures = await connection.getSignaturesForAddress(
-        walletPubKey,
-        options
-      );
-
-      console.log("Sign:", signatures);
-      if (signatures.length < pageSize) {
-        setHasMore(false);
-      }
-      if (signatures.length > 0) {
-        setBeforeSig(signatures[signatures.length - 1].signature);
-      } else {
-        setHasMore(false);
-        setIsLoading(false);
-        return;
-      }
-
       const txList: Transaction[] = [];
+      // let processedSignatures = 0;
+      // Fetch more signatures to account for potential filtering and limiting
+      const fetchLimit = Math.max(pageSize * 2, 20); // Fetch at least 2x the desired page size
+      
+      while (txList.length < pageSize && hasMore) {
+        const options: SignaturesForAddressOptions = {
+          limit: fetchLimit,
+          before: beforeSig,
+        };
 
-      for (const sigInfo of signatures) {
-        if (txList.length >= pageSize) break;
-        const tx = (await connection.getParsedTransaction(sigInfo.signature, {
-          maxSupportedTransactionVersion: 0,
-        })) as ParsedTransaction | null;
-
-        await new Promise((res) => setTimeout(res, 200));
-
-        if (!tx || !tx.blockTime) continue;
-
-        if (isSetupTransactionByLogs(tx.meta?.logMessages)) {
-          console.log(
-            `Skipping setup transaction by logs: ${sigInfo.signature}`
-          );
-          continue;
-        }
-
-        let type: Transaction["type"] = "Other";
-        let amount = 0;
-        let address = "";
-        let assetSymbol = "N/A";
-        const blockTimeSec = tx.blockTime ?? sigInfo.blockTime ?? 0;
-        const transactionFeeLamports = tx.meta?.fee ?? 0;
-
-        if (tx.meta?.err) {
-          txList.push({
-            id: sigInfo.signature,
-            type: "Other",
-            assetSymbol,
-            amount,
-            value: 0,
-            status: "Failed",
-            date: new Date(blockTimeSec * 1000).toISOString(),
-            address: "",
-          });
-          continue;
-        }
-
-        const inner =
-          tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
-
-        let foundValidInstruction = false;
-        const instructions = [...tx.transaction.message.instructions, ...inner];
-        console.log("Int: ", instructions);
-        const tokenBalanceChanges = extractTokenAmountsFromBalanceChanges(
-          tx,
-          tokensAccountAddr,
+        const signatures = await connection.getSignaturesForAddress(
           walletPubKey,
-          instructions
+          options
         );
-        if (tokenBalanceChanges.length > 0) {
-          for (const change of tokenBalanceChanges) {
-            type = change.type;
-            amount = change.amount;
-            address = change.address;
-            assetSymbol = change.symbol;
 
-            const mint = change.mint;
-            if (mint && !mintsInfo.has(mint)) {
-              try {
-                const mintAccount = await connection.getParsedAccountInfo(
-                  new PublicKey(mint)
-                );
-                mintsInfo.set(mint, mintAccount.value);
-              } catch (e) {
-                console.warn("Could not fetch mint info for", mint);
-              }
-            }
+        console.log("Sign:", signatures);
+        
+        if (signatures.length === 0) {
+          setHasMore(false);
+          break;
+        }
+        
+        // Update beforeSig for next batch
+        setBeforeSig(signatures[signatures.length - 1].signature);
+        
+        if (signatures.length < fetchLimit) {
+          setHasMore(false);
+        }
 
-            if (mint && mintsInfo.get(mint)?.data) {
-              const mintData = mintsInfo.get(mint)?.data as ParsedAccountData;
-              const parsedInfo = mintData.parsed?.info as MintInfo;
-              const extensions = parsedInfo?.extensions;
-              if (extensions) {
-                for (const ext of extensions) {
-                  if (ext.extension === "tokenMetadata") {
-                    assetSymbol = ext.state.symbol || assetSymbol;
-                    break;
-                  }
-                }
-              }
-            }
+        for (const sigInfo of signatures) {
+          if (txList.length >= pageSize) break;
+          
+          const tx = (await connection.getParsedTransaction(sigInfo.signature, {
+            maxSupportedTransactionVersion: 0,
+          })) as ParsedTransaction | null;
 
-            txList.push({
+          await new Promise((res) => setTimeout(res, 200));
+
+          if (!tx || !tx.blockTime) continue;
+
+          if (isSetupTransactionByLogs(tx.meta?.logMessages)) {
+            console.log(
+              `Skipping setup transaction by logs: ${sigInfo.signature}`
+            );
+            continue;
+          }
+
+          let type: Transaction["type"] = "Other";
+          let amount = 0;
+          let address = "";
+          let assetSymbol = "N/A";
+          const blockTimeSec = tx.blockTime ?? sigInfo.blockTime ?? 0;
+          const transactionFeeLamports = tx.meta?.fee ?? 0;
+
+          if (tx.meta?.err) {
+            const errorTx: Transaction = {
               id: sigInfo.signature,
-              type,
-              assetSymbol: assetSymbol || "N/A",
+              type: "Other",
+              assetSymbol,
               amount,
               value: 0,
-              status:
-                sigInfo.confirmationStatus === "confirmed" ||
-                sigInfo.confirmationStatus === "finalized"
-                  ? "Completed"
-                  : "Pending",
+              status: "Failed",
               date: new Date(blockTimeSec * 1000).toISOString(),
-              address,
-            });
+              address: "",
+            };
+            txList.push(errorTx);
+            continue;
           }
 
-          continue;
-        }
+          const inner =
+            tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
 
-        if (!foundValidInstruction) {
-          const walletIndex = tx.transaction.message.accountKeys.findIndex(
-            (key) => key === walletPubKey.toBase58()
+          let foundValidInstruction = false;
+          const instructions = [...tx.transaction.message.instructions, ...inner];
+          console.log("Int: ", instructions);
+          
+          const tokenBalanceChanges = extractTokenAmountsFromBalanceChanges(
+            tx,
+            tokensAccountAddr,
+            walletPubKey,
+            instructions
           );
+          
+          if (tokenBalanceChanges.length > 0) {
+            // Limit the number of transactions per signature to 2
+            const limitedChanges = tokenBalanceChanges.slice(0, 2);
+            
+            for (const change of limitedChanges) {
+              if (txList.length >= pageSize) break;
+              
+              type = change.type;
+              amount = change.amount;
+              address = change.address;
+              assetSymbol = change.symbol;
 
-          if (walletIndex !== -1 && tx.meta) {
-            const preBalance = tx.meta.preBalances[walletIndex];
-            const postBalance = tx.meta.postBalances[walletIndex];
-            const solChange = postBalance - preBalance;
-
-            if (Math.abs(solChange) > 5) {
-              if (solChange > 0) {
-                amount = solChange / LAMPORTS_PER_SOL;
-                assetSymbol = "SOL";
-                type = "Receive";
-                foundValidInstruction = true;
-              } else if (solChange < 0) {
-                const amountSentLamports =
-                  Math.abs(solChange) - transactionFeeLamports;
-
-                if (amountSentLamports > 5) {
-                  amount = amountSentLamports / LAMPORTS_PER_SOL;
-                  assetSymbol = "SOL";
-                  type = "Send";
-                  foundValidInstruction = true;
-                }
-              }
-            }
-          }
-        }
-
-        if (!foundValidInstruction) {
-          for (const instruction of instructions as ParsedInstruction[]) {
-            if (!("parsed" in instruction)) continue;
-            if (
-              instruction.parsed?.info?.destination === walletPubKey.toBase58()
-            ) {
-              type = "Other";
-              assetSymbol = "SOL";
-              address = instruction.parsed.info.account;
-            }
-            const detectedType = detectTransactionType(
-              instruction,
-              tokensAccountAddr
-            );
-
-            if (detectedType !== "Other") {
-              type = detectedType;
-              foundValidInstruction = true;
-            }
-
-            if (
-              instruction.parsed.type === "transfer" &&
-              instruction.parsed.info?.lamports
-            ) {
-              amount = instruction.parsed.info.lamports / LAMPORTS_PER_SOL;
-              assetSymbol = "SOL";
-              address =
-                instruction.parsed.info.destination ||
-                instruction.parsed.info.source ||
-                "";
-              foundValidInstruction = true;
-            }
-
-            if (
-              (instruction.parsed.type === "transferChecked" ||
-                instruction.parsed.type === "transfer") &&
-              instruction.parsed.info?.tokenAmount
-            ) {
-              const t = instruction.parsed.info.tokenAmount;
-              amount =
-                typeof t.uiAmount === "number"
-                  ? t.uiAmount
-                  : Number(t.amount) / Math.pow(10, t.decimals || 0);
-              address =
-                instruction.parsed.info.destination ||
-                instruction.parsed.info.source ||
-                "";
-
-              if (
-                instruction.parsed.info.mint &&
-                !mintsInfo.has(instruction.parsed.info.mint)
-              ) {
+              const mint = change.mint;
+              if (mint && !mintsInfo.has(mint)) {
                 try {
                   const mintAccount = await connection.getParsedAccountInfo(
-                    new PublicKey(instruction.parsed.info.mint)
+                    new PublicKey(mint)
                   );
-
-                  mintsInfo.set(
-                    instruction.parsed.info.mint,
-                    mintAccount.value
-                  );
+                  mintsInfo.set(mint, mintAccount.value);
                 } catch (e) {
-                  console.warn(
-                    "Could not fetch mint info for",
-                    instruction.parsed.info.mint
-                  );
+                  console.warn("Could not fetch mint info for", mint);
                 }
               }
 
-              if (
-                instruction.parsed.info.mint &&
-                mintsInfo.get(instruction.parsed.info.mint)?.data
-              ) {
-                const mintData = mintsInfo.get(instruction.parsed.info.mint)
-                  ?.data as ParsedAccountData;
+              if (mint && mintsInfo.get(mint)?.data) {
+                const mintData = mintsInfo.get(mint)?.data as ParsedAccountData;
                 const parsedInfo = mintData.parsed?.info as MintInfo;
                 const extensions = parsedInfo?.extensions;
                 if (extensions) {
                   for (const ext of extensions) {
                     if (ext.extension === "tokenMetadata") {
-                      assetSymbol = ext.state.symbol || "N/A";
+                      assetSymbol = ext.state.symbol || assetSymbol;
                       break;
                     }
                   }
                 }
-              } else {
-                assetSymbol = instruction.parsed.info.mint
-                  ? instruction.parsed.info.mint.slice(0, 6)
-                  : "SPL";
               }
-              foundValidInstruction = true;
+
+              txList.push({
+                id: sigInfo.signature,
+                type,
+                assetSymbol: assetSymbol || "N/A",
+                amount,
+                value: 0,
+                status:
+                  sigInfo.confirmationStatus === "confirmed" ||
+                  sigInfo.confirmationStatus === "finalized"
+                    ? "Completed"
+                    : "Pending",
+                date: new Date(blockTimeSec * 1000).toISOString(),
+                address,
+              });
             }
+            continue;
+          }
 
-            if (
-              instruction.parsed.type === "mintTo" ||
-              instruction.parsed.type === "mintToChecked"
-            ) {
-              if (instruction.parsed.info?.tokenAmount) {
+          if (!foundValidInstruction) {
+            const walletIndex = tx.transaction.message.accountKeys.findIndex(
+              (key) => key === walletPubKey.toBase58()
+            );
+
+            if (walletIndex !== -1 && tx.meta) {
+              const preBalance = tx.meta.preBalances[walletIndex];
+              const postBalance = tx.meta.postBalances[walletIndex];
+              const solChange = postBalance - preBalance;
+
+              if (Math.abs(solChange) > 5) {
+                if (solChange > 0) {
+                  amount = solChange / LAMPORTS_PER_SOL;
+                  assetSymbol = "SOL";
+                  type = "Receive";
+                  foundValidInstruction = true;
+                } else if (solChange < 0) {
+                  const amountSentLamports =
+                    Math.abs(solChange) - transactionFeeLamports;
+
+                  if (amountSentLamports > 5) {
+                    amount = amountSentLamports / LAMPORTS_PER_SOL;
+                    assetSymbol = "SOL";
+                    type = "Send";
+                    foundValidInstruction = true;
+                  }
+                }
+              }
+            }
+          }
+
+          if (!foundValidInstruction) {
+            for (const instruction of instructions as ParsedInstruction[]) {
+              if (!("parsed" in instruction)) continue;
+              if (
+                instruction.parsed?.info?.destination === walletPubKey.toBase58()
+              ) {
+                type = "Other";
+                assetSymbol = "SOL";
+                address = instruction.parsed.info.account;
+              }
+              const detectedType = detectTransactionType(
+                instruction,
+                tokensAccountAddr
+              );
+
+              if (detectedType !== "Other") {
+                type = detectedType;
+                foundValidInstruction = true;
+              }
+
+              if (
+                instruction.parsed.type === "transfer" &&
+                instruction.parsed.info?.lamports
+              ) {
+                amount = instruction.parsed.info.lamports / LAMPORTS_PER_SOL;
+                assetSymbol = "SOL";
+                address =
+                  instruction.parsed.info.destination ||
+                  instruction.parsed.info.source ||
+                  "";
+                foundValidInstruction = true;
+              }
+
+              if (
+                (instruction.parsed.type === "transferChecked" ||
+                  instruction.parsed.type === "transfer") &&
+                instruction.parsed.info?.tokenAmount
+              ) {
                 const t = instruction.parsed.info.tokenAmount;
-
                 amount =
                   typeof t.uiAmount === "number"
                     ? t.uiAmount
                     : Number(t.amount) / Math.pow(10, t.decimals || 0);
-              } else {
-                const raw =
-                  instruction.parsed.info?.amount ??
-                  instruction.parsed.info?.mintAmount ??
-                  0;
+                address =
+                  instruction.parsed.info.destination ||
+                  instruction.parsed.info.source ||
+                  "";
 
-                let decimals = 0;
+                if (
+                  instruction.parsed.info.mint &&
+                  !mintsInfo.has(instruction.parsed.info.mint)
+                ) {
+                  try {
+                    const mintAccount = await connection.getParsedAccountInfo(
+                      new PublicKey(instruction.parsed.info.mint)
+                    );
 
-                if (instruction.parsed.info?.mint) {
-                  const mintAddr = instruction.parsed.info.mint;
-
-                  if (!mintsInfo.has(mintAddr)) {
-                    try {
-                      const mintAccount = await connection.getParsedAccountInfo(
-                        new PublicKey(mintAddr)
-                      );
-
-                      mintsInfo.set(mintAddr, mintAccount.value);
-                    } catch (e) {
-                      console.warn("Could not fetch mint info for", mintAddr);
-                    }
+                    mintsInfo.set(
+                      instruction.parsed.info.mint,
+                      mintAccount.value
+                    );
+                  } catch (e) {
+                    console.warn(
+                      "Could not fetch mint info for",
+                      instruction.parsed.info.mint
+                    );
                   }
+                }
 
+                if (
+                  instruction.parsed.info.mint &&
+                  mintsInfo.get(instruction.parsed.info.mint)?.data
+                ) {
                   const mintData = mintsInfo.get(instruction.parsed.info.mint)
-                    ?.data as ParsedAccountData | undefined;
-
-                  const parsedInfo = mintData?.parsed?.info as
-                    | MintInfo
-                    | undefined;
-                  decimals = parsedInfo?.decimals ?? 0;
-                }
-                amount = Number(raw) / Math.pow(10, decimals || 0);
-              }
-              address =
-                instruction.parsed.info?.account ||
-                instruction.parsed.info?.destination ||
-                instruction.parsed.info?.source ||
-                "";
-
-              if (
-                instruction.parsed.info?.mint &&
-                !mintsInfo.has(instruction.parsed.info.mint)
-              ) {
-                try {
-                  const mintAccount = await connection.getParsedAccountInfo(
-                    new PublicKey(instruction.parsed.info.mint)
-                  );
-
-                  mintsInfo.set(
-                    instruction.parsed.info.mint,
-                    mintAccount.value
-                  );
-                } catch (e) {
-                  console.warn(
-                    "Could not fetch mint info for",
-                    instruction.parsed.info.mint
-                  );
-                }
-              }
-              if (
-                instruction.parsed.info?.mint &&
-                mintsInfo.get(instruction.parsed.info.mint)?.data
-              ) {
-                const mintData = mintsInfo.get(instruction.parsed.info.mint)
-                  ?.data as ParsedAccountData;
-                const extensions = mintData.parsed?.info?.extensions;
-
-                if (extensions) {
-                  for (const ext of extensions) {
-                    if (ext.extension === "tokenMetadata") {
-                      assetSymbol = ext.state.symbol || "N/A";
-                      break;
+                    ?.data as ParsedAccountData;
+                  const parsedInfo = mintData.parsed?.info as MintInfo;
+                  const extensions = parsedInfo?.extensions;
+                  if (extensions) {
+                    for (const ext of extensions) {
+                      if (ext.extension === "tokenMetadata") {
+                        assetSymbol = ext.state.symbol || "N/A";
+                        break;
+                      }
                     }
                   }
+                } else {
+                  assetSymbol = instruction.parsed.info.mint
+                    ? instruction.parsed.info.mint.slice(0, 6)
+                    : "SPL";
                 }
-              } else {
-                assetSymbol = instruction.parsed.info?.mint
-                  ? instruction.parsed.info.mint.slice(0, 6)
-                  : "SPL";
+                foundValidInstruction = true;
               }
-              foundValidInstruction = true;
+
+              if (
+                instruction.parsed.type === "mintTo" ||
+                instruction.parsed.type === "mintToChecked"
+              ) {
+                if (instruction.parsed.info?.tokenAmount) {
+                  const t = instruction.parsed.info.tokenAmount;
+
+                  amount =
+                    typeof t.uiAmount === "number"
+                      ? t.uiAmount
+                      : Number(t.amount) / Math.pow(10, t.decimals || 0);
+                } else {
+                  const raw =
+                    instruction.parsed.info?.amount ??
+                    instruction.parsed.info?.mintAmount ??
+                    0;
+
+                  let decimals = 0;
+
+                  if (instruction.parsed.info?.mint) {
+                    const mintAddr = instruction.parsed.info.mint;
+
+                    if (!mintsInfo.has(mintAddr)) {
+                      try {
+                        const mintAccount = await connection.getParsedAccountInfo(
+                          new PublicKey(mintAddr)
+                        );
+
+                        mintsInfo.set(mintAddr, mintAccount.value);
+                      } catch (e) {
+                        console.warn("Could not fetch mint info for", mintAddr);
+                      }
+                    }
+
+                    const mintData = mintsInfo.get(instruction.parsed.info.mint)
+                      ?.data as ParsedAccountData | undefined;
+
+                    const parsedInfo = mintData?.parsed?.info as
+                      | MintInfo
+                      | undefined;
+                    decimals = parsedInfo?.decimals ?? 0;
+                  }
+                  amount = Number(raw) / Math.pow(10, decimals || 0);
+                }
+                address =
+                  instruction.parsed.info?.account ||
+                  instruction.parsed.info?.destination ||
+                  instruction.parsed.info?.source ||
+                  "";
+
+                if (
+                  instruction.parsed.info?.mint &&
+                  !mintsInfo.has(instruction.parsed.info.mint)
+                ) {
+                  try {
+                    const mintAccount = await connection.getParsedAccountInfo(
+                      new PublicKey(instruction.parsed.info.mint)
+                    );
+
+                    mintsInfo.set(
+                      instruction.parsed.info.mint,
+                      mintAccount.value
+                    );
+                  } catch (e) {
+                    console.warn(
+                      "Could not fetch mint info for",
+                      instruction.parsed.info.mint
+                    );
+                  }
+                }
+                if (
+                  instruction.parsed.info?.mint &&
+                  mintsInfo.get(instruction.parsed.info.mint)?.data
+                ) {
+                  const mintData = mintsInfo.get(instruction.parsed.info.mint)
+                    ?.data as ParsedAccountData;
+                  const extensions = mintData.parsed?.info?.extensions;
+
+                  if (extensions) {
+                    for (const ext of extensions) {
+                      if (ext.extension === "tokenMetadata") {
+                        assetSymbol = ext.state.symbol || "N/A";
+                        break;
+                      }
+                    }
+                  }
+                } else {
+                  assetSymbol = instruction.parsed.info?.mint
+                    ? instruction.parsed.info.mint.slice(0, 6)
+                    : "SPL";
+                }
+                foundValidInstruction = true;
+              }
+
+              if (foundValidInstruction) break;
             }
-
-            if (foundValidInstruction) break;
           }
-        }
-        if (assetSymbol === "SOL" && amount < 0.00001 && type === "Send") {
-          continue;
-        }
+          
+          if (assetSymbol === "SOL" && amount < 0.00001 && type === "Send") {
+            continue;
+          }
 
-        txList.push({
-          id: sigInfo.signature,
-          type,
-          assetSymbol: assetSymbol || "N/A",
-          amount,
-          value: 0,
-          status:
-            sigInfo.confirmationStatus === "confirmed" ||
-            sigInfo.confirmationStatus === "finalized"
-              ? "Completed"
-              : "Pending",
-          date: new Date(blockTimeSec * 1000).toISOString(),
-          address,
-        });
+          txList.push({
+            id: sigInfo.signature,
+            type,
+            assetSymbol: assetSymbol || "N/A",
+            amount,
+            value: 0,
+            status:
+              sigInfo.confirmationStatus === "confirmed" ||
+              sigInfo.confirmationStatus === "finalized"
+                ? "Completed"
+                : "Pending",
+            date: new Date(blockTimeSec * 1000).toISOString(),
+            address,
+          });
+        }
+        
+        // If we haven't reached the page size and don't have more signatures, break
+        if (signatures.length < fetchLimit) {
+          break;
+        }
       }
 
       console.log(`Final transaction list length: ${txList.length}`);
+      
+      // Sort transactions by date descending
+      const sortedTxList = txList.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
 
-      setTransactions((prev) => [...prev, ...txList]);
+      setTransactions((prev) => [...prev, ...sortedTxList]);
     } catch (e) {
       console.error("Error fetching transactions:", e);
-
       setError(e instanceof Error ? e : new Error("An unknown error occurred"));
     } finally {
       setIsLoading(false);
@@ -634,5 +692,3 @@ export function useTransactionHistory(
 
   return { transactions, isLoading, error, hasMore, fetchTransactions, total };
 }
-
-
