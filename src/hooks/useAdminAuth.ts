@@ -143,8 +143,8 @@ export const useAdminAuth = () => {
                 : AdminAuthError.RATE_LIMITED,
               message: isLocked
                 ? `Account is locked. Try again in ${Math.ceil(
-                    waitTime / 60
-                  )} minutes.`
+                  waitTime / 60
+                )} minutes.`
                 : `Please wait ${waitTime} seconds before requesting another OTP.`,
               remainingTime: waitTime,
               canRetry: false,

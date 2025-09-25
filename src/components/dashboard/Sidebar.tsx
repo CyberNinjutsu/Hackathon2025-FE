@@ -43,7 +43,7 @@ export default function Sidebar() {
   return (
     <div className="w-16 xl:w-64 bg-gray-900/80 backdrop-blur-xl border-r border-gray-800 flex flex-col relative z-10">
       {/* Logo */}
-      <div className="p-3 xl:px-6 xl:py-9 border-b border-gray-800">
+      <div className="px-3 py-[32px] md:py-7 xl:px-6 xl:py-9 border-b border-gray-800">
         <Link href="/admin" className="flex items-center gap-3">
           <Logo />
         </Link>
@@ -56,15 +56,14 @@ export default function Sidebar() {
           const Icon = item.icon;
 
           return (
-            <div key={item.name} className="relative group">
+            <div key={item.name} className="relative group flex item-center justify-center xl:block">
               <Link
                 href={item.href}
                 className={`
                   flex items-center gap-3 p-2 xl:px-4 xl:py-3 rounded-lg transition-all duration-300
-                  ${
-                    isActive
-                      ? "bg-primary/20 border border-primary/30 text-primary"
-                      : "text-gray-300 hover:bg-gray-800/50 hover:text-white"
+                  ${isActive
+                    ? "bg-primary/20 border border-primary/30 text-primary"
+                    : "text-gray-300 hover:bg-gray-800/50 hover:text-white"
                   }
                 `}
               >
@@ -73,7 +72,9 @@ export default function Sidebar() {
               </Link>
 
               {/* Tooltip for mobile/tablet */}
-              <div className="xl:hidden absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-800/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-15 whitespace-nowrap border border-gray-700">
+              <div className="xl:hidden absolute left-full ml-4 top-1/2 -translate-y-1/2
+      flex items-center
+      opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-15">
                 {item.name}
                 <div className="absolute right-full top-1/2 -translate-y-1/2 border-4 border-transparent border-r-gray-800/90"></div>
               </div>

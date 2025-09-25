@@ -61,7 +61,7 @@ const SwapInterface: React.FC = () => {
   const [fromToken, setFromToken] = useState<Token | null>(null);
   const [toToken, setToToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState("");
-  const [toAmount, setToTokenAmount] = useState(""); 
+  const [toAmount, setToTokenAmount] = useState("");
   const [slippage, setSlippage] = useState("0.5");
   const [showSettings, setShowSettings] = useState(false);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -77,7 +77,7 @@ const SwapInterface: React.FC = () => {
   const [isFetchingTokens, setIsFetchingTokens] = useState(false);
   const calcTimeoutRef = useRef<number | null>(null);
   const quoteTimeoutRef = useRef<number | null>(null);
-  
+
   const [wallet, setWallet] = useState<SolanaProvider | null>(null);
 
   useEffect(() => {
@@ -400,7 +400,7 @@ const SwapInterface: React.FC = () => {
         const fetchedTokens: Token[] = result.data.map(
           (acc: TokenAccount): Token => {
             const symbol = acc.symbol || acc.mint.slice(0, 4) + "...";
-            const price = Math.random() * 0.02 + 0.01; 
+            const price = Math.random() * 0.02 + 0.01;
 
             return {
               symbol,
@@ -469,7 +469,7 @@ const SwapInterface: React.FC = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen mt-10 flex items-center justify-center px-4">
       <div className="relative w-full max-w-7xl">
         <TokenSelectionPopup
           isOpen={isPopupOpen}
@@ -478,7 +478,7 @@ const SwapInterface: React.FC = () => {
           tokens={walletTokens}
         />
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between my-8">
           <h1 className="text-2xl font-bold text-white">Swap Tokens</h1>
           <button
             onClick={() => setShowSettings(!showSettings)}
@@ -499,11 +499,10 @@ const SwapInterface: React.FC = () => {
                   <button
                     key={val}
                     onClick={() => setSlippage(val)}
-                    className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${
-                      slippage === val
-                        ? "bg-[#00ffb2] text-black"
-                        : "bg-white/10 text-white hover:bg-white/20"
-                    }`}
+                    className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${slippage === val
+                      ? "bg-[#00ffb2] text-black"
+                      : "bg-white/10 text-white hover:bg-white/20"
+                      }`}
                   >
                     {val}%
                   </button>
@@ -597,13 +596,12 @@ const SwapInterface: React.FC = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-400">Price impact</span>
                         <span
-                          className={`${
-                            swapQuote.priceImpact > 3
-                              ? "text-red-400"
-                              : swapQuote.priceImpact > 1
+                          className={`${swapQuote.priceImpact > 3
+                            ? "text-red-400"
+                            : swapQuote.priceImpact > 1
                               ? "text-yellow-400"
                               : "text-green-400"
-                          }`}
+                            }`}
                         >
                           {swapQuote.priceImpact.toFixed(2)}%
                         </span>

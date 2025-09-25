@@ -64,14 +64,6 @@ export default function Header() {
       <div className="flex items-center justify-between">
         {/* Search */}
         <div className="flex-1 max-w-md ml-0 lg:ml-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all duration-300"
-            />
-          </div>
         </div>
 
         {/* Right side */}

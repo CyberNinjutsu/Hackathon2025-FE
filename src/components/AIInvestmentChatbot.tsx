@@ -298,18 +298,16 @@ export default function AIInvestmentChatbot({
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className={`flex ${
-                      message.sender === "user"
+                    className={`flex ${message.sender === "user"
                         ? "justify-end"
                         : "justify-start"
-                    }`}
+                      }`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                        message.sender === "user"
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.sender === "user"
                           ? "bg-gradient-to-r from-teal-500 to-cyan-500 text-white ml-4 shadow-lg shadow-teal-500/25"
                           : "bg-slate-800 text-slate-100 mr-4 border border-slate-700/50 shadow-lg shadow-slate-900/50"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start gap-2">
                         {message.sender === "ai" && (
@@ -323,11 +321,10 @@ export default function AIInvestmentChatbot({
                             {message.content}
                           </p>
                           <p
-                            className={`text-xs mt-2 ${
-                              message.sender === "user"
+                            className={`text-xs mt-2 ${message.sender === "user"
                                 ? "text-white/70"
                                 : "text-slate-400"
-                            }`}
+                              }`}
                           >
                             {formatTime(message.timestamp)}
                           </p>
