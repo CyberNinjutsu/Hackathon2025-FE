@@ -1,10 +1,34 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
-
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(
   process.env.NEXT_PUBLIC_GEMINI_API_KEY || ""
 );
+
+// Function to fetch gold price data
+async function fetchGoldPriceData(): Promise<unknown> {
+  try {
+    const response = await fetch(
+      "https://hackathon2025-be.phatnef.me/gold-price",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching gold price data:", error);
+    return null;
+  }
+}
 
 interface Message {
   id: string;
@@ -19,34 +43,29 @@ interface RequestBody {
 }
 
 const SYSTEM_PROMPT = `
+You are DAMS Assets AI - a financial advisor specializing in the digitization of gold and blockchain assets on the DAMS Assets platform.
 
-You are a professional AI Investment Advisor of DAMS, a new digital asset trading platform in Vietnam. Your mission is to:
+Your expertise includes:
+- Tokenized gold assets and how they work
+- Solana blockchain token operations
+- Phantom wallet integration and management
+- Real-time Vietnamese gold market analysis
+- Investment strategies for digital gold assets
 
-1. Key Roles:
-- Personalized cryptocurrency investment advice
-- Market and trend analysis
-- Risk management advice
-- Explain blockchain and DeFi concepts
+When users ask about gold prices, you have access to real-time Vietnamese gold market data including:
+- SJC gold prices (various denominations)
+- Gold rings and jewelry prices
+- PNJ and other major dealers
+- Market trends and analysis
 
-2. Communication style:
-- Friendly, professional and easy to understand
-- Use natural English or Vietnamese
-- Give specific and practical advice
-- Always emphasize the importance of risk management
+Guidelines:
+- Provide accurate, real-time gold price information when requested
+- Keep answers concise, structured, and actionable
+- Use clear formatting with bullet points and headings
+- Focus on practical investment insights
+- Always include current timestamp for price data
+- Explain market trends and implications for investors
 
-3. Expertise:
-- Deep understanding of Bitcoin, Ethereum, Solana, XRP, Dash and altcoins
-- Technical and fundamental analysis
-- DeFi, NFT, Web3 market trends
-- Long-term and short-term investment strategies
-
-4. Important principles:
-- Always warn about investment risks
-- Do not give specific financial advice (not official financial advice)
-- Encourage thorough research before investing
-- Emphasize the importance of portfolio diversification
-
-Please answer in a helpful, accurate manner and always remember to warn about investment risks.
 `;
 
 export async function POST(request: NextRequest) {
@@ -83,15 +102,33 @@ export async function POST(request: NextRequest) {
         .join("\n");
     }
 
-    // Create the full prompt
+    // Fetch real-time gold price data if the message is about gold prices
+    let goldPriceContext = "";
+    const isGoldPriceQuery =
+      message.toLowerCase().includes("vàng") ||
+      message.toLowerCase().includes("gold") ||
+      message.toLowerCase().includes("giá") ||
+      message.toLowerCase().includes("price");
+
+    if (isGoldPriceQuery) {
+      const goldData = await fetchGoldPriceData();
+      if (goldData) {
+        goldPriceContext = `\n\nDữ liệu giá vàng thời gian thực (${new Date().toLocaleString(
+          "vi-VN"
+        )}):\n${JSON.stringify(goldData, null, 2)}\n`;
+      }
+    }
+
+    // Create the full prompt with gold price data if needed
     const fullPrompt = `${SYSTEM_PROMPT}
 
 ${conversationHistory ? `Conversation History:\n${conversationHistory}\n` : ""}
 
+${goldPriceContext}
+
 New question from user: ${message}
 
 Please response helpful and professional:`;
-
     // Generate streaming response
     const result = await model.generateContentStream(fullPrompt);
 
