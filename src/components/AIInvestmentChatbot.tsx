@@ -201,7 +201,7 @@ export default function AIInvestmentChatbot({
   return (
     <>
       {/* Chat Toggle Button - Always visible, completely separate */}
-      <div className={`fixed bottom-1 right-4 z-50 ${className}`}>
+      <div className={`fixed bottom-6 right-8 z-50 ${className}`}>
         <AnimatePresence mode="wait">
           {!isOpen && (
             <motion.div
