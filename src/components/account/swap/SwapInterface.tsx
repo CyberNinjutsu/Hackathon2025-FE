@@ -1,23 +1,16 @@
 "use client";
 import { useAuth } from "@/lib/AuthContext";
-import { formatNumber } from "@/utils/Helper";
-import { Token, TokenAccount } from "@/utils/Types";
+import { formatNumber, fetchTokenRatio } from "@/utils/Helper";
+import { Token, TokenAccount, TokenRatio } from "@/utils/Types";
 import { fetchTokenAccountsSafe } from "@/utils/useTokenAccount";
-import { useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction } from "@solana/web3.js";
 import axios from "axios"; // Import AxiosError
 import { Buffer } from "buffer";
-import {
-  ArrowUpDown,
-  CheckCircle,
-  Loader2,
-  Settings
-} from "lucide-react";
+import { ArrowUpDown, CheckCircle, Loader2, Settings } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import SwapInput from "./SwapInput";
 import TokenSelectionPopup from "./TokenSelectionPopup";
-
 // This is sometimes needed in browser environments for Buffer to work correctly.
 if (typeof window !== "undefined") {
   window.Buffer = window.Buffer || Buffer;
@@ -62,8 +55,7 @@ const SwapInterface: React.FC = () => {
   const [toToken, setToToken] = useState<Token | null>(null);
   const [fromAmount, setFromAmount] = useState("");
   const [toAmount, setToTokenAmount] = useState("");
-  const [slippage, setSlippage] = useState("0.5");
-  const [showSettings, setShowSettings] = useState(false);
+  const [slippage, setSlippage] = useState("1");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectingFor, setSelectingFor] = useState<"from" | "to" | null>(null);
   const [swapQuote, setSwapQuote] = useState<SwapQuote | null>(null);
@@ -107,14 +99,20 @@ const SwapInterface: React.FC = () => {
         const amount = Number(inputAmount);
         if (amount <= 0) return null;
 
-        const baseRate = fromTokenData.price / toTokenData.price;
-        const fluctuation = 1 + (Math.random() - 0.5) * 0.005;
-        const exchangeRate = baseRate * fluctuation;
+        const ratioData = await fetchTokenRatio(
+          fromTokenData.symbol,
+          toTokenData.symbol
+        );
+        if (!ratioData) {
+          throw new Error("No ratio available for this pair");
+        }
+
+        const exchangeRate = ratioData.ratio;
         const outputAmount = amount * exchangeRate;
-        const priceImpact = Math.min(amount / 10000, 5);
+        const priceImpact = 0; // hoặc bạn có thể tính thêm
         const slippageDecimal = Number(slippage) / 100;
         const minimumReceived = outputAmount * (1 - slippageDecimal);
-        const networkFee = 12.45;
+        const networkFee = 1;
 
         return {
           inputAmount: amount,
@@ -298,7 +296,10 @@ const SwapInterface: React.FC = () => {
         setLastSwapTx(txSignature);
         setSwapHistory((prev) => [txSignature, ...prev.slice(0, 9)]);
         toast.success(
-          `Swap completed successfully! 🎉 Transaction: ${txSignature.slice(0, 8)}...`
+          `Swap completed successfully! 🎉 Transaction: ${txSignature.slice(
+            0,
+            8
+          )}...`
         );
       } else {
         toast.success("Swap submitted successfully! 🎉");
@@ -311,12 +312,11 @@ const SwapInterface: React.FC = () => {
       setTimeout(() => {
         loadWalletTokens();
       }, 2000);
-    } catch (error: unknown) { // FIX 3: Sử dụng `unknown` thay vì `any`
+    } catch (error: unknown) {
       console.error("Swap failed:", error);
       let errorMessage = "Unknown error occurred";
 
       if (axios.isAxiosError(error)) {
-        // AxiosError được type-guard, nên `error` ở đây là kiểu AxiosError
         if (error.code === "ECONNABORTED") {
           errorMessage = "Request timeout. Please try again.";
         } else if (error.response?.data?.message) {
@@ -337,9 +337,6 @@ const SwapInterface: React.FC = () => {
     }
   };
 
-  // Các hàm còn lại giữ nguyên...
-  // ...
-  // ... (Phần render JSX giữ nguyên)
   const calculateUsdValue = (amount: string, token: Token | null): string => {
     if (!amount || !token || isNaN(Number(amount))) return "0";
     return (Number(amount) * token.price).toFixed(2);
@@ -423,15 +420,19 @@ const SwapInterface: React.FC = () => {
         setWalletTokens(sortedTokens);
 
         if (!fromToken && !toToken) {
-          const firstTokenWithBalance = sortedTokens.find(
+          const eligibleTokens = sortedTokens.filter(
+            (token) => token.balance !== "1960000"
+          );
+
+          const firstTokenWithBalance = eligibleTokens.find(
             (t) => parseFloat(t.balance) > 0
           );
           const selectedFromToken =
-            firstTokenWithBalance || sortedTokens[0] || null;
+            firstTokenWithBalance || eligibleTokens[0] || null;
           setFromToken(selectedFromToken);
 
           if (sortedTokens.length > 1) {
-            const nextToken = sortedTokens.find(
+            const nextToken = eligibleTokens.find(
               (t) => t.mint !== selectedFromToken?.mint
             );
             setToToken(nextToken || null);
@@ -478,48 +479,9 @@ const SwapInterface: React.FC = () => {
           tokens={walletTokens}
         />
 
-        <div className="flex items-center justify-between my-8">
+        <div className="flex items-center justify-between mb-6 my-6">
           <h1 className="text-2xl font-bold text-white">Swap Tokens</h1>
-          <button
-            onClick={() => setShowSettings(!showSettings)}
-            className="p-2 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 transition-all duration-200"
-          >
-            <Settings className="w-5 h-5 text-white" />
-          </button>
         </div>
-
-        {/* Settings Panel */}
-        {showSettings && (
-          <div className="mb-6 p-4 rounded-xl bg-slate-900/60 backdrop-blur-md border border-white/20">
-            <h3 className="text-white font-semibold mb-3">Swap Settings</h3>
-            <div className="flex items-center gap-4">
-              <label className="text-gray-300">Max Slippage:</label>
-              <div className="flex gap-2">
-                {["0.1", "0.5", "1.0", "3.0"].map((val) => (
-                  <button
-                    key={val}
-                    onClick={() => setSlippage(val)}
-                    className={`px-3 py-1 rounded-lg text-sm transition-all duration-200 ${slippage === val
-                      ? "bg-[#00ffb2] text-black"
-                      : "bg-white/10 text-white hover:bg-white/20"
-                      }`}
-                  >
-                    {val}%
-                  </button>
-                ))}
-              </div>
-              <input
-                type="number"
-                step="0.1"
-                min="0.1"
-                max="50"
-                value={slippage}
-                onChange={(e) => setSlippage(e.target.value)}
-                className="w-20 px-2 py-1 rounded-lg bg-white/10 border border-white/20 text-white text-sm"
-              />
-            </div>
-          </div>
-        )}
 
         <div className="relative p-8 rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-white/20 shadow-2xl">
           {isFetchingTokens && (
@@ -555,22 +517,23 @@ const SwapInterface: React.FC = () => {
                 </div>
 
                 <div className="flex-1 w-full min-w-0">
-                  <SwapInput
-                    label="To"
-                    token={toToken}
-                    amount={toAmount}
-                    balance={toToken?.balance}
-                    onSelectToken={() => handleOpenPopup("to")}
-                    readOnly
-                    usdValue={calculateUsdValue(toAmount, toToken)}
-                  />
+                  {toToken?.balance !== "1960000" ? (
+                    <SwapInput
+                      label="To"
+                      token={toToken}
+                      amount={toAmount}
+                      balance={toToken?.balance}
+                      onSelectToken={() => handleOpenPopup("to")}
+                      readOnly
+                      usdValue={calculateUsdValue(toAmount, toToken)}
+                    />
+                  ) : null}
                 </div>
               </div>
             </div>
 
             <div className="lg:col-span-4">
               <div className="space-y-6">
-                {/* Enhanced Quote Information */}
                 {swapQuote && fromToken && toToken && (
                   <div className="p-4 rounded-xl bg-white/5 border border-white/10">
                     <div className="flex items-center gap-2 text-sm text-gray-300 mb-3">
@@ -596,12 +559,13 @@ const SwapInterface: React.FC = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-400">Price impact</span>
                         <span
-                          className={`${swapQuote.priceImpact > 3
-                            ? "text-red-400"
-                            : swapQuote.priceImpact > 1
+                          className={`${
+                            swapQuote.priceImpact > 3
+                              ? "text-red-400"
+                              : swapQuote.priceImpact > 1
                               ? "text-yellow-400"
                               : "text-green-400"
-                            }`}
+                          }`}
                         >
                           {swapQuote.priceImpact.toFixed(2)}%
                         </span>
@@ -652,7 +616,7 @@ const SwapInterface: React.FC = () => {
                     </div>
                     <div className="text-xs text-gray-400 font-mono">
                       <a
-                        href={`https://solscan.io/tx/${lastSwapTx}?cluster=devnet`}
+                        href={`https://explorer.solana.com/tx/${lastSwapTx}?cluster=devnet`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="underline hover:text-white transition-colors"

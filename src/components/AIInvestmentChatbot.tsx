@@ -11,7 +11,7 @@ import {
   Send,
   Sparkles,
   User,
-  X
+  X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -236,7 +236,7 @@ export default function AIInvestmentChatbot({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.3 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className={`fixed bottom-24 right-6 w-96 h-[600px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
+            className={`fixed bottom-6 right-6 w-96 h-[500px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-teal-500 to-cyan-500 p-4 text-white">
@@ -274,7 +274,7 @@ export default function AIInvestmentChatbot({
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 h-[440px] p-4 bg-slate-900 [&>div>div]:!pr-0">
+            <ScrollArea className="flex-1 h-[340px] p-4 bg-slate-900 [&>div>div]:!pr-0">
               <style jsx>{`
                 .scrollbar-thin::-webkit-scrollbar {
                   width: 4px;
@@ -291,23 +291,25 @@ export default function AIInvestmentChatbot({
                   background: #0d9488;
                 }
               `}</style>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className={`flex ${message.sender === "user"
+                    className={`flex ${
+                      message.sender === "user"
                         ? "justify-end"
                         : "justify-start"
-                      }`}
+                    }`}
                   >
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.sender === "user"
+                      className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                        message.sender === "user"
                           ? "bg-gradient-to-r from-teal-500 to-cyan-500 text-white ml-4 shadow-lg shadow-teal-500/25"
                           : "bg-slate-800 text-slate-100 mr-4 border border-slate-700/50 shadow-lg shadow-slate-900/50"
-                        }`}
+                      }`}
                     >
                       <div className="flex items-start gap-2">
                         {message.sender === "ai" && (
@@ -321,10 +323,11 @@ export default function AIInvestmentChatbot({
                             {message.content}
                           </p>
                           <p
-                            className={`text-xs mt-2 ${message.sender === "user"
+                            className={`text-xs mt-1 ${
+                              message.sender === "user"
                                 ? "text-white/70"
                                 : "text-slate-400"
-                              }`}
+                            }`}
                           >
                             {formatTime(message.timestamp)}
                           </p>

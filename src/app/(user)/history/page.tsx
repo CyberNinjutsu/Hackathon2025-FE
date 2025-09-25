@@ -18,7 +18,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowLeft, Download, Filter, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Filter,
+  Search,
+  ArrowRightLeft,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import TransactionIcon from "@/components/TransactionIcon";
 import { useAuth } from "@/lib/AuthContext";
@@ -28,29 +34,113 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { getTypeColorClass } from "@/utils/Helper";
+import { Transaction } from "@/utils/Types";
 
-/**
- * formatNumber(number, decimals = 9, groupSize = 3, groupSeparator = ",", decimalSeparator = ".")
- * returns string with grouping and fixed decimals
- */
-function formatNumber(
+function formatTokenAmount(
   number: number,
-  decimals: number = 9,
-  groupSize: number = 3,
-  groupSeparator: string = ",",
-  decimalSeparator: string = "."
+  decimals: number = 6
 ) {
-  const fixed = Number(number || 0).toFixed(decimals);
-  const parts = fixed.split(".");
-  parts[0] = parts[0].replace(new RegExp("\\B(?=(\\d{" + groupSize + "})+(?!\\d))", "g"), groupSeparator);
-  return parts.join(decimalSeparator).replace(/\.?0+$/, "");
+  if (number === null || number === undefined || isNaN(number)) return "0";
+  return new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: decimals,
+  }).format(number);
 }
 
 function shortenSignature(sig: string, chars = 6) {
   if (!sig) return "";
   if (sig.length <= chars * 2) return sig;
   return `${sig.slice(0, chars)}...${sig.slice(-chars)}`;
+
 }
+function TransactionAmount({ tx }: { tx: Transaction }) {
+  if (tx.type === "Swap" && tx.secondaryToken) {
+    return (
+      <div className="flex flex-col items-start text-sm">
+        <span className="text-red-400 font-normal">
+          -{formatTokenAmount(tx.amount, 0)} {tx.assetSymbol}
+        </span>
+        <div className="flex items-center gap-1 text-gray-400">
+          <ArrowRightLeft className="h-3 w-3" />
+          <span className="text-green-400 font-normal">
+            +{formatTokenAmount(tx.secondaryToken.amount, 0)} {tx.secondaryToken.symbol}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <span
+      className={
+        tx.type === "Send"
+          ? "text-red-400"
+          : tx.type === "Receive" || tx.type === "Mint"
+          ? "text-green-400"
+          : "text-white"
+      }
+    >
+      {tx.type === "Send"
+        ? "-"
+        : tx.type === "Receive" || tx.type === "Mint"
+        ? "+"
+        : ""}
+      {formatTokenAmount(tx.amount, 0)} {tx.assetSymbol}
+    </span>
+  );
+}
+
+function MobileTransactionAmount({ tx }: { tx: Transaction }) {
+  if (tx.type === "Swap" && tx.secondaryToken) {
+    return (
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="text-red-400 text-sm">
+            -{formatTokenAmount(tx.amount, 0)} {tx.assetSymbol}
+          </span>
+        </div>
+        <div className="flex items-center gap-1">
+          <ArrowRightLeft className="h-3 w-3 text-gray-400" />
+          <span className="text-green-400 text-sm">
+            +{formatTokenAmount(tx.secondaryToken.amount, 0)}{" "}
+            {tx.secondaryToken.symbol}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // Giao dịch thông thường
+  return (
+    <div className="font-semibold mb-1">
+      <span
+        className={
+          tx.type === "Send"
+            ? "text-red-400"
+            : tx.type === "Receive" || tx.type === "Mint"
+            ? "text-green-400"
+            : "text-white"
+        }
+      >
+        {tx.type === "Send"
+          ? "-"
+          : tx.type === "Receive" || tx.type === "Mint"
+          ? "+"
+          : ""}
+        {formatTokenAmount(tx.amount, 0)} {tx.assetSymbol}
+      </span>
+    </div>
+  );
+}
+
+
+function TransactionValue({ tx }: { tx: Transaction }) {
+    if (tx.type === "Swap") {
+      return <span className="text-gray-400">—</span>;
+    }  
+    return <span className="font-bold">${tx.value.toLocaleString("en-US")}</span>;
+}
+
+
 export default function HistoryPage() {
   const router = useRouter();
 
@@ -60,12 +150,8 @@ export default function HistoryPage() {
     isLoading: isAuthLoading,
   } = useAuth();
 
-  const { transactions, isLoading, error } =
+  const { transactions, isLoading, error, hasMore, fetchTransactions, total } =
     useTransactionHistory(userPublicKey);
-
-  // pagination state
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const pageSize = 10;
 
   useEffect(() => {
     if (!isAuthLoading && !isAuthenticated) {
@@ -84,38 +170,22 @@ export default function HistoryPage() {
     }
   }, [error]);
 
-  // Logic xử lý UI loading
-  if (isAuthLoading) {
+  if (isAuthLoading || (isLoading && transactions.length === 0)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
-        Checking authentication...
-      </div>
-    );
-  }
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-white">
-        Loading history...
+        {isAuthLoading ? "Checking authentication..." : "Loading history..."}
       </div>
     );
   }
   if (!isAuthenticated) {
     return null;
   }
-  // pagination calculations
-  const total = transactions.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safeCurrentPage = Math.min(currentPage, totalPages);
-  const startIndex = (safeCurrentPage - 1) * pageSize;
-  const endIndex = Math.min(startIndex + pageSize, total);
-  const visibleTransactions = transactions.slice(startIndex, endIndex);
-  const showPaginationControls = total > pageSize;
+  const totalLoaded = transactions.length;
 
   return (
-    <div className="min-h-screen bg-transparent text-foreground pt-16 max-w-6xl mx-auto">
-      <div className="relative z-10 space-y-6 p-4 sm:p-6">
-        <div className="flex flex-col space-y-4">
-          {/* Back button / Export */}
+    <div className="min-h-screen bg-transparent text-foreground pt-24 max-w-6xl mx-auto">
+      <div className="relative z-10 space-y-6 p-4 sm:p-6 ">
+        <div className="glass-card p-6  space-y-6 hover:scale-[1.02] transition-all duration-300">
           <div className="flex items-center justify-between">
             <Button
               variant="outline"
@@ -132,19 +202,16 @@ export default function HistoryPage() {
             </Button>
           </div>
 
-          {/* Page title */}
+          {/* Page title*/}
           <div className="text-center sm:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2 floating">
+            <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-2">
               Transaction History
             </h1>
             <p className="text-sm text-gray-300">
               Review and manage all your completed transactions.
             </p>
           </div>
-        </div>
 
-        {/* Filters & Search */}
-        <div className="glass-card p-6 space-y-6 hover:scale-[1.02] transition-all duration-300">
           <div className="flex items-center gap-3">
             <Filter className="h-6 w-6 text-primary" />
             <h3 className="text-xl font-semibold text-white">
@@ -178,7 +245,6 @@ export default function HistoryPage() {
                   <SelectValue placeholder="All assets" />
                 </SelectTrigger>
                 <SelectContent className="glass-card border-0">
-                  {/* TODO: iterate user assets */}
                   <SelectItem value="all">All assets</SelectItem>
                   <SelectItem value="btc">Bitcoin (BTC)</SelectItem>
                   <SelectItem value="eth">Ethereum (ETH)</SelectItem>
@@ -198,89 +264,42 @@ export default function HistoryPage() {
 
         {/* Data table */}
         <div className="glass-card overflow-x-auto hover:scale-[1.01] transition-all duration-300">
-          {/* Desktop/tablet table */}
           <Table className="min-w-[600px] hidden sm:table">
             <TableHeader>
               <TableRow className="border-gray-700">
+                <TableHead className="w-[50px] text-white font-semibold">#</TableHead>
                 <TableHead className="text-white font-semibold">Type</TableHead>
-                <TableHead className="hidden lg:table-cell text-white font-semibold">
-                  Signature
-                </TableHead>
-                <TableHead className="hidden md:table-cell text-white font-semibold">
-                  Amount
-                </TableHead>
-                <TableHead className="hidden md:table-cell text-white font-semibold">
-                  Value
-                </TableHead>
-                <TableHead className="hidden md:table-cell text-white font-semibold">
-                  Status
-                </TableHead>
-                <TableHead className="text-right text-white font-semibold">
-                  Date
-                </TableHead>
+                <TableHead className="hidden lg:table-cell text-white font-semibold">Signature</TableHead>
+                <TableHead className="text-white font-semibold">Amount</TableHead>
+                <TableHead className="text-white font-semibold">Value</TableHead>
+                <TableHead className="hidden md:table-cell text-white font-semibold">Status</TableHead>
+                <TableHead className="text-right text-white font-semibold">Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visibleTransactions.map((tx) => (
-                <TableRow
-                  key={tx.id}
-                  className="border-gray-700 hover:bg-white/5 transition-colors duration-200"
-                >
+              {transactions.map((tx, index) => (
+                <TableRow key={tx.id} className="border-gray-700 hover:bg-white/5 transition-colors duration-200">
+                  <TableCell className="font-medium text-gray-300">{index + 1}</TableCell>
                   <TableCell className="text-white">
                     <div className="flex items-center gap-3">
                       <TransactionIcon type={tx.type} />
-                      <span
-                        className={`font-semibold ${getTypeColorClass(tx.type)}`}
-                      >
-                        {tx.type}
-                      </span>
+                      <span className={`font-semibold ${getTypeColorClass(tx.type)}`}>{tx.type}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="hidden lg:table-cell text-gray-300 font-mono text-sm">
-                    <Link
-                      href={`https://solscan.io/tx/${tx.id}?cluster=devnet`}
-                      target="_blank"
-                    >
+                  <TableCell className="hidden lg:table-cell text-gray-300 font-mono text-sm hover:text-purple-400 transition-colors">
+                    <Link href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`} target="_blank">
                       {shortenSignature(tx.id)}
                     </Link>
                   </TableCell>
-                    <TableCell className="font-semibold">
-                    {tx.isFeeOnly ? (
-                      <span className="text-gray-400">
-                        Fee: {formatNumber(tx.fee, 9)} SOL
-                      </span>
-                    ) : (
-                      <span
-                        className={
-                          tx.type === "Send"
-                            ? "text-red-400"
-                            : tx.type === "Receive" || tx.type === "Mint"
-                              ? "text-green-400"
-                              : "text-white"
-                        }
-                      >
-                        {tx.type === "Send" ? "-" : tx.type === "Receive" || tx.type === "Mint" ? "+" : ""}
-                        {formatNumber(tx.amount)} {tx.assetSymbol}
-                      </span>
-                    )}
+                  <TableCell className="font-semibold">
+                    <TransactionAmount tx={tx} />
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-green-400 font-bold">
-                    ${tx.value.toLocaleString("en-US")}
+                   <TableCell className="hidden md:table-cell text-green-400">
+                    <TransactionValue tx={tx} />
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge
-                      variant="outline"
-                      className={
-                        tx.status === "Completed"
-                          ? "text-green-400 border-green-400 bg-green-400/10"
-                          : tx.status === "Pending"
-                            ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                            : "text-red-400 border-red-400 bg-red-400/10"
-                      }
-                    >
-                      {tx.status === "Completed" ? "Completed"
-                        : tx.status === "Pending" ? "Pending"
-                          : "Failed"}
+                    <Badge variant="outline" className={ tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10"}>
+                      {tx.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right text-xs text-gray-400">
@@ -293,70 +312,33 @@ export default function HistoryPage() {
 
           {/* Mobile cards */}
           <div className="sm:hidden space-y-4 p-4">
-            {visibleTransactions.map((tx, index) => (
-              <div
-                key={index}
-                className="glass-card p-4 hover:scale-[1.02] transition-all duration-300"
-              >
+            {transactions.map((tx, index) => (
+              <div key={index} className="glass-card p-4 hover:scale-[1.02] transition-all duration-300">
                 <div className="flex justify-between items-center mb-3">
                   <div className="flex items-center gap-3">
                     <TransactionIcon type={tx.type} />
-                    <span
-                      className={`font-semibold ${getTypeColorClass(tx.type)}`}
-                    >
-                      {tx.type}
-                    </span>
+                    <span className={`font-semibold ${getTypeColorClass(tx.type)}`}>{tx.type}</span>
                   </div>
-                  <span className="text-xs text-gray-400">
-                    {format(new Date(tx.date), "dd/MM/yyyy HH:mm")}
-                  </span>
+                  <span className="text-xs text-gray-400">{format(new Date(tx.date), "dd/MM/yyyy HH:mm")}</span>
                 </div>
                 <div className="mb-3">
-                   <div className="font-semibold mb-1">
-                    {tx.isFeeOnly ? (
-                      <span className="text-gray-400 text-sm">
-                        Fee: {formatNumber(tx.fee, 9)} SOL
-                      </span>
-                    ) : (
-                      <span
-                        className={
-                          tx.type === "Send"
-                            ? "text-red-400"
-                            : tx.type === "Receive" || tx.type === "Mint"
-                              ? "text-green-400"
-                              : "text-white"
-                        }
-                      >
-                        {tx.type === "Send" ? "-" : tx.type === "Receive" || tx.type === "Mint" ? "+" : ""}
-                        {formatNumber(tx.amount, 6)} {tx.assetSymbol}
-                      </span>
-                    )}
-                  </div>
+                  <MobileTransactionAmount tx={tx} />
                   {tx.id && (
-                    <div className="text-xs text-gray-400 truncate font-mono">
-                      {shortenSignature(tx.id)}
+                    <div className="text-xs text-gray-400 truncate font-mono hover:text-purple-400 transition-colors">
+                      <Link href={`https://explorer.solana.com/tx/${tx.id}?cluster=devnet`} target="_blank">
+                        {shortenSignature(tx.id)}
+                      </Link>
                     </div>
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-green-400 text-lg">
-                    ${tx.value.toLocaleString("en-US")}
-                  </span>
-                  <Badge
-                    variant="outline"
-                    className={
-                      tx.status === "Completed"
-                        ? "text-green-400 border-green-400 bg-green-400/10"
-                        : tx.status === "Pending"
-                          ? "text-yellow-400 border-yellow-400 bg-yellow-400/10"
-                          : "text-red-400 border-red-400 bg-red-400/10"
-                    }
-                  >
-                    {tx.status === "Completed"
-                      ? "Completed"
-                      : tx.status === "Pending"
-                        ? "Pending"
-                        : "Failed"}
+                    {/* CHANGE START: Sử dụng component TransactionValue mới */}
+                  <div className="text-green-400 text-lg">
+                    <TransactionValue tx={tx} />
+                  </div>
+                  {/* CHANGE END */}
+                  <Badge variant="outline" className={ tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10" }>
+                    {tx.status}
                   </Badge>
                 </div>
               </div>
@@ -364,46 +346,28 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-gray-400">
-            Showing{" "}
-            <span className="font-medium text-white">
-              {total === 0 ? 0 : startIndex + 1}
-            </span>{" "}
-            - <span className="font-medium text-white">{endIndex}</span> of{" "}
-            <span className="font-medium text-white">{total}</span>
-          </div>
-
-          <div className="flex items-center space-x-4">
-            <span className="text-sm text-gray-400">
-              Page {safeCurrentPage} of {totalPages}
-            </span>
-
-            {showPaginationControls && (
-              <div className="space-x-2">
-                <Button
-                  size="sm"
-                  className="bg-purple-500/20 border-purple-400/50 text-purple-100 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
-                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                  disabled={safeCurrentPage <= 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  size="sm"
-                  className="bg-purple-500/20 border-purple-400/50 text-purple-100 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
-                  onClick={() =>
-                    setCurrentPage((p) => Math.min(totalPages, p + 1))
-                  }
-                  disabled={safeCurrentPage >= totalPages}
-                >
-                  Next
-                </Button>
-              </div>
+        {/* Pagination & Load More */}
+        {transactions.length > 0 && (
+          <div className="flex items-center justify-between mt-6 px-4 sm:px-0">
+            <div className="text-sm text-gray-400">
+              Showing <span className="font-medium text-white">{totalLoaded}</span>
+              {total !== null && (
+                <> of <span className="font-medium text-white">{total}</span> </>
+              )} transactions
+            </div>
+            {hasMore ? (
+              <Button
+                className="bg-purple-500/20 border-purple-400/50 text-purple-100 hover:bg-purple-500/30 hover:border-purple-400 hover:text-purple-50 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+                onClick={fetchTransactions}
+                disabled={isLoading}
+              >
+                {isLoading ? "Loading..." : "Load More"}
+              </Button>
+            ) : (
+              <div className="text-sm text-gray-500">You&apos;ve reached the end.</div>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

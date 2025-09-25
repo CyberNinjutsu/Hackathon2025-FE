@@ -88,7 +88,7 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 left-0 z-10 w-full transition-all duration-300",
         isScrolled
           ? "bg-transparent backdrop-blur-sm border-b border-border"
           : "bg-transparent"
@@ -152,11 +152,8 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="outline" className="rounded-full" asChild>
+              <Button className="rounded-full" asChild>
                 <Link href="/login">Connect Wallet</Link>
-              </Button>
-              <Button asChild className="rounded-full">
-                <Link href="/register">Sign Up</Link>
               </Button>
             </>
           )}
@@ -258,15 +255,6 @@ export default function Header() {
                       >
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           Connect Wallet
-                        </Link>
-                      </Button>
-                      <Button
-                        asChild
-                        className="w-full rounded-lg h-12"
-                        size="lg"
-                      >
-                        <Link href="/register" onClick={() => setIsOpen(false)}>
-                          Sign Up
                         </Link>
                       </Button>
                     </div>

@@ -9,7 +9,7 @@ export default function CTA() {
     <section id="cta" className="py-20 sm:py-24">
       <div className="container mx-auto max-w-7xl px-6">
         <div className="relative overflow-hidden rounded-2xl border border-border px-6 py-16 text-center sm:px-12 md:py-24">
-          <div className="relative z-10 mx-auto max-w-5xl">
+          <div className="relative z-1 mx-auto max-w-5xl">
             <WordAnimate
               as="h2"
               className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl"

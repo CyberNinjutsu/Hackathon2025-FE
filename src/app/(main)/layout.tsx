@@ -38,7 +38,7 @@ export default function MainLayout({
           </main>
           <Footer />
           <AIInvestmentChatbot />
-          <Toaster position="top-right" closeButton offset={100} richColors />
+          <Toaster position="top-right" offset={100} richColors />
         </AuthProvider>
       </body>
     </html>
