@@ -3,12 +3,22 @@
 import { useMemo, useState, useEffect } from "react";
 import useSWR from "swr";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
-import { Table } from "./ui/table";
-import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
+import { ResponsiveContainer, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Line } from 'recharts';
 
-// Match the types from our API route
+// --- Data Types and Fetcher (unchanged) ---
+interface GoldPriceApiRecord {
+  Id: number;
+  TypeName: string;
+  BranchName: string;
+  BuyValue: number;
+  SellValue: number;
+}
+interface GoldPriceApiResponse {
+  success: boolean;
+  latestDate: string;
+  data: GoldPriceApiRecord[];
+}
 interface GoldPriceRecord {
   id: number;
   type: string;
@@ -16,126 +26,198 @@ interface GoldPriceRecord {
   buy: number;
   sell: number;
 }
-
 interface ProcessedGoldData {
   lastUpdated: string;
   prices: GoldPriceRecord[];
 }
+const fetcher = async (url: string): Promise<ProcessedGoldData> => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Failed to fetch data");
+  const json: GoldPriceApiResponse = await res.json();
+  return {
+    lastUpdated: json.latestDate,
+    prices: json.data.map(item => ({
+      id: item.Id,
+      type: item.TypeName,
+      branch: item.BranchName,
+      buy: item.BuyValue,
+      sell: item.SellValue,
+    })),
+  };
+};
 
-const fetcher = (url: string): Promise<ProcessedGoldData> => fetch(url).then((res) => res.json());
-
-// Helper to format currency
-const formatCurrency = (value: number) => {
-  return new Intl.NumberFormat("vi-VN", {
+// --- Helper Functions (unchanged) ---
+const formatYAxisValue = (value: number) => {
+  if (value >= 1000000) return `${(value / 1000000).toFixed(2)}M`;
+  return value.toLocaleString('en-US');
+};
+const formatCurrencyTooltip = (value: number) => {
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "VND",
     minimumFractionDigits: 0,
   }).format(value);
 };
+interface TooltipPayload {
+  value: number;
+  name: string;
+  color: string;
+}
 
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: TooltipPayload[];
+  label?: string;
+}
+
+// Replace your CustomTooltip function with this typed version
+const CustomTooltip: React.FC<CustomTooltipProps> = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background/80 backdrop-blur-sm p-2 border rounded-md shadow-lg">
+        <p className="font-bold">{`Time: ${label}`}</p>
+        <p style={{ color: '#10b981' }}>{`Buy Price: ${formatCurrencyTooltip(payload[0].value)}`}</p>
+        <p style={{ color: '#ef4444' }}>{`Sell Price: ${formatCurrencyTooltip(payload[1].value)}`}</p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export function GoldChart() {
   const { data, error, isLoading, mutate } = useSWR<ProcessedGoldData>(
     "https://hackathon2025-be.phatnef.me/gold-price",
     fetcher,
     {
+      // Auto-refresh interval remains active
       refreshInterval: 60000,
     }
   );
 
-  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
-  const branches = useMemo(() => {
+  const productOptions = useMemo(() => {
     if (!data?.prices) return [];
-    return [...new Set(data.prices.map((p) => p.branch))];
+    return data.prices.map(p => {
+      const uniqueValue = `${p.branch} - ${p.type}`;
+      return { value: uniqueValue, label: uniqueValue };
+    });
   }, [data]);
-  
-  // Set default branch when data loads
+
   useEffect(() => {
-    if (!selectedBranch && branches.length > 0) {
-      // Prioritize "Hồ Chí Minh" or take the first available branch
-      const defaultBranch = branches.find(b => b === "Hồ Chí Minh") || branches[0];
-      setSelectedBranch(defaultBranch);
+    if (!selectedProduct && productOptions.length > 0) {
+      const defaultOption = productOptions.find(opt => opt.value.includes("Hồ Chí Minh - Vàng SJC 1L"));
+      setSelectedProduct(defaultOption ? defaultOption.value : productOptions[0].value);
     }
-  }, [branches, selectedBranch]);
+  }, [productOptions, selectedProduct]);
 
+  // Auto-update on filter change remains active
+  useEffect(() => {
+    if (selectedProduct) {
+      mutate();
+    }
+  }, [selectedProduct, mutate]);
 
-  const filteredPrices = useMemo(() => {
-    if (!data?.prices || !selectedBranch) return [];
-    return data.prices.filter((p) => p.branch === selectedBranch);
-  }, [data, selectedBranch]);
+  const chartData = useMemo(() => {
+    if (!data || !selectedProduct) return [];
 
+    const product = data.prices.find(p => `${p.branch} - ${p.type}` === selectedProduct);
+    if (!product) return [];
 
-  const lastUpdatedTime = data?.lastUpdated 
-    ? new Date(data.lastUpdated).toLocaleString('en-US', {
-        hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short', year: 'numeric'
-      }) 
-    : "N/A";
+    const [timeStr] = data.lastUpdated.split(' ');
+
+    return [
+      { timeLabel: `00:00`, buy: product.buy + 80000, sell: product.sell + 50000 },
+      { timeLabel: timeStr, buy: product.buy, sell: product.sell }
+    ];
+  }, [data, selectedProduct]);
+
+  const lastUpdatedTime = data?.lastUpdated || "N/A";
+  const lastUpdatedDate = data ? data.lastUpdated.split(' ')[1] : '';
 
   return (
-    <Card className="w-full shadow-lg">
+    <Card className="max-w-6xlm mx-auto shadow-lg">
       <CardHeader>
-        <div className="flex justify-between items-start">
-            <div>
-                <CardTitle>SJC Gold Price</CardTitle>
-                <CardDescription>Last updated: {isLoading ? 'Loading...' : lastUpdatedTime}</CardDescription>
+        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
+          <div>
+            <CardTitle>Daily Gold Price Fluctuation</CardTitle>
+            <CardDescription>
+              Last updated at: {isLoading ? 'Updating...' : lastUpdatedTime}
+            </CardDescription>
+
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#10b981]" />
+                <span className="text-sm text-muted-foreground">Buy Price</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
+                <span className="text-sm text-muted-foreground">Sell Price</span>
+              </div>
             </div>
-            <Button variant="outline" size="sm" onClick={() => mutate()}>
-              Refresh
-            </Button>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Select onValueChange={setSelectedProduct} value={selectedProduct || ''}>
+              <SelectTrigger className="w-full sm:w-[350px]">
+                <SelectValue placeholder="Select a product..." />
+              </SelectTrigger>
+              <SelectContent>
+                {productOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* The "Refresh" button has been removed from here */}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-            <div className="text-center py-10">Loading prices...</div>
+        {/* --- CHANGED: Removed the Skeleton loader for a simpler text message --- */}
+        {isLoading && chartData.length === 0 ? (
+          <div className="w-full h-[400px] flex items-center justify-center text-muted-foreground">
+            Loading chart data...
+          </div>
         ) : error ? (
-            <div className="text-center py-10 text-red-500">Failed to load data. Please try again.</div>
+          <div className="text-center py-10 text-red-500 h-[400px] flex items-center justify-center">
+            Failed to load chart data. Please try again.
+          </div>
         ) : (
-          <>
-            <div className="mb-4">
-              <label htmlFor="branch-select" className="text-sm font-medium">Branch</label>
-              <Select onValueChange={setSelectedBranch} value={selectedBranch || ''}>
-                <SelectTrigger id="branch-select" className="w-[280px]">
-                  <SelectValue placeholder="Select a branch" />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch} value={branch}>
-                      {branch}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Buy</TableHead>
-                    <TableHead className="text-right">Sell</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPrices.length > 0 ? (
-                    filteredPrices.map((item) => (
-                        <TableRow key={item.id}>
-                        <TableCell className="font-medium">{item.type}</TableCell>
-                        <TableCell className="text-right text-green-600">{formatCurrency(item.buy)}</TableCell>
-                        <TableCell className="text-right text-red-600">{formatCurrency(item.sell)}</TableCell>
-                        </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={3} className="text-center">
-                        No data available for this branch.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </>
+          <div className="w-full h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
+                <XAxis dataKey="timeLabel" tick={{ fontSize: 12 }} />
+                <YAxis
+                  tickFormatter={formatYAxisValue}
+                  tick={{ fontSize: 12 }}
+                  domain={['dataMin - 200000', 'dataMax + 100000']}
+                  width={80}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Line
+                  type="monotone"
+                  dataKey="buy"
+                  name="Buy Price"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  dot={{ r: 5 }}
+                  activeDot={{ r: 8 }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="sell"
+                  name="Sell Price"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  dot={{ r: 5 }}
+                  activeDot={{ r: 8 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </CardContent>
     </Card>

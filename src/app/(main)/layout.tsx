@@ -27,7 +27,7 @@ export default function MainLayout({
   return (
     <html lang="en" className="dark antialiased" suppressHydrationWarning>
       <body
-        className={`font-sans ${dmSans.variable}  custom-scrollbar homepage-container`}
+        className={`font-sans ${dmSans.variable}  custom-scrollbar homepage-container select-none`}
       >
         <AuthProvider>
           <BackgroundGlow />
@@ -38,7 +38,7 @@ export default function MainLayout({
           </main>
           <Footer />
           <AIInvestmentChatbot />
-          <Toaster position="top-right" closeButton offset={100} richColors />
+          <Toaster position="top-right" offset={100} richColors />
         </AuthProvider>
       </body>
     </html>

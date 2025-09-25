@@ -9,15 +9,15 @@ import {
   clusterApiUrl,
   LAMPORTS_PER_SOL,
   ComputeBudgetProgram,
-  SystemProgram,
+  SignaturesForAddressOptions,
 } from "@solana/web3.js";
 import { TOKEN_2022_PROGRAM_ADDRESS } from "@solana-program/token-2022";
 import {
-  ASSOCIATED_TOKEN_PROGRAM_ID,
-  TOKEN_2022_PROGRAM_ID,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
-import { Transaction } from "./Types";
+  MintInfo,
+  ParsedTransaction,
+  TokenBalance,
+  Transaction,
+} from "./Types";
 
 const swapPrograms = [
   "9xQeWvG816bUx9EPfDdG9w7d6dXKJbTgkGMwzV3bRjP7", // Serum DEX
@@ -26,61 +26,35 @@ const swapPrograms = [
   "JUP6LkbZbjS4tYqbNrtYmNHJvZs3Kox7c3M1TUPNQm8", // Jupiter
 ];
 
-// Known fee-related accounts
-const feeRelatedAccounts = new Set(["11111111111111111111111111111111"]);
-
-function isLikelyFeeTransaction(
-  instruction: ParsedInstruction,
-  tokensAccountStr: Map<string, null> | null,
-  transactionFee: number
-): boolean {
-  const { type, info } = instruction.parsed;
-  if (!info) return false;
-
-  if (instruction.programId.equals(ComputeBudgetProgram.programId)) {
-    return true;
+function isSetupTransactionByLogs(logs: string[] | undefined): boolean {
+  if (!logs || logs.length === 0) {
+    return false;
   }
 
-  if (instruction.programId.equals(ASSOCIATED_TOKEN_PROGRAM_ID)) {
-    if ("parsed" in instruction && instruction.parsed?.type === "create") {
-      return true;
-    }
-  }
+  const setupKeywords = [
+    "Program log: Create",
+    "Initialize the associated token account",
+    "Instruction: InitializeAccount",
+    "Instruction: CreateAccount",
+    "Program log: Instruction: InitializeMint",
+    "Instruction: CloseAccount",
+  ];
 
-  if (instruction.programId.equals(SystemProgram.programId)) {
-    if ("parsed" in instruction && instruction.parsed) {
-      const { type, info } = instruction.parsed;
+  const meaningfulKeywords = [
+    "Instruction: Transfer",
+    "Instruction: Swap",
+    "Instruction: MintTo",
+    "Instruction: Burn",
+  ];
 
-      if (type === "transfer" && info?.lamports) {
-        const amountSol = info.lamports / LAMPORTS_PER_SOL;
-        const transferAmountSol = info.lamports / LAMPORTS_PER_SOL;
-        const feeAmountSol = transactionFee / LAMPORTS_PER_SOL;
-        if (amountSol < 0.0000000003) {
-          return true;
-        }
-      }
+  const hasSetupLog = logs.some((log) =>
+    setupKeywords.some((keyword) => log.includes(keyword))
+  );
+  const hasMeaningfulLog = logs.some((log) =>
+    meaningfulKeywords.some((keyword) => log.includes(keyword))
+  );
 
-      if (type === "createAccount") {
-        return true;
-      }
-    }
-    if (type === "transfer" && info.lamports) {
-      const transferAmount = info.lamports / LAMPORTS_PER_SOL;
-      const feeAmount = transactionFee / LAMPORTS_PER_SOL;
-
-      if (transferAmount <=  1e-9 && Math.abs(transferAmount - feeAmount) <  1e-9) {
-        return true;
-      }
-
-      if (transferAmount < 0.0000000000001) {
-        return true;
-      }
-    }
-  }
-  if (feeRelatedAccounts.has(info.source) || feeRelatedAccounts.has(info.destination)) {
-    return true;
-  }
-  return false;
+  return hasSetupLog && !hasMeaningfulLog;
 }
 
 function detectTransactionType(
@@ -93,7 +67,10 @@ function detectTransactionType(
     return "Other";
   }
 
-  if (tokensAccountStr.has(info.destination) || tokensAccountStr.has(info.source)) {
+  if (
+    tokensAccountStr.has(info.destination) ||
+    tokensAccountStr.has(info.source)
+  ) {
     if (type === "transfer" && info.lamports) {
       if (tokensAccountStr.has(info.destination)) return "Receive";
       if (tokensAccountStr.has(info.source)) return "Send";
@@ -109,90 +86,45 @@ function detectTransactionType(
     return "Mint";
   }
 
-  if (swapPrograms.includes(instruction.programId.toBase58())) {
+  if (
+    swapPrograms.includes(instruction.programId.toBase58()) ||
+    type === "Transfer"
+  ) {
     return "Swap";
   }
 
   return "Other";
 }
-
-interface TokenBalance {
-  accountIndex: number;
-  mint: string;
-  owner: string;
-  programId: string;
-  uiTokenAmount: {
-    amount: string;
-    decimals: number;
-    uiAmount: number | null;
-    uiAmountString: string;
-  };
-}
-
-interface TokenMetadataExtension {
-  extension: string;
-  state: {
-    symbol?: string;
-    name?: string;
-  };
-}
-
-interface MintInfo {
-  decimals: number;
-  extensions?: TokenMetadataExtension[];
-}
-
-interface TransactionMeta {
-  err: string | null;
-  fee: number;
-  preTokenBalances: TokenBalance[];
-  postTokenBalances: TokenBalance[];
-  preBalances: number[];
-  postBalances: number[];
-  innerInstructions?: Array<{ instructions: ParsedInstruction[] }>;
-  computeUnitsConsumed: number;
-}
-
-interface ParsedTransaction {
-  meta: TransactionMeta | null;
-  blockTime: number | null;
-  transaction: {
-    message: {
-      accountKeys: string[];
-      instructions: ParsedInstruction[];
-    };
-  };
-}
-
-function extractTokenAmountFromBalanceChanges(
+function extractTokenAmountsFromBalanceChanges(
   tx: ParsedTransaction,
   tokensAccountStr: Map<string, null>,
   walletPubKey: PublicKey,
-  instructions: (ParsedInstruction | PartiallyDecodedInstruction)[] // <-- ADD THIS PARAMETER
+  instructions: (ParsedInstruction | PartiallyDecodedInstruction)[]
 ): {
   amount: number;
   symbol: string;
   address: string;
   type: Transaction["type"];
   mint: string;
-} | null {
+}[] {
   const preTokenBalances = tx.meta?.preTokenBalances || [];
   const postTokenBalances = tx.meta?.postTokenBalances || [];
 
-  // Create maps for easier lookup
   const preBalanceMap = new Map<string, TokenBalance>();
-  const postBalanceMap = new Map<string, TokenBalance>();
-
   preTokenBalances.forEach((balance: TokenBalance) => {
     const key = `${balance.accountIndex}-${balance.mint}`;
     preBalanceMap.set(key, balance);
   });
 
-  postTokenBalances.forEach((balance: TokenBalance) => {
-    const key = `${balance.accountIndex}-${balance.mint}`;
-    postBalanceMap.set(key, balance);
-  });
+  const transfers: {
+    amount: number;
+    symbol: string;
+    address: string;
+    type: Transaction["type"];
+    mint: string;
+  }[] = [];
 
+  // detect mint transaction
   const isMintTransaction = instructions.some(
     (inst) =>
       "parsed" in inst &&
@@ -204,71 +136,49 @@ function extractTokenAmountFromBalanceChanges(
     const key = `${postBalance.accountIndex}-${postBalance.mint}`;
     const preBalance = preBalanceMap.get(key);
 
-    if ( !preBalance && postBalance.uiTokenAmount.uiAmount && postBalance.uiTokenAmount.uiAmount > 0) {
-      const accountKeys = tx.transaction.message.accountKeys;
-      const accountAddress = accountKeys[postBalance.accountIndex];
-
-      return {
-        amount: postBalance.uiTokenAmount.uiAmount,
-        symbol: postBalance.mint.slice(0, 6),
-        address: accountAddress || "",
-        type: isMintTransaction ? "Mint" : "Receive",
-        mint: postBalance.mint,
-      };
-    }
-  }
-
-  for (const postBalance of postTokenBalances) {
-    const key = `${postBalance.accountIndex}-${postBalance.mint}`;
-    const preBalance = preBalanceMap.get(key);
-
-    if (!preBalance) continue;
-
-    const preAmount = parseFloat(preBalance.uiTokenAmount.amount);
-    const postAmount = parseFloat(postBalance.uiTokenAmount.amount);
-    const difference = postAmount - preAmount;
-
-    if (difference === 0) continue;
-
     const accountKeys = tx.transaction.message.accountKeys;
     const accountAddress = accountKeys[postBalance.accountIndex];
+    const decimals = postBalance.uiTokenAmount.decimals;
+    const postAmount = parseFloat(postBalance.uiTokenAmount.amount);
+    const preAmount = preBalance
+      ? parseFloat(preBalance.uiTokenAmount.amount)
+      : 0;
+    const diff = postAmount - preAmount;
 
-    const transferAmount =Math.abs(difference) / Math.pow(10, postBalance.uiTokenAmount.decimals);
+    if (diff === 0) continue;
 
-    if (difference > 0) {     
-      const transactionType = isMintTransaction ? "Mint" : "Receive";
+    const transferAmount = Math.abs(diff) / Math.pow(10, decimals);
 
-      return {
-        amount: transferAmount,
-        symbol: postBalance.mint.slice(0, 6),
-        address: accountAddress || "",
-        type: transactionType,
-        mint: postBalance.mint,
-      };
-    } else if (difference < 0) {
-      return {
-        amount: transferAmount,
-        symbol: postBalance.mint.slice(0, 6),
-        address: accountAddress || "",
-        type: "Send",
-        mint: postBalance.mint,
-      };
+    let type: Transaction["type"] = "Other";
+    if (diff > 0) {
+      type = isMintTransaction ? "Mint" : "Receive";
+    } else {
+      type = "Send";
     }
+
+    transfers.push({
+      amount: transferAmount,
+      symbol: postBalance.mint.slice(0, 6),
+      address: accountAddress || "",
+      type,
+      mint: postBalance.mint,
+    });
   }
 
-  return null;
+  return transfers;
 }
-// Custom Hook
 export function useTransactionHistory(
   publicKey: string | null,
-  limit: number | null = 1000
+  pageSize: number | undefined = 10
 ) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
-
+  const [beforeSig, setBeforeSig] = useState<string | undefined>(undefined);
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const [total, setTotal] = useState<number | null>(null);
   const fetchTransactions = useCallback(async () => {
-    if (!publicKey) {
+    if (!publicKey || isLoading || !hasMore) {
       setTransactions([]);
       setIsLoading(false);
       return;
@@ -286,46 +196,87 @@ export function useTransactionHistory(
       const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
       const walletPubKey = new PublicKey(publicKey);
 
-      const fetchLimit = limit === null ? 1000 : limit;
+      // const fetchLimit = limit === null ? 10 : limit;
+      if (beforeSig === undefined) {
+        try {
+          let allSignaturesCount = 0;
+          let lastSignature: string | undefined = undefined;
+          let keepFetching = true;
 
+          while (keepFetching) {
+            const signaturesBatch = await connection.getSignaturesForAddress(
+              walletPubKey,
+              {
+                limit: 1000,
+                before: lastSignature,
+              }
+            );
 
-      const [legacyTokenAccounts, token2022Accounts ]= await Promise.all([
+            allSignaturesCount += signaturesBatch.length;
 
-        connection.getParsedTokenAccountsByOwner(walletPubKey,{ programId: new PublicKey(TOKEN_2022_PROGRAM_ID) }),
-        connection.getParsedTokenAccountsByOwner(walletPubKey,{ programId: new PublicKey(TOKEN_PROGRAM_ID) })
-      ])
-      
-      const signatures = await connection.getSignaturesForAddress(
-        walletPubKey,
-        { limit: fetchLimit }
-      );
+            if (signaturesBatch.length < 1000) {
+              keepFetching = false;
+            } else {
+              lastSignature =
+                signaturesBatch[signaturesBatch.length - 1].signature;
+            }
+          }
+          setTotal(allSignaturesCount);
+        } catch (e) {
+          console.error("Error fetching total transaction count:", e);
+        }
+      }
+      const [token2022Accounts] = await Promise.all([
+        connection.getParsedTokenAccountsByOwner(walletPubKey, {
+          programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS),
+        }),
+      ]);
 
       tokensAccountAddr.set(walletPubKey.toString(), null);
-      token2022Accounts.value.map((tokenAccount) => tokensAccountAddr.set(tokenAccount.pubkey.toString(), null));
+      token2022Accounts.value.map((tokenAccount) =>
+        tokensAccountAddr.set(tokenAccount.pubkey.toString(), null)
+      );
+
+      const options: SignaturesForAddressOptions = {
+        limit: pageSize,
+        before: beforeSig,
+      };
+
+      const signatures = await connection.getSignaturesForAddress(
+        walletPubKey,
+        options
+      );
+
+      console.log("Sign:", signatures);
+      if (signatures.length < pageSize) {
+        setHasMore(false);
+      }
+      if (signatures.length > 0) {
+        setBeforeSig(signatures[signatures.length - 1].signature);
+      } else {
+        setHasMore(false);
+        setIsLoading(false);
+        return;
+      }
 
       const txList: Transaction[] = [];
 
       for (const sigInfo of signatures) {
-        if (limit !== null && txList.length >= limit) break;
-
+        if (txList.length >= pageSize) break;
         const tx = (await connection.getParsedTransaction(sigInfo.signature, {
           maxSupportedTransactionVersion: 0,
         })) as ParsedTransaction | null;
 
+        await new Promise((res) => setTimeout(res, 200));
+
         if (!tx || !tx.blockTime) continue;
 
-        const baseFeeLamports = tx.meta?.fee ?? 0;
-
-        let microLamportsPerCu = 0;
-        for (const inst of tx.transaction.message.instructions as ParsedInstruction[]) {
-          if (inst.programId.equals(ComputeBudgetProgram.programId) && inst.parsed?.type === "setComputeUnitPrice") {
-            microLamportsPerCu = inst.parsed.info.microLamports;
-            break;
-          }
+        if (isSetupTransactionByLogs(tx.meta?.logMessages)) {
+          console.log(
+            `Skipping setup transaction by logs: ${sigInfo.signature}`
+          );
+          continue;
         }
-
-        const computeUnitsConsumed = tx.meta?.computeUnitsConsumed ?? 0;
-        const priorityFeeInLamports = microLamportsPerCu > 0 ? (computeUnitsConsumed * microLamportsPerCu) / 1000000 : 0;
 
         let type: Transaction["type"] = "Other";
         let amount = 0;
@@ -333,7 +284,6 @@ export function useTransactionHistory(
         let assetSymbol = "N/A";
         const blockTimeSec = tx.blockTime ?? sigInfo.blockTime ?? 0;
         const transactionFeeLamports = tx.meta?.fee ?? 0;
-        const transactionFeeSOL = transactionFeeLamports / LAMPORTS_PER_SOL;
 
         if (tx.meta?.err) {
           txList.push({
@@ -345,62 +295,78 @@ export function useTransactionHistory(
             status: "Failed",
             date: new Date(blockTimeSec * 1000).toISOString(),
             address: "",
-            fee: transactionFeeSOL,
           });
           continue;
         }
 
         const inner =
           tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
-        const instructions = [...tx.transaction.message.instructions, ...inner];
-        let foundValidInstruction = false;
-        const isFeeTransaction = false;
 
-        const hasMeaningfulInstruction = instructions.some((inst) => "parsed" in inst && !isLikelyFeeTransaction(inst, tokensAccountAddr, transactionFeeLamports));
-        if (!hasMeaningfulInstruction) {
-          continue;
-        }
-         const isFeeOnly = !foundValidInstruction && !hasMeaningfulInstruction && amount === 0;
-        const tokenBalanceChange = extractTokenAmountFromBalanceChanges(
+        let foundValidInstruction = false;
+        const instructions = [...tx.transaction.message.instructions, ...inner];
+        console.log("Int: ", instructions);
+        const tokenBalanceChanges = extractTokenAmountsFromBalanceChanges(
           tx,
           tokensAccountAddr,
           walletPubKey,
           instructions
         );
-        if (tokenBalanceChange) {
-          type = tokenBalanceChange.type;
-          amount = tokenBalanceChange.amount;
-          address = tokenBalanceChange.address;
-          assetSymbol = tokenBalanceChange.symbol;
-          foundValidInstruction = true;
+        if (tokenBalanceChanges.length > 0) {
+          for (const change of tokenBalanceChanges) {
+            type = change.type;
+            amount = change.amount;
+            address = change.address;
+            assetSymbol = change.symbol;
 
-          // Try to get the actual token symbol from mint info
-          const mint = tokenBalanceChange.mint;
-          if (mint && !mintsInfo.has(mint)) {
-            try {
-              const mintAccount = await connection.getParsedAccountInfo(new PublicKey(mint));
-              mintsInfo.set(mint, mintAccount.value);
-            } catch (e) {
-              console.warn("Could not fetch mint info for", mint);
+            const mint = change.mint;
+            if (mint && !mintsInfo.has(mint)) {
+              try {
+                const mintAccount = await connection.getParsedAccountInfo(
+                  new PublicKey(mint)
+                );
+                mintsInfo.set(mint, mintAccount.value);
+              } catch (e) {
+                console.warn("Could not fetch mint info for", mint);
+              }
             }
-          }
 
-          if (mint && mintsInfo.get(mint)?.data) {
-            const mintData = mintsInfo.get(mint)?.data as ParsedAccountData;
-            const parsedInfo = mintData.parsed?.info as MintInfo;
-            const extensions = parsedInfo?.extensions;
-            if (extensions) {
-              for (const ext of extensions) {
-                if (ext.extension === "tokenMetadata") {
-                  assetSymbol = ext.state.symbol || assetSymbol;
-                  break;
+            if (mint && mintsInfo.get(mint)?.data) {
+              const mintData = mintsInfo.get(mint)?.data as ParsedAccountData;
+              const parsedInfo = mintData.parsed?.info as MintInfo;
+              const extensions = parsedInfo?.extensions;
+              if (extensions) {
+                for (const ext of extensions) {
+                  if (ext.extension === "tokenMetadata") {
+                    assetSymbol = ext.state.symbol || assetSymbol;
+                    break;
+                  }
                 }
               }
             }
+
+            txList.push({
+              id: sigInfo.signature,
+              type,
+              assetSymbol: assetSymbol || "N/A",
+              amount,
+              value: 0,
+              status:
+                sigInfo.confirmationStatus === "confirmed" ||
+                sigInfo.confirmationStatus === "finalized"
+                  ? "Completed"
+                  : "Pending",
+              date: new Date(blockTimeSec * 1000).toISOString(),
+              address,
+            });
           }
+
+          continue;
         }
+
         if (!foundValidInstruction) {
-          const walletIndex = tx.transaction.message.accountKeys.findIndex((key) => key === walletPubKey.toBase58());
+          const walletIndex = tx.transaction.message.accountKeys.findIndex(
+            (key) => key === walletPubKey.toBase58()
+          );
 
           if (walletIndex !== -1 && tx.meta) {
             const preBalance = tx.meta.preBalances[walletIndex];
@@ -414,7 +380,8 @@ export function useTransactionHistory(
                 type = "Receive";
                 foundValidInstruction = true;
               } else if (solChange < 0) {
-                const amountSentLamports = Math.abs(solChange) - transactionFeeLamports;
+                const amountSentLamports =
+                  Math.abs(solChange) - transactionFeeLamports;
 
                 if (amountSentLamports > 5) {
                   amount = amountSentLamports / LAMPORTS_PER_SOL;
@@ -426,66 +393,64 @@ export function useTransactionHistory(
             }
           }
         }
-        if (!foundValidInstruction && priorityFeeInLamports > 0) {
-          let microLamportsPerCu = 0;
-          for (const inst of instructions as ParsedInstruction[]) {
-            if (
-              inst.programId.equals(ComputeBudgetProgram.programId) &&
-              inst.parsed?.type === "setComputeUnitPrice"
-            ) {
-              microLamportsPerCu = inst.parsed.info.microLamports;
-              break; 
-            }
-          }
 
-          if (microLamportsPerCu > 0) {
-            const computeUnitsConsumed = tx.meta?.computeUnitsConsumed ?? 0;
-
-            const priorityFeeInLamports = (computeUnitsConsumed * microLamportsPerCu) / 1_000_000;
-
-            if (priorityFeeInLamports > 0) {
-              amount = priorityFeeInLamports / LAMPORTS_PER_SOL;
-              assetSymbol = "SOL"; 
-              type = "Other"; 
-              foundValidInstruction = true; 
-            }
-          }
-        }
         if (!foundValidInstruction) {
           for (const instruction of instructions as ParsedInstruction[]) {
             if (!("parsed" in instruction)) continue;
             if (
-              (instruction.programId.equals(TOKEN_PROGRAM_ID) ||
-              instruction.programId.equals(TOKEN_2022_PROGRAM_ID)) &&
-              instruction.parsed?.type === "closeAccount" &&
               instruction.parsed?.info?.destination === walletPubKey.toBase58()
             ) {
               type = "Other";
               assetSymbol = "SOL";
               address = instruction.parsed.info.account;
             }
-            const detectedType = detectTransactionType(instruction, tokensAccountAddr);
+            const detectedType = detectTransactionType(
+              instruction,
+              tokensAccountAddr
+            );
 
             if (detectedType !== "Other") {
               type = detectedType;
               foundValidInstruction = true;
             }
 
-            if (instruction.parsed.type === "transfer" &&instruction.parsed.info?.lamports) {
+            if (
+              instruction.parsed.type === "transfer" &&
+              instruction.parsed.info?.lamports
+            ) {
               amount = instruction.parsed.info.lamports / LAMPORTS_PER_SOL;
               assetSymbol = "SOL";
-              address =instruction.parsed.info.destination || instruction.parsed.info.source ||"";
+              address =
+                instruction.parsed.info.destination ||
+                instruction.parsed.info.source ||
+                "";
               foundValidInstruction = true;
             }
 
-            if ((instruction.parsed.type === "transferChecked" || instruction.parsed.type === "transfer") && instruction.parsed.info?.tokenAmount) {
+            if (
+              (instruction.parsed.type === "transferChecked" ||
+                instruction.parsed.type === "transfer") &&
+              instruction.parsed.info?.tokenAmount
+            ) {
               const t = instruction.parsed.info.tokenAmount;
-              amount = typeof t.uiAmount === "number" ? t.uiAmount : Number(t.amount) / Math.pow(10, t.decimals || 0);
-              address =instruction.parsed.info.destination || instruction.parsed.info.source || "";
+              amount =
+                typeof t.uiAmount === "number"
+                  ? t.uiAmount
+                  : Number(t.amount) / Math.pow(10, t.decimals || 0);
+              address =
+                instruction.parsed.info.destination ||
+                instruction.parsed.info.source ||
+                "";
 
-              if (instruction.parsed.info.mint && !mintsInfo.has(instruction.parsed.info.mint)) {
+              if (
+                instruction.parsed.info.mint &&
+                !mintsInfo.has(instruction.parsed.info.mint)
+              ) {
                 try {
-                  const mintAccount = await connection.getParsedAccountInfo(new PublicKey(instruction.parsed.info.mint));
+                  const mintAccount = await connection.getParsedAccountInfo(
+                    new PublicKey(instruction.parsed.info.mint)
+                  );
+
                   mintsInfo.set(
                     instruction.parsed.info.mint,
                     mintAccount.value
@@ -498,8 +463,12 @@ export function useTransactionHistory(
                 }
               }
 
-              if (instruction.parsed.info.mint &&mintsInfo.get(instruction.parsed.info.mint)?.data) {
-                const mintData = mintsInfo.get(instruction.parsed.info.mint)?.data as ParsedAccountData;
+              if (
+                instruction.parsed.info.mint &&
+                mintsInfo.get(instruction.parsed.info.mint)?.data
+              ) {
+                const mintData = mintsInfo.get(instruction.parsed.info.mint)
+                  ?.data as ParsedAccountData;
                 const parsedInfo = mintData.parsed?.info as MintInfo;
                 const extensions = parsedInfo?.extensions;
                 if (extensions) {
@@ -511,46 +480,76 @@ export function useTransactionHistory(
                   }
                 }
               } else {
-                assetSymbol = instruction.parsed.info.mint ? instruction.parsed.info.mint.slice(0, 6) : "SPL";
+                assetSymbol = instruction.parsed.info.mint
+                  ? instruction.parsed.info.mint.slice(0, 6)
+                  : "SPL";
               }
               foundValidInstruction = true;
             }
 
             if (
-              instruction.parsed.type === "mintTo" || instruction.parsed.type === "mintToChecked"
+              instruction.parsed.type === "mintTo" ||
+              instruction.parsed.type === "mintToChecked"
             ) {
               if (instruction.parsed.info?.tokenAmount) {
                 const t = instruction.parsed.info.tokenAmount;
-                amount =typeof t.uiAmount === "number" ? t.uiAmount : Number(t.amount) / Math.pow(10, t.decimals || 0);
+
+                amount =
+                  typeof t.uiAmount === "number"
+                    ? t.uiAmount
+                    : Number(t.amount) / Math.pow(10, t.decimals || 0);
               } else {
-                const raw = instruction.parsed.info?.amount ?? instruction.parsed.info?.mintAmount ?? 0;
+                const raw =
+                  instruction.parsed.info?.amount ??
+                  instruction.parsed.info?.mintAmount ??
+                  0;
+
                 let decimals = 0;
 
                 if (instruction.parsed.info?.mint) {
                   const mintAddr = instruction.parsed.info.mint;
+
                   if (!mintsInfo.has(mintAddr)) {
                     try {
                       const mintAccount = await connection.getParsedAccountInfo(
                         new PublicKey(mintAddr)
                       );
+
                       mintsInfo.set(mintAddr, mintAccount.value);
                     } catch (e) {
                       console.warn("Could not fetch mint info for", mintAddr);
                     }
                   }
 
-                  const mintData = mintsInfo.get(instruction.parsed.info.mint)?.data as ParsedAccountData | undefined;
-                  const parsedInfo = mintData?.parsed?.info as | MintInfo | undefined;
+                  const mintData = mintsInfo.get(instruction.parsed.info.mint)
+                    ?.data as ParsedAccountData | undefined;
+
+                  const parsedInfo = mintData?.parsed?.info as
+                    | MintInfo
+                    | undefined;
                   decimals = parsedInfo?.decimals ?? 0;
                 }
                 amount = Number(raw) / Math.pow(10, decimals || 0);
               }
-              address = instruction.parsed.info?.account || instruction.parsed.info?.destination || instruction.parsed.info?.source || "";
+              address =
+                instruction.parsed.info?.account ||
+                instruction.parsed.info?.destination ||
+                instruction.parsed.info?.source ||
+                "";
 
-              if (instruction.parsed.info?.mint && !mintsInfo.has(instruction.parsed.info.mint)) {
+              if (
+                instruction.parsed.info?.mint &&
+                !mintsInfo.has(instruction.parsed.info.mint)
+              ) {
                 try {
-                  const mintAccount = await connection.getParsedAccountInfo(new PublicKey(instruction.parsed.info.mint));
-                  mintsInfo.set(instruction.parsed.info.mint,mintAccount.value);
+                  const mintAccount = await connection.getParsedAccountInfo(
+                    new PublicKey(instruction.parsed.info.mint)
+                  );
+
+                  mintsInfo.set(
+                    instruction.parsed.info.mint,
+                    mintAccount.value
+                  );
                 } catch (e) {
                   console.warn(
                     "Could not fetch mint info for",
@@ -558,8 +557,12 @@ export function useTransactionHistory(
                   );
                 }
               }
-              if (instruction.parsed.info?.mint && mintsInfo.get(instruction.parsed.info.mint)?.data) {
-                const mintData = mintsInfo.get(instruction.parsed.info.mint)?.data as ParsedAccountData;
+              if (
+                instruction.parsed.info?.mint &&
+                mintsInfo.get(instruction.parsed.info.mint)?.data
+              ) {
+                const mintData = mintsInfo.get(instruction.parsed.info.mint)
+                  ?.data as ParsedAccountData;
                 const extensions = mintData.parsed?.info?.extensions;
 
                 if (extensions) {
@@ -571,7 +574,9 @@ export function useTransactionHistory(
                   }
                 }
               } else {
-                assetSymbol = instruction.parsed.info?.mint ? instruction.parsed.info.mint.slice(0, 6) : "SPL";
+                assetSymbol = instruction.parsed.info?.mint
+                  ? instruction.parsed.info.mint.slice(0, 6)
+                  : "SPL";
               }
               foundValidInstruction = true;
             }
@@ -579,22 +584,10 @@ export function useTransactionHistory(
             if (foundValidInstruction) break;
           }
         }
-        if (
-          assetSymbol === "SOL" &&
-          amount < 0.00000000001 &&
-          type === "Send"
-        ) {
+        if (assetSymbol === "SOL" && amount < 0.00001 && type === "Send") {
           continue;
         }
-        if (!isFeeOnly && type === "Other" && amount === 0) {
-          const hasComputeBudgetInstruction = instructions.some((inst) =>
-            inst.programId.equals(ComputeBudgetProgram.programId)
-          );
 
-          if (!hasComputeBudgetInstruction) {
-            continue;
-          }
-        }
         txList.push({
           id: sigInfo.signature,
           type,
@@ -608,30 +601,35 @@ export function useTransactionHistory(
               : "Pending",
           date: new Date(blockTimeSec * 1000).toISOString(),
           address,
-          fee: transactionFeeSOL,
-          isFeeOnly: isFeeOnly
         });
       }
 
       console.log(`Final transaction list length: ${txList.length}`);
 
-      const sortedTxList = txList.sort(
-        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-      );
-      const finalList =
-        limit !== null ? sortedTxList.slice(0, limit) : sortedTxList;
-      setTransactions(finalList);
+      setTransactions((prev) => [...prev, ...txList]);
     } catch (e) {
       console.error("Error fetching transactions:", e);
+
       setError(e instanceof Error ? e : new Error("An unknown error occurred"));
     } finally {
       setIsLoading(false);
     }
-  }, [publicKey, limit]);
+  }, [publicKey, pageSize, isLoading, hasMore, beforeSig]);
 
   useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+    if (!publicKey) {
+      setTransactions([]);
+      setIsLoading(false);
+      return;
+    }
+    setTransactions([]);
+    setBeforeSig(undefined);
+    setHasMore(true);
+    setTotal(null);
+    (async () => {
+      await fetchTransactions();
+    })();
+  }, [publicKey]);
 
-  return { transactions, isLoading, error, refetch: fetchTransactions };
+  return { transactions, isLoading, error, hasMore, fetchTransactions, total };
 }

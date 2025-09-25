@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, User, LayoutDashboard, Settings, History } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  User,
+  LayoutDashboard,
+  Settings,
+  History,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -19,14 +27,6 @@ import {
 import { useAuth } from "@/lib/AuthContext";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-const navLinks = [
-  { label: "Why DAMS?", href: "#why" },
-  { label: "Cryptos", href: "#allcryptos" },
-  { label: "How it works", href: "#howitworks" },
-  { label: "Testimonials", href: "#testimonials" },
-  { label: "FAQ", href: "#faq" },
-];
 
 const Logo = () => (
   <Link href="/" className="flex items-center gap-2">
@@ -88,31 +88,14 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 left-0 z-10 w-full transition-all duration-300",
         isScrolled
-          ? "bg-background/90 backdrop-blur-sm border-b border-border"
+          ? "bg-transparent backdrop-blur-sm border-b border-border"
           : "bg-transparent"
       )}
     >
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
         <Logo />
-
-        {/* Nav desktop */}
-        <nav className="hidden md:flex">
-          <ul className="flex items-center gap-8">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
         {/* Actions */}
         <div className="hidden md:flex items-center gap-4 z-1">
           {publicKey ? (
@@ -169,11 +152,8 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="outline" className="rounded-full" asChild>
+              <Button className="rounded-full" asChild>
                 <Link href="/login">Connect Wallet</Link>
-              </Button>
-              <Button asChild className="rounded-full">
-                <Link href="/register">Sign Up</Link>
               </Button>
             </>
           )}
@@ -193,7 +173,7 @@ export default function Header() {
 
       {/* Mobile menu */}
       {isOpen && (
-        <div className="md:hidden fixed inset-0 top-20 z-40">
+        <div className="md:hidden fixed inset-0 top-20 z-40 bg-transparent">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-black/20 backdrop-blur-sm"
@@ -201,28 +181,14 @@ export default function Header() {
           />
 
           {/* Menu Content */}
-          <div className="relative h-full bg-background border-t border-border">
+          <div className="relative h-full border-t border-border bg-transparent backdrop-blur-sm ">
             <div className="h-full overflow-y-auto px-6 py-6">
               <nav className="flex flex-col">
-                {/* Navigation Links */}
-                <div className="space-y-1 mb-8">
-                  {navLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="block text-lg font-medium text-foreground hover:text-primary transition-colors py-4 px-3 rounded-lg hover:bg-muted/50"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-
                 <div className="border-t border-border pt-6">
                   {publicKey ? (
                     <div className="space-y-4">
                       {/* User Info */}
-                      <div className="px-3 py-4 bg-muted/30 rounded-lg">
+                      <div className="px-3 py-4 rounded-lg">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-12 w-12">
                             <AvatarFallback className="bg-primary/20">
@@ -289,15 +255,6 @@ export default function Header() {
                       >
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           Connect Wallet
-                        </Link>
-                      </Button>
-                      <Button
-                        asChild
-                        className="w-full rounded-lg h-12"
-                        size="lg"
-                      >
-                        <Link href="/register" onClick={() => setIsOpen(false)}>
-                          Sign Up
                         </Link>
                       </Button>
                     </div>

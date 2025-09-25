@@ -53,7 +53,7 @@ const assetHistory: AssetHistory[] = [
   },
 ];
 
-const AccountPage = () => {
+export default function AccountPage(){
   const {
     publicKey,
     isAuthenticated,
@@ -62,13 +62,9 @@ const AccountPage = () => {
   } = useAuth();
   const router = useRouter();
 
-  const [txLimit, setTxLimit] = useState<number>(3);
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
-  const { transactions, isLoading, error } = useTransactionHistory(
-    publicKey,
-    txLimit
-  );
+  const { transactions, isLoading} = useTransactionHistory(publicKey,3);
   const [isChecking, setIsChecking] = useState<boolean>(true);
   const [showFullKey, setShowFullKey] = useState(false);
 
@@ -97,14 +93,12 @@ const AccountPage = () => {
       } else {
         setIsChecking(false);
         setIsLoadingTokens(true);
-        try{
+        try {
           const tokenAccs = await fetchTokenAccounts(publicKey);
           setTokens(tokenAccs);
-        }
-        catch (e) {
-          toast.error("Failed to load token" + e)
-        }
-        finally {
+        } catch (e) {
+          toast.error("Failed to load token" + e);
+        } finally {
           setIsLoadingTokens(false);
         }
       }
@@ -160,7 +154,12 @@ const AccountPage = () => {
                 <button
                   onClick={() => setShowFullKey((prev) => !prev)}
                   className="text-xs px-2 py-1 border rounded-md border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition"
-                  aria-pressed={showFullKey} aria-label={showFullKey ? "Hide full wallet public key" : "Show full wallet public key"}
+                  aria-pressed={showFullKey}
+                  aria-label={
+                    showFullKey
+                      ? "Hide full wallet public key"
+                      : "Show full wallet public key"
+                  }
                 >
                   {showFullKey ? "Hide" : "Show"}
                 </button>
@@ -277,7 +276,6 @@ const AccountPage = () => {
                           assetSymbol: tx.assetSymbol,
                           status: tx.status,
                           value: tx.value,
-                          fee: tx.fee
                         };
 
                         return (
@@ -339,4 +337,3 @@ const AccountPage = () => {
   );
 };
 
-export default AccountPage;

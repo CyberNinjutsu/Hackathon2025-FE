@@ -33,10 +33,8 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
-  // Lấy trạng thái xác thực từ AuthContext
   const { publicKey, logout } = useAuth();
 
-  // Hiệu ứng thay đổi nền header khi cuộn trang
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
@@ -85,9 +83,9 @@ export default function Header() {
   };
 
   return (
-    <header
+     <header
       className={cn(
-        "fixed top-0 left-0 z-50 w-full transition-all duration-300",
+        "fixed top-0 left-0 z-10 w-full transition-all duration-300",
         isScrolled
           ? "bg-background/90 backdrop-blur-sm border-b border-border"
           : "bg-transparent"
@@ -99,7 +97,6 @@ export default function Header() {
         {/* Phần hành động (User Actions) cho Desktop */}
         <div className="hidden md:flex items-center gap-4 z-1">
           {publicKey ? (
-            // Khi người dùng đã đăng nhập
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -146,14 +143,11 @@ export default function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            // Khi người dùng chưa đăng nhập
             <>
-              <Button variant="outline" className="rounded-full" asChild>
+              <Button className="rounded-full" asChild>
                 <Link href="/login">Connect Wallet</Link>
               </Button>
-              <Button asChild className="rounded-full">
-                <Link href="/register">Sign Up</Link>
-              </Button>
+
             </>
           )}
         </div>
@@ -182,11 +176,9 @@ export default function Header() {
           {/* Nội dung Menu */}
           <div className="relative h-full bg-background border-t border-border">
             <div className="h-full overflow-y-auto px-6 py-8">
-              {/* PHẦN NAV LINKS ĐÃ BỊ XÓA */}
               <nav className="flex flex-col">
                 <div>
                   {publicKey ? (
-                    // Khi người dùng đã đăng nhập (mobile)
                     <div className="space-y-4">
                       <div className="px-3 py-4 bg-muted/30 rounded-lg">
                         <div className="flex items-center gap-3">
@@ -242,16 +234,10 @@ export default function Header() {
                       </div>
                     </div>
                   ) : (
-                    // Khi người dùng chưa đăng nhập (mobile)
                     <div className="space-y-4">
-                      <Button asChild variant="outline" size="lg" className="w-full rounded-lg h-12">
+                      <Button asChild  size="lg" className="w-full rounded-lg h-12">
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           Connect Wallet
-                        </Link>
-                      </Button>
-                      <Button asChild className="w-full rounded-lg h-12" size="lg">
-                        <Link href="/register" onClick={() => setIsOpen(false)}>
-                          Sign Up
                         </Link>
                       </Button>
                     </div>

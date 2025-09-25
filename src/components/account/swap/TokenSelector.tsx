@@ -31,7 +31,6 @@ const TokenSelector: React.FC<TokenSelectorProps> = ({
             symbol={selectedToken.symbol}
             size={28}
           />
-          {/* Key Change: Added this span to display the token's symbol */}
           <span className="text-xl font-bold">{selectedToken.symbol}</span>
         </>
       ) : (
