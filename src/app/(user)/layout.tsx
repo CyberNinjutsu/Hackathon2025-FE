@@ -41,7 +41,7 @@ export default function UserLayout({
   return (
     <html lang="en" className="dark antialiased" suppressHydrationWarning>
       <body
-        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container`}
+        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container select-none`}
       >
         <BackgroundGlow />
         <WalletContextProvider>
@@ -53,7 +53,7 @@ export default function UserLayout({
               <Analytics />
             </main>
             <Footer />
-            <Toaster position="top-right" richColors offset={100}/>
+            <Toaster position="top-right" richColors offset={100} />
             <AIInvestmentChatbot />
           </AuthProvider>
         </WalletContextProvider>
