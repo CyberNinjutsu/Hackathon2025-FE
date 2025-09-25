@@ -45,7 +45,7 @@ const features = [
   },
   {
     title: "Optimized Fees",
-    description: "Benefit from some of the lowest fees on the market.",
+    description: "Benefit from some of the lowest fees on the market. (sử)a",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -67,7 +67,7 @@ const features = [
     ),
   },
   {
-    title: "Premium Interface",
+    title: "Friendly, Easy-to-Use Interface",
     description:
       "An elegant, intuitive design that's easy to use, even for beginners.",
     icon: (

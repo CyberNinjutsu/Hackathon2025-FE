@@ -36,6 +36,11 @@ interface Transaction {
   status: "Completed" | "Pending" | "Failed";
   date: string;
   address?: string;
+  secondaryToken?: {
+    amount: number;
+    symbol: string;
+    mint: string;
+  };
 }
 
 interface AssetHistory {
@@ -111,7 +116,10 @@ interface ParsedTransaction {
     };
   };
 }
-
+interface TokenRatio {
+  minValue: number;
+  ratio: number;
+}
 
 
 export type TransactionTypeName =  | "Send"  | "Receive"  | "Mint"  | "Swap"  | "Other";
@@ -128,5 +136,5 @@ export type {
   ParsedInstruction,
   MintInfo,
   TokenMetadataExtension,
-  ParsedTransaction
+  ParsedTransaction,TokenRatio
 };

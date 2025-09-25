@@ -236,7 +236,7 @@ export default function AIInvestmentChatbot({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.3 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className={`fixed bottom-6 right-6 w-96 h-[600px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
+            className={`fixed bottom-6 right-6 w-96 h-[500px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-teal-500 to-cyan-500 p-4 text-white">
@@ -274,7 +274,7 @@ export default function AIInvestmentChatbot({
             </div>
 
             {/* Messages */}
-            <ScrollArea className="flex-1 h-[440px] p-4 bg-slate-900 [&>div>div]:!pr-0">
+            <ScrollArea className="flex-1 h-[340px] p-4 bg-slate-900 [&>div>div]:!pr-0">
               <style jsx>{`
                 .scrollbar-thin::-webkit-scrollbar {
                   width: 4px;

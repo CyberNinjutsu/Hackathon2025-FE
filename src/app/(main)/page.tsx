@@ -1,3 +1,4 @@
+import { GoldChart } from "@/components/GoldChart";
 import AllCryptos from "@/components/Home/AllCryptos";
 import CTA from "@/components/Home/CTA";
 import Faq from "@/components/Home/Faq";
@@ -11,6 +12,7 @@ export default function TokenExchangePage() {
   return (
     <>
       <HeroSection />
+      {/* <GoldChart /> */}
       <Intro />
       <Features />
       <AllCryptos />

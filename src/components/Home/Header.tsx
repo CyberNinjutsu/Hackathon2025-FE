@@ -26,6 +26,7 @@ const navLinks = [
   { label: "How it works", href: "#howitworks" },
   { label: "Testimonials", href: "#testimonials" },
   { label: "FAQ", href: "#faq" },
+  { label: "Tutorial", href: "/tutorial" },
 ];
 
 const Logo = () => (

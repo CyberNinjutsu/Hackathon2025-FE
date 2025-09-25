@@ -83,9 +83,12 @@ export default function Header() {
   };
 
   return (
-    <header
+     <header
       className={cn(
-        "absolute top-0 left-0 z-40 w-full transition-all duration-300 bg-background/90 backdrop-blur-sm border-b border-border"
+        "fixed top-0 left-0 z-10 w-full transition-all duration-300",
+        isScrolled
+          ? "bg-background/90 backdrop-blur-sm border-b border-border"
+          : "bg-transparent"
       )}
     >
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
