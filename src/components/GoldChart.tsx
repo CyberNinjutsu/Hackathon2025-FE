@@ -52,11 +52,11 @@ const formatYAxisValue = (value: number) => {
   return value.toLocaleString('en-US');
 };
 const formatCurrencyTooltip = (value: number) => {
-    return new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "VND",
-        minimumFractionDigits: 0,
-    }).format(value);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "VND",
+    minimumFractionDigits: 0,
+  }).format(value);
 };
 interface TooltipPayload {
   value: number;
@@ -99,11 +99,11 @@ export function GoldChart() {
   const productOptions = useMemo(() => {
     if (!data?.prices) return [];
     return data.prices.map(p => {
-        const uniqueValue = `${p.branch} - ${p.type}`;
-        return { value: uniqueValue, label: uniqueValue };
+      const uniqueValue = `${p.branch} - ${p.type}`;
+      return { value: uniqueValue, label: uniqueValue };
     });
   }, [data]);
-  
+
   useEffect(() => {
     if (!selectedProduct && productOptions.length > 0) {
       const defaultOption = productOptions.find(opt => opt.value.includes("Hồ Chí Minh - Vàng SJC 1L"));
@@ -120,15 +120,15 @@ export function GoldChart() {
 
   const chartData = useMemo(() => {
     if (!data || !selectedProduct) return [];
-    
+
     const product = data.prices.find(p => `${p.branch} - ${p.type}` === selectedProduct);
     if (!product) return [];
 
     const [timeStr] = data.lastUpdated.split(' ');
 
     return [
-        { timeLabel: `00:00`, buy: product.buy + 80000, sell: product.sell + 50000 },
-        { timeLabel: timeStr, buy: product.buy, sell: product.sell }
+      { timeLabel: `00:00`, buy: product.buy + 80000, sell: product.sell + 50000 },
+      { timeLabel: timeStr, buy: product.buy, sell: product.sell }
     ];
   }, [data, selectedProduct]);
 
@@ -136,81 +136,81 @@ export function GoldChart() {
   const lastUpdatedDate = data ? data.lastUpdated.split(' ')[1] : '';
 
   return (
-    <Card className="w-full shadow-lg">
+    <Card className="max-w-6xlm mx-auto shadow-lg">
       <CardHeader>
         <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-4">
-            <div>
-                <CardTitle>Daily Gold Price Fluctuation</CardTitle>
-                <CardDescription>
-                 Last updated at: {isLoading ? 'Updating...' : lastUpdatedTime}
-                </CardDescription>
-                
-                <div className="flex items-center gap-4 mt-4">
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#10b981]" />
-                        <span className="text-sm text-muted-foreground">Buy Price</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
-                        <span className="text-sm text-muted-foreground">Sell Price</span>
-                    </div>
-                </div>
+          <div>
+            <CardTitle>Daily Gold Price Fluctuation</CardTitle>
+            <CardDescription>
+              Last updated at: {isLoading ? 'Updating...' : lastUpdatedTime}
+            </CardDescription>
+
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#10b981]" />
+                <span className="text-sm text-muted-foreground">Buy Price</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
+                <span className="text-sm text-muted-foreground">Sell Price</span>
+              </div>
             </div>
-            
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Select onValueChange={setSelectedProduct} value={selectedProduct || ''}>
-                  <SelectTrigger className="w-full sm:w-[350px]">
-                      <SelectValue placeholder="Select a product..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                  {productOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                      </SelectItem>
-                  ))}
-                  </SelectContent>
-              </Select>
-              {/* The "Refresh" button has been removed from here */}
-            </div>
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Select onValueChange={setSelectedProduct} value={selectedProduct || ''}>
+              <SelectTrigger className="w-full sm:w-[350px]">
+                <SelectValue placeholder="Select a product..." />
+              </SelectTrigger>
+              <SelectContent>
+                {productOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {/* The "Refresh" button has been removed from here */}
+          </div>
         </div>
       </CardHeader>
       <CardContent>
         {/* --- CHANGED: Removed the Skeleton loader for a simpler text message --- */}
         {isLoading && chartData.length === 0 ? (
-            <div className="w-full h-[400px] flex items-center justify-center text-muted-foreground">
-                Loading chart data...
-            </div>
+          <div className="w-full h-[400px] flex items-center justify-center text-muted-foreground">
+            Loading chart data...
+          </div>
         ) : error ? (
-            <div className="text-center py-10 text-red-500 h-[400px] flex items-center justify-center">
-                Failed to load chart data. Please try again.
-            </div>
+          <div className="text-center py-10 text-red-500 h-[400px] flex items-center justify-center">
+            Failed to load chart data. Please try again.
+          </div>
         ) : (
           <div className="w-full h-[400px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.2} />
                 <XAxis dataKey="timeLabel" tick={{ fontSize: 12 }} />
-                <YAxis 
+                <YAxis
                   tickFormatter={formatYAxisValue}
                   tick={{ fontSize: 12 }}
                   domain={['dataMin - 200000', 'dataMax + 100000']}
                   width={80}
                 />
                 <Tooltip content={<CustomTooltip />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="buy" 
-                  name="Buy Price" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="buy"
+                  name="Buy Price"
+                  stroke="#10b981"
                   strokeWidth={2}
                   dot={{ r: 5 }}
                   activeDot={{ r: 8 }}
-                /> 
-                <Line 
-                  type="monotone" 
-                  dataKey="sell" 
-                  name="Sell Price" 
-                  stroke="#ef4444" 
+                />
+                <Line
+                  type="monotone"
+                  dataKey="sell"
+                  name="Sell Price"
+                  stroke="#ef4444"
                   strokeWidth={2}
                   dot={{ r: 5 }}
                   activeDot={{ r: 8 }}
