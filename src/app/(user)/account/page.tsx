@@ -3,6 +3,8 @@
 import AssetChart from "@/components/account/AssetChart";
 import AssetItem from "@/components/account/AssetItem";
 import TransactionItem from "@/components/account/TransactionItem";
+import SimpleTransactionAnalysis from "@/components/account/SimpleTransactionAnalysis";
+
 import BackgroundGlow from "@/components/Glow/BackgroundGlow";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/lib/AuthContext";
@@ -53,18 +55,13 @@ const assetHistory: AssetHistory[] = [
   },
 ];
 
-export default function AccountPage(){
-  const {
-    publicKey,
-    isAuthenticated,
-    isLoading: isAuthLoading,
-    logout,
-  } = useAuth();
+export default function AccountPage() {
+  const { publicKey, isAuthenticated, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
   const [tokens, setTokens] = useState<TokenAccount[]>([]);
   const [isLoadingTokens, setIsLoadingTokens] = useState(false);
-  const { transactions, isLoading} = useTransactionHistory(publicKey,3);
+  const { transactions, isLoading } = useTransactionHistory(publicKey, 3);
   const [isChecking, setIsChecking] = useState<boolean>(true);
   const [showFullKey, setShowFullKey] = useState(false);
 
@@ -166,6 +163,11 @@ export default function AccountPage(){
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Transaction Analysis Section - Full Width */}
+        <div className="max-w-6xl mx-auto mt-4">
+          <SimpleTransactionAnalysis userPublicKey={publicKey} />
         </div>
 
         {/* Dashboard Grid */}
@@ -335,5 +337,4 @@ export default function AccountPage(){
       </div>
     </div>
   );
-};
-
+}

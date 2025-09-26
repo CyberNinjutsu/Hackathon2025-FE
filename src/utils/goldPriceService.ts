@@ -1,5 +1,8 @@
 export interface GoldPriceData {
-  [key: string]: any;
+  price?: number;
+  change?: number;
+  timestamp?: string;
+  [key: string]: unknown;
 }
 
 export class GoldPriceService {

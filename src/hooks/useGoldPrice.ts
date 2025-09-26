@@ -16,7 +16,13 @@ interface UseGoldPriceReturn {
   error: string | null;
   lastUpdated: Date | null;
   refresh: () => Promise<void>;
-  analyzeWithAI: (question?: string) => Promise<any>;
+  analyzeWithAI: (question?: string) => Promise<{
+    success: boolean;
+    analysis?: string;
+    goldData?: GoldPriceData;
+    timestamp?: string;
+    error?: string;
+  }>;
 }
 
 export function useGoldPrice(

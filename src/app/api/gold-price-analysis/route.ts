@@ -7,7 +7,10 @@ const genAI = new GoogleGenerativeAI(
 );
 
 interface GoldPriceData {
-  [key: string]: any;
+  price?: number;
+  change?: number;
+  timestamp?: string;
+  [key: string]: unknown;
 }
 
 // Function to fetch gold price data
@@ -47,10 +50,10 @@ function formatGoldDataForAI(goldData: GoldPriceData): string {
   )}\n\n`;
 
   // Format the data based on the structure
-  if (typeof goldData === "object") {
+  if (typeof goldData === "object" && goldData !== null) {
     formattedData += JSON.stringify(goldData, null, 2);
   } else {
-    formattedData += goldData.toString();
+    formattedData += String(goldData);
   }
 
   return formattedData;
@@ -71,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     // Fetch gold price data
     const goldData = await fetchGoldPriceData();
-    const formattedGoldData = formatGoldDataForAI(goldData);
+    const formattedGoldData = formatGoldDataForAI(goldData || {});
 
     // Get the generative model
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });

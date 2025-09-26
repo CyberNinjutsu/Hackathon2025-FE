@@ -118,7 +118,9 @@ export default function GoldPriceWidget({
                 {key.replace(/_/g, " ")}:
               </span>
               <span className="text-sm text-gray-900 font-semibold">
-                {typeof value === "object" ? JSON.stringify(value) : value}
+                {typeof value === "object"
+                  ? JSON.stringify(value)
+                  : String(value || "")}
               </span>
             </div>
           ))
