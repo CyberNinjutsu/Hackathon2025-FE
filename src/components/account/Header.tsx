@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, LogOut, User, LayoutDashboard, Settings, History } from "lucide-react";
+import {
+  Menu,
+  X,
+  LogOut,
+  User,
+  LayoutDashboard,
+  Settings,
+  History,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -85,10 +93,8 @@ export default function Header() {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 z-10 w-full transition-all duration-300",
-        isScrolled
-          ? "bg-transparent border-b border-border"
-          : "bg-transparent"
+        "fixed top-0 left-0 z-20 w-full transition-all duration-300",
+        isScrolled ? "bg-transparent border-b border-border" : "bg-transparent"
       )}
     >
       <div className="container mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
@@ -147,7 +153,6 @@ export default function Header() {
               <Button className="rounded-full" asChild>
                 <Link href="/login">Connect Wallet</Link>
               </Button>
-
             </>
           )}
         </div>
@@ -235,7 +240,11 @@ export default function Header() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <Button asChild size="lg" className="w-full rounded-lg h-12">
+                      <Button
+                        asChild
+                        size="lg"
+                        className="w-full rounded-lg h-12"
+                      >
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           Connect Wallet
                         </Link>
