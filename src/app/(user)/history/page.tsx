@@ -24,6 +24,7 @@ import {
   Filter,
   Search,
   ArrowRightLeft,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import TransactionIcon from "@/components/TransactionIcon";
@@ -75,15 +76,15 @@ function TransactionAmount({ tx }: { tx: Transaction }) {
         tx.type === "Send"
           ? "text-red-400"
           : tx.type === "Receive" || tx.type === "Mint"
-          ? "text-green-400"
-          : "text-white"
+            ? "text-green-400"
+            : "text-white"
       }
     >
       {tx.type === "Send"
         ? "-"
         : tx.type === "Receive" || tx.type === "Mint"
-        ? "+"
-        : ""}
+          ? "+"
+          : ""}
       {formatTokenAmount(tx.amount, 0)} {tx.assetSymbol}
     </span>
   );
@@ -117,15 +118,15 @@ function MobileTransactionAmount({ tx }: { tx: Transaction }) {
           tx.type === "Send"
             ? "text-red-400"
             : tx.type === "Receive" || tx.type === "Mint"
-            ? "text-green-400"
-            : "text-white"
+              ? "text-green-400"
+              : "text-white"
         }
       >
         {tx.type === "Send"
           ? "-"
           : tx.type === "Receive" || tx.type === "Mint"
-          ? "+"
-          : ""}
+            ? "+"
+            : ""}
         {formatTokenAmount(tx.amount, 0)} {tx.assetSymbol}
       </span>
     </div>
@@ -134,10 +135,10 @@ function MobileTransactionAmount({ tx }: { tx: Transaction }) {
 
 
 function TransactionValue({ tx }: { tx: Transaction }) {
-    if (tx.type === "Swap") {
-      return <span className="text-gray-400">—</span>;
-    }  
-    return <span className="font-bold">${tx.value.toLocaleString("en-US")}</span>;
+  if (tx.type === "Swap") {
+    return <span className="text-gray-400">—</span>;
+  }
+  return <span className="font-bold">${tx.value.toLocaleString("en-US")}</span>;
 }
 
 
@@ -150,7 +151,7 @@ export default function HistoryPage() {
     isLoading: isAuthLoading,
   } = useAuth();
 
-  const { transactions, isLoading, error, hasMore, fetchTransactions, total } =
+  const { transactions, isLoading, error, hasMore, fetchTransactions } =
     useTransactionHistory(userPublicKey);
 
   useEffect(() => {
@@ -173,7 +174,9 @@ export default function HistoryPage() {
   if (isAuthLoading || (isLoading && transactions.length === 0)) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white">
-        {isAuthLoading ? "Checking authentication..." : "Loading history..."}
+        {isAuthLoading && <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-3xl">
+          <Loader2 className="w-8 h-8 text-white animate-spin" />
+        </div>}
       </div>
     );
   }
@@ -294,11 +297,11 @@ export default function HistoryPage() {
                   <TableCell className="font-semibold">
                     <TransactionAmount tx={tx} />
                   </TableCell>
-                   <TableCell className="hidden md:table-cell text-green-400">
+                  <TableCell className="hidden md:table-cell text-green-400">
                     <TransactionValue tx={tx} />
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    <Badge variant="outline" className={ tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10"}>
+                    <Badge variant="outline" className={tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10"}>
                       {tx.status}
                     </Badge>
                   </TableCell>
@@ -332,12 +335,12 @@ export default function HistoryPage() {
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                    {/* CHANGE START: Sử dụng component TransactionValue mới */}
+                  {/* CHANGE START: Sử dụng component TransactionValue mới */}
                   <div className="text-green-400 text-lg">
                     <TransactionValue tx={tx} />
                   </div>
                   {/* CHANGE END */}
-                  <Badge variant="outline" className={ tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10" }>
+                  <Badge variant="outline" className={tx.status === "Completed" ? "text-green-400 border-green-400 bg-green-400/10" : tx.status === "Pending" ? "text-yellow-400 border-yellow-400 bg-yellow-400/10" : "text-red-400 border-red-400 bg-red-400/10"}>
                     {tx.status}
                   </Badge>
                 </div>
@@ -351,9 +354,7 @@ export default function HistoryPage() {
           <div className="flex items-center justify-between mt-6 px-4 sm:px-0">
             <div className="text-sm text-gray-400">
               Showing <span className="font-medium text-white">{totalLoaded}</span>
-              {total !== null && (
-                <> of <span className="font-medium text-white">{total}</span> </>
-              )} transactions
+              transactions
             </div>
             {hasMore ? (
               <Button

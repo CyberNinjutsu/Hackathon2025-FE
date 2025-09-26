@@ -47,12 +47,8 @@ function isSetupTransactionByLogs(logs: string[] | undefined): boolean {
     "Instruction: Burn",
   ];
 
-  const hasSetupLog = logs.some((log) =>
-    setupKeywords.some((keyword) => log.includes(keyword))
-  );
-  const hasMeaningfulLog = logs.some((log) =>
-    meaningfulKeywords.some((keyword) => log.includes(keyword))
-  );
+  const hasSetupLog = logs.some((log) => setupKeywords.some((keyword) => log.includes(keyword)));
+  const hasMeaningfulLog = logs.some((log) => meaningfulKeywords.some((keyword) => log.includes(keyword)));
 
   return hasSetupLog && !hasMeaningfulLog;
 }
@@ -67,10 +63,7 @@ function detectTransactionType(
     return "Other";
   }
 
-  if (
-    tokensAccountStr.has(info.destination) ||
-    tokensAccountStr.has(info.source)
-  ) {
+  if (tokensAccountStr.has(info.destination) || tokensAccountStr.has(info.source)) {
     if (type === "transfer" && info.lamports) {
       if (tokensAccountStr.has(info.destination)) return "Receive";
       if (tokensAccountStr.has(info.source)) return "Send";
@@ -86,16 +79,14 @@ function detectTransactionType(
     return "Mint";
   }
 
-  if (
-    swapPrograms.includes(instruction.programId.toBase58()) ||
-    type === "Transfer"
-  ) {
+  if (swapPrograms.includes(instruction.programId.toBase58()) || type === "Transfer") {
     return "Swap";
   }
 
   return "Other";
 }
-function extractTokenAmountsFromBalanceChanges(
+
+function extractTokenAmountFromBalanceChanges(
   tx: ParsedTransaction,
   tokensAccountStr: Map<string, null>,
   walletPubKey: PublicKey,
@@ -106,25 +97,24 @@ function extractTokenAmountsFromBalanceChanges(
   address: string;
   type: Transaction["type"];
   mint: string;
-}[] {
+} | null {
   const preTokenBalances = tx.meta?.preTokenBalances || [];
   const postTokenBalances = tx.meta?.postTokenBalances || [];
 
+  // Create maps for easier lookup
   const preBalanceMap = new Map<string, TokenBalance>();
+  const postBalanceMap = new Map<string, TokenBalance>();
+
   preTokenBalances.forEach((balance: TokenBalance) => {
     const key = `${balance.accountIndex}-${balance.mint}`;
     preBalanceMap.set(key, balance);
   });
 
-  const transfers: {
-    amount: number;
-    symbol: string;
-    address: string;
-    type: Transaction["type"];
-    mint: string;
-  }[] = [];
+  postTokenBalances.forEach((balance: TokenBalance) => {
+    const key = `${balance.accountIndex}-${balance.mint}`;
+    postBalanceMap.set(key, balance);
+  });
 
-  // detect mint transaction
   const isMintTransaction = instructions.some(
     (inst) =>
       "parsed" in inst &&
@@ -136,37 +126,66 @@ function extractTokenAmountsFromBalanceChanges(
     const key = `${postBalance.accountIndex}-${postBalance.mint}`;
     const preBalance = preBalanceMap.get(key);
 
-    const accountKeys = tx.transaction.message.accountKeys;
-    const accountAddress = accountKeys[postBalance.accountIndex];
-    const decimals = postBalance.uiTokenAmount.decimals;
-    const postAmount = parseFloat(postBalance.uiTokenAmount.amount);
-    const preAmount = preBalance
-      ? parseFloat(preBalance.uiTokenAmount.amount)
-      : 0;
-    const diff = postAmount - preAmount;
+    if (
+      !preBalance &&
+      postBalance.uiTokenAmount.uiAmount &&
+      postBalance.uiTokenAmount.uiAmount > 0
+    ) {
+      const accountKeys = tx.transaction.message.accountKeys;
+      const accountAddress = accountKeys[postBalance.accountIndex];
 
-    if (diff === 0) continue;
-
-    const transferAmount = Math.abs(diff) / Math.pow(10, decimals);
-
-    let type: Transaction["type"] = "Other";
-    if (diff > 0) {
-      type = isMintTransaction ? "Mint" : "Receive";
-    } else {
-      type = "Send";
+      return {
+        amount: postBalance.uiTokenAmount.uiAmount,
+        symbol: postBalance.mint.slice(0, 6),
+        address: accountAddress || "",
+        type: isMintTransaction ? "Mint" : "Receive",
+        mint: postBalance.mint,
+      };
     }
-
-    transfers.push({
-      amount: transferAmount,
-      symbol: postBalance.mint.slice(0, 6),
-      address: accountAddress || "",
-      type,
-      mint: postBalance.mint,
-    });
   }
 
-  return transfers;
+  for (const postBalance of postTokenBalances) {
+    const key = `${postBalance.accountIndex}-${postBalance.mint}`;
+    const preBalance = preBalanceMap.get(key);
+
+    if (!preBalance) continue;
+
+    const preAmount = parseFloat(preBalance.uiTokenAmount.amount);
+    const postAmount = parseFloat(postBalance.uiTokenAmount.amount);
+    const difference = postAmount - preAmount;
+
+    if (difference === 0) continue;
+
+    const accountKeys = tx.transaction.message.accountKeys;
+    const accountAddress = accountKeys[postBalance.accountIndex];
+
+    const transferAmount =
+      Math.abs(difference) / Math.pow(10, postBalance.uiTokenAmount.decimals);
+
+    if (difference > 0) {
+      const transactionType = isMintTransaction ? "Mint" : "Receive";
+
+      return {
+        amount: transferAmount,
+        symbol: postBalance.mint.slice(0, 6),
+        address: accountAddress || "",
+        type: transactionType,
+        mint: postBalance.mint,
+      };
+    } else if (difference < 0) {
+      return {
+        amount: transferAmount,
+        symbol: postBalance.mint.slice(0, 6),
+        address: accountAddress || "",
+        type: "Send",
+        mint: postBalance.mint,
+      };
+    }
+  }
+
+  return null;
 }
+
 export function useTransactionHistory(
   publicKey: string | null,
   pageSize: number | undefined = 10
@@ -176,7 +195,7 @@ export function useTransactionHistory(
   const [error, setError] = useState<Error | null>(null);
   const [beforeSig, setBeforeSig] = useState<string | undefined>(undefined);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [total, setTotal] = useState<number | null>(null);
+
   const fetchTransactions = useCallback(async () => {
     if (!publicKey || isLoading || !hasMore) {
       setTransactions([]);
@@ -197,35 +216,7 @@ export function useTransactionHistory(
       const walletPubKey = new PublicKey(publicKey);
 
       // const fetchLimit = limit === null ? 10 : limit;
-      if (beforeSig === undefined) {
-        try {
-          let allSignaturesCount = 0;
-          let lastSignature: string | undefined = undefined;
-          let keepFetching = true;
 
-          while (keepFetching) {
-            const signaturesBatch = await connection.getSignaturesForAddress(
-              walletPubKey,
-              {
-                limit: 1000,
-                before: lastSignature,
-              }
-            );
-
-            allSignaturesCount += signaturesBatch.length;
-
-            if (signaturesBatch.length < 1000) {
-              keepFetching = false;
-            } else {
-              lastSignature =
-                signaturesBatch[signaturesBatch.length - 1].signature;
-            }
-          }
-          setTotal(allSignaturesCount);
-        } catch (e) {
-          console.error("Error fetching total transaction count:", e);
-        }
-      }
       const [token2022Accounts] = await Promise.all([
         connection.getParsedTokenAccountsByOwner(walletPubKey, {
           programId: new PublicKey(TOKEN_2022_PROGRAM_ADDRESS),
@@ -247,7 +238,6 @@ export function useTransactionHistory(
         options
       );
 
-      console.log("Sign:", signatures);
       if (signatures.length < pageSize) {
         setHasMore(false);
       }
@@ -263,18 +253,14 @@ export function useTransactionHistory(
 
       for (const sigInfo of signatures) {
         if (txList.length >= pageSize) break;
-        const tx = (await connection.getParsedTransaction(sigInfo.signature, {
-          maxSupportedTransactionVersion: 0,
-        })) as ParsedTransaction | null;
+        const tx = (await connection.getParsedTransaction(sigInfo.signature, { maxSupportedTransactionVersion: 0, })) as ParsedTransaction | null;
 
         await new Promise((res) => setTimeout(res, 200));
 
         if (!tx || !tx.blockTime) continue;
 
         if (isSetupTransactionByLogs(tx.meta?.logMessages)) {
-          console.log(
-            `Skipping setup transaction by logs: ${sigInfo.signature}`
-          );
+          console.log(`Skipping setup transaction by logs: ${sigInfo.signature}`);
           continue;
         }
 
@@ -299,74 +285,51 @@ export function useTransactionHistory(
           continue;
         }
 
-        const inner =
-          tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
-
-        let foundValidInstruction = false;
+        const inner = tx.meta?.innerInstructions?.flatMap((i) => i.instructions) ?? [];
         const instructions = [...tx.transaction.message.instructions, ...inner];
-        console.log("Int: ", instructions);
-        const tokenBalanceChanges = extractTokenAmountsFromBalanceChanges(
-          tx,
-          tokensAccountAddr,
-          walletPubKey,
-          instructions
-        );
-        if (tokenBalanceChanges.length > 0) {
-          for (const change of tokenBalanceChanges) {
-            type = change.type;
-            amount = change.amount;
-            address = change.address;
-            assetSymbol = change.symbol;
+        let foundValidInstruction = false;
 
-            const mint = change.mint;
-            if (mint && !mintsInfo.has(mint)) {
-              try {
-                const mintAccount = await connection.getParsedAccountInfo(
-                  new PublicKey(mint)
-                );
-                mintsInfo.set(mint, mintAccount.value);
-              } catch (e) {
-                console.warn("Could not fetch mint info for", mint);
-              }
+        const tokenBalanceChange = extractTokenAmountFromBalanceChanges(tx, tokensAccountAddr, walletPubKey, instructions);
+
+        if (tokenBalanceChange) {
+          type = tokenBalanceChange.type;
+          amount = tokenBalanceChange.amount;
+          address = tokenBalanceChange.address;
+          assetSymbol = tokenBalanceChange.symbol;
+          foundValidInstruction = true;
+
+          const mint = tokenBalanceChange.mint;
+
+          if (mint && !mintsInfo.has(mint)) {
+            try {
+              const mintAccount = await connection.getParsedAccountInfo(new PublicKey(mint));
+
+              mintsInfo.set(mint, mintAccount.value);
+
+            } catch (e) {
+              console.warn("Could not fetch mint info for", mint);
             }
+          }
 
-            if (mint && mintsInfo.get(mint)?.data) {
-              const mintData = mintsInfo.get(mint)?.data as ParsedAccountData;
-              const parsedInfo = mintData.parsed?.info as MintInfo;
-              const extensions = parsedInfo?.extensions;
-              if (extensions) {
-                for (const ext of extensions) {
-                  if (ext.extension === "tokenMetadata") {
-                    assetSymbol = ext.state.symbol || assetSymbol;
-                    break;
-                  }
+          if (mint && mintsInfo.get(mint)?.data) {
+            const mintData = mintsInfo.get(mint)?.data as ParsedAccountData;
+
+            const parsedInfo = mintData.parsed?.info as MintInfo;
+
+            const extensions = parsedInfo?.extensions;
+
+            if (extensions) {
+              for (const ext of extensions) {
+                if (ext.extension === "tokenMetadata") {
+                  assetSymbol = ext.state.symbol || assetSymbol;
+                  break;
                 }
               }
             }
-
-            txList.push({
-              id: sigInfo.signature,
-              type,
-              assetSymbol: assetSymbol || "N/A",
-              amount,
-              value: 0,
-              status:
-                sigInfo.confirmationStatus === "confirmed" ||
-                sigInfo.confirmationStatus === "finalized"
-                  ? "Completed"
-                  : "Pending",
-              date: new Date(blockTimeSec * 1000).toISOString(),
-              address,
-            });
           }
-
-          continue;
         }
-
         if (!foundValidInstruction) {
-          const walletIndex = tx.transaction.message.accountKeys.findIndex(
-            (key) => key === walletPubKey.toBase58()
-          );
+          const walletIndex = tx.transaction.message.accountKeys.findIndex((key) => key === walletPubKey.toBase58());
 
           if (walletIndex !== -1 && tx.meta) {
             const preBalance = tx.meta.preBalances[walletIndex];
@@ -375,13 +338,13 @@ export function useTransactionHistory(
 
             if (Math.abs(solChange) > 5) {
               if (solChange > 0) {
+
                 amount = solChange / LAMPORTS_PER_SOL;
                 assetSymbol = "SOL";
                 type = "Receive";
                 foundValidInstruction = true;
               } else if (solChange < 0) {
-                const amountSentLamports =
-                  Math.abs(solChange) - transactionFeeLamports;
+                const amountSentLamports = Math.abs(solChange) - transactionFeeLamports;
 
                 if (amountSentLamports > 5) {
                   amount = amountSentLamports / LAMPORTS_PER_SOL;
@@ -393,82 +356,61 @@ export function useTransactionHistory(
             }
           }
         }
+        if (!foundValidInstruction) {
+          let microLamportsPerCu = 0;
+          for (const inst of instructions as ParsedInstruction[]) {
+            if (
+              inst.programId.equals(ComputeBudgetProgram.programId) &&
+              inst.parsed?.type === "setComputeUnitPrice"
+            ) {
+              microLamportsPerCu = inst.parsed.info.microLamports;
+              break;
+            }
+          }
 
+
+        }
         if (!foundValidInstruction) {
           for (const instruction of instructions as ParsedInstruction[]) {
             if (!("parsed" in instruction)) continue;
-            if (
-              instruction.parsed?.info?.destination === walletPubKey.toBase58()
-            ) {
+            if (instruction.parsed?.info?.destination === walletPubKey.toBase58()) {
               type = "Other";
               assetSymbol = "SOL";
               address = instruction.parsed.info.account;
             }
-            const detectedType = detectTransactionType(
-              instruction,
-              tokensAccountAddr
-            );
+            const detectedType = detectTransactionType(instruction, tokensAccountAddr);
 
             if (detectedType !== "Other") {
               type = detectedType;
               foundValidInstruction = true;
             }
 
-            if (
-              instruction.parsed.type === "transfer" &&
-              instruction.parsed.info?.lamports
-            ) {
+            if (instruction.parsed.type === "transfer" && instruction.parsed.info?.lamports) {
+
               amount = instruction.parsed.info.lamports / LAMPORTS_PER_SOL;
               assetSymbol = "SOL";
-              address =
-                instruction.parsed.info.destination ||
-                instruction.parsed.info.source ||
-                "";
+              address = instruction.parsed.info.destination || instruction.parsed.info.source || "";
               foundValidInstruction = true;
             }
 
             if (
-              (instruction.parsed.type === "transferChecked" ||
-                instruction.parsed.type === "transfer") &&
-              instruction.parsed.info?.tokenAmount
-            ) {
+              (instruction.parsed.type === "transferChecked" || instruction.parsed.type === "transfer") && instruction.parsed.info?.tokenAmount) {
               const t = instruction.parsed.info.tokenAmount;
-              amount =
-                typeof t.uiAmount === "number"
-                  ? t.uiAmount
-                  : Number(t.amount) / Math.pow(10, t.decimals || 0);
-              address =
-                instruction.parsed.info.destination ||
-                instruction.parsed.info.source ||
-                "";
+              amount = typeof t.uiAmount === "number" ? t.uiAmount : Number(t.amount) / Math.pow(10, t.decimals || 0);
+              address = instruction.parsed.info.destination || instruction.parsed.info.source || "";
 
-              if (
-                instruction.parsed.info.mint &&
-                !mintsInfo.has(instruction.parsed.info.mint)
-              ) {
+              if (instruction.parsed.info.mint && !mintsInfo.has(instruction.parsed.info.mint)) {
                 try {
-                  const mintAccount = await connection.getParsedAccountInfo(
-                    new PublicKey(instruction.parsed.info.mint)
-                  );
+                  const mintAccount = await connection.getParsedAccountInfo(new PublicKey(instruction.parsed.info.mint));
 
-                  mintsInfo.set(
-                    instruction.parsed.info.mint,
-                    mintAccount.value
-                  );
+                  mintsInfo.set(instruction.parsed.info.mint, mintAccount.value);
                 } catch (e) {
-                  console.warn(
-                    "Could not fetch mint info for",
-                    instruction.parsed.info.mint
-                  );
+                  console.warn("Could not fetch mint info for", instruction.parsed.info.mint);
                 }
               }
 
-              if (
-                instruction.parsed.info.mint &&
-                mintsInfo.get(instruction.parsed.info.mint)?.data
-              ) {
-                const mintData = mintsInfo.get(instruction.parsed.info.mint)
-                  ?.data as ParsedAccountData;
+              if (instruction.parsed.info.mint && mintsInfo.get(instruction.parsed.info.mint)?.data) {
+                const mintData = mintsInfo.get(instruction.parsed.info.mint)?.data as ParsedAccountData;
                 const parsedInfo = mintData.parsed?.info as MintInfo;
                 const extensions = parsedInfo?.extensions;
                 if (extensions) {
@@ -480,76 +422,52 @@ export function useTransactionHistory(
                   }
                 }
               } else {
-                assetSymbol = instruction.parsed.info.mint
-                  ? instruction.parsed.info.mint.slice(0, 6)
-                  : "SPL";
+                assetSymbol = instruction.parsed.info.mint ? instruction.parsed.info.mint.slice(0, 6) : "SPL";
               }
               foundValidInstruction = true;
             }
 
-            if (
-              instruction.parsed.type === "mintTo" ||
-              instruction.parsed.type === "mintToChecked"
-            ) {
+            if (instruction.parsed.type === "mintTo" || instruction.parsed.type === "mintToChecked") {
               if (instruction.parsed.info?.tokenAmount) {
+
                 const t = instruction.parsed.info.tokenAmount;
 
-                amount =
-                  typeof t.uiAmount === "number"
-                    ? t.uiAmount
-                    : Number(t.amount) / Math.pow(10, t.decimals || 0);
+                amount = typeof t.uiAmount === "number" ? t.uiAmount : Number(t.amount) / Math.pow(10, t.decimals || 0);
               } else {
-                const raw =
-                  instruction.parsed.info?.amount ??
-                  instruction.parsed.info?.mintAmount ??
-                  0;
+                const raw = instruction.parsed.info?.amount ?? instruction.parsed.info?.mintAmount ?? 0;
 
                 let decimals = 0;
 
                 if (instruction.parsed.info?.mint) {
+
                   const mintAddr = instruction.parsed.info.mint;
 
                   if (!mintsInfo.has(mintAddr)) {
                     try {
-                      const mintAccount = await connection.getParsedAccountInfo(
-                        new PublicKey(mintAddr)
-                      );
+
+                      const mintAccount = await connection.getParsedAccountInfo(new PublicKey(mintAddr));
 
                       mintsInfo.set(mintAddr, mintAccount.value);
+
                     } catch (e) {
                       console.warn("Could not fetch mint info for", mintAddr);
                     }
                   }
 
-                  const mintData = mintsInfo.get(instruction.parsed.info.mint)
-                    ?.data as ParsedAccountData | undefined;
+                  const mintData = mintsInfo.get(instruction.parsed.info.mint)?.data as ParsedAccountData | undefined;
 
-                  const parsedInfo = mintData?.parsed?.info as
-                    | MintInfo
-                    | undefined;
+                  const parsedInfo = mintData?.parsed?.info as | MintInfo | undefined;
                   decimals = parsedInfo?.decimals ?? 0;
                 }
                 amount = Number(raw) / Math.pow(10, decimals || 0);
               }
-              address =
-                instruction.parsed.info?.account ||
-                instruction.parsed.info?.destination ||
-                instruction.parsed.info?.source ||
-                "";
+              address = instruction.parsed.info?.account || instruction.parsed.info?.destination || instruction.parsed.info?.source || "";
 
-              if (
-                instruction.parsed.info?.mint &&
-                !mintsInfo.has(instruction.parsed.info.mint)
-              ) {
+              if (instruction.parsed.info?.mint && !mintsInfo.has(instruction.parsed.info.mint)) {
                 try {
-                  const mintAccount = await connection.getParsedAccountInfo(
-                    new PublicKey(instruction.parsed.info.mint)
-                  );
+                  const mintAccount = await connection.getParsedAccountInfo(new PublicKey(instruction.parsed.info.mint));
 
-                  mintsInfo.set(
-                    instruction.parsed.info.mint,
-                    mintAccount.value
-                  );
+                  mintsInfo.set(instruction.parsed.info.mint, mintAccount.value);
                 } catch (e) {
                   console.warn(
                     "Could not fetch mint info for",
@@ -557,12 +475,8 @@ export function useTransactionHistory(
                   );
                 }
               }
-              if (
-                instruction.parsed.info?.mint &&
-                mintsInfo.get(instruction.parsed.info.mint)?.data
-              ) {
-                const mintData = mintsInfo.get(instruction.parsed.info.mint)
-                  ?.data as ParsedAccountData;
+              if (instruction.parsed.info?.mint && mintsInfo.get(instruction.parsed.info.mint)?.data) {
+                const mintData = mintsInfo.get(instruction.parsed.info.mint)?.data as ParsedAccountData;
                 const extensions = mintData.parsed?.info?.extensions;
 
                 if (extensions) {
@@ -574,9 +488,7 @@ export function useTransactionHistory(
                   }
                 }
               } else {
-                assetSymbol = instruction.parsed.info?.mint
-                  ? instruction.parsed.info.mint.slice(0, 6)
-                  : "SPL";
+                assetSymbol = instruction.parsed.info?.mint ? instruction.parsed.info.mint.slice(0, 6) : "SPL";
               }
               foundValidInstruction = true;
             }
@@ -584,8 +496,16 @@ export function useTransactionHistory(
             if (foundValidInstruction) break;
           }
         }
-        if (assetSymbol === "SOL" && amount < 0.00001 && type === "Send") {
+        if (assetSymbol === "SOL" && amount < 0.00000000001 && type === "Send") {
           continue;
+        }
+        if (type === "Other" && amount === 0) {
+
+          const hasComputeBudgetInstruction = instructions.some((inst) => inst.programId.equals(ComputeBudgetProgram.programId));
+
+          if (!hasComputeBudgetInstruction) {
+            continue;
+          }
         }
 
         txList.push({
@@ -596,7 +516,7 @@ export function useTransactionHistory(
           value: 0,
           status:
             sigInfo.confirmationStatus === "confirmed" ||
-            sigInfo.confirmationStatus === "finalized"
+              sigInfo.confirmationStatus === "finalized"
               ? "Completed"
               : "Pending",
           date: new Date(blockTimeSec * 1000).toISOString(),
@@ -607,11 +527,15 @@ export function useTransactionHistory(
       console.log(`Final transaction list length: ${txList.length}`);
 
       setTransactions((prev) => [...prev, ...txList]);
+
     } catch (e) {
+
       console.error("Error fetching transactions:", e);
 
       setError(e instanceof Error ? e : new Error("An unknown error occurred"));
+
     } finally {
+
       setIsLoading(false);
     }
   }, [publicKey, pageSize, isLoading, hasMore, beforeSig]);
@@ -625,11 +549,11 @@ export function useTransactionHistory(
     setTransactions([]);
     setBeforeSig(undefined);
     setHasMore(true);
-    setTotal(null);
+
     (async () => {
       await fetchTransactions();
-    })();
+    })();;
   }, [publicKey]);
 
-  return { transactions, isLoading, error, hasMore, fetchTransactions, total };
+  return { transactions, isLoading, error, hasMore, fetchTransactions };
 }
