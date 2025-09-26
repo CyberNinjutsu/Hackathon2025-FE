@@ -38,11 +38,7 @@ interface SolanaProvider {
   }) => Promise<{ publicKey: PublicKey }>;
 }
 
-declare global {
-  interface Window {
-    solana?: SolanaProvider;
-  }
-}
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -106,12 +102,17 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const resp = await window.solana.connect();
-      const userPublicKey = resp.publicKey;
-
+      await window.solana.connect();
+      const userPublicKey = window.solana.publicKey;
+      if(!userPublicKey) {
+        throw new Error("error");
+      }
       const nonce = `Login to DAMS at: ${new Date().toISOString()}`;
       const message = new TextEncoder().encode(nonce);
-      const signedMessage = await window.solana.signMessage(message, "utf8");
+      const signedMessage = await window.solana?.signMessage?.(message, "utf8");
+      if (!signedMessage) {
+        throw new Error('Failed to sign message');
+      }
 
       const isVerified = nacl.sign.detached.verify(
         message,
@@ -122,8 +123,9 @@ export default function LoginPage() {
       if (!isVerified) {
         throw new Error("Signature verification failed. Please try again.");
       }
+const solanaPublicKey = new PublicKey(userPublicKey.toString());
 
-      await checkWalletExistence(userPublicKey);
+await checkWalletExistence(solanaPublicKey);
       handleSuccess(userPublicKey.toString());
     } catch (err) {
       handleError(
@@ -135,7 +137,7 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-  
+
   if (isAuthLoading) {
     return (
       <div className="auth-background relative flex min-h-screen items-center justify-center p-4 sm:p-6 md:p-8">
@@ -207,7 +209,7 @@ export default function LoginPage() {
                 "Connect & Sign with Phantom"
               )}
             </Button>
-            
+
             {error && (
               <p
                 className="text-sm text-red-300 text-center mt-4"
@@ -230,11 +232,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Link href="/register" className="mt-4">
-              <p className="text-white text-center text-sm hover:text-white/80 transition-colors">
-                Don&apos;t have a wallet yet?
-              </p>
-            </Link>
           </CardContent>
         </Card>
       </div>

@@ -7,7 +7,7 @@ import {
   ParsedAccountData,
   AccountInfo,
 } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import {  TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 import { TokenAccount } from "@/utils/Types";
 
@@ -28,12 +28,6 @@ interface TokenFetchResult {
   error?: string;
 }
 
-/**
- * Fetch token accounts for a given wallet address
- * @param walletPublicKey - The public key of the wallet (as string)
- * @param config - Configuration options for the fetch operation
- * @returns Promise<TokenAccount[]> - Array of token accounts
- */
 export const fetchTokenAccounts = async (
   walletPublicKey: string,
   config: TokenFetchConfig = {}
@@ -70,16 +64,14 @@ export const fetchTokenAccounts = async (
     }, new Map<string, TokenInfo>());
 
     // Fetch token accounts from both token programs in parallel
-    const [res1, res2] = await Promise.all([
-      connection.getParsedTokenAccountsByOwner(walletPubKey, {
-        programId: TOKEN_PROGRAM_ID,
-      }),
+    const [res] = await Promise.all([
+      
       connection.getParsedTokenAccountsByOwner(walletPubKey, {
         programId: TOKEN_2022_PROGRAM_ID,
       }),
     ]);
 
-    const combined = [...res1.value, ...res2.value] as TokenAccountResponse[];
+    const combined = [...res.value] as TokenAccountResponse[];
     const tokenAccounts: TokenAccount[] = [];
     const mintsInfo = new Map<string, AccountInfo<Buffer | ParsedAccountData> | null>();
 
@@ -313,4 +305,77 @@ export const groupTokensBySymbol = (tokens: TokenAccount[]): Map<string, TokenAc
   });
 
   return grouped;
+};
+
+
+interface TokenFetchResult {
+  success: boolean;
+  data: TokenAccount[];
+  error?: string;
+}
+
+/**
+ * Result interface for multi-wallet token fetch
+ */
+interface MultiWalletTokenResult {
+  walletAddress: string;
+  success: boolean;
+  tokens: TokenAccount[];
+  error?: string;
+}
+
+/**
+ * Combined result for all wallets
+ */
+interface MultiWalletFetchResult {
+  results: MultiWalletTokenResult[];
+  totalTokens: number;
+  successfulWallets: number;
+  failedWallets: number;
+}
+/**
+ * Fetch token accounts from multiple wallets
+ * @param walletPublicKeys - Array of wallet public key strings
+ * @param config - Configuration options
+ * @returns Promise<MultiWalletFetchResult> - Results for all wallets
+ */
+export const fetchMultiWalletTokens = async (
+  walletPublicKeys: string[],
+  config: TokenFetchConfig = {}
+): Promise<MultiWalletFetchResult> => {
+  const results: MultiWalletTokenResult[] = [];
+  
+  // Process all wallets in parallel for better performance
+  const promises = walletPublicKeys.map(async (walletAddress) => {
+    try {
+      const tokens = await fetchTokenAccounts(walletAddress, config);
+      return {
+        walletAddress,
+        success: true,
+        tokens,
+      } as MultiWalletTokenResult;
+    } catch (error) {
+      return {
+        walletAddress,
+        success: false,
+        tokens: [],
+        error: error instanceof Error ? error.message : 'Unknown error',
+      } as MultiWalletTokenResult;
+    }
+  });
+
+  const walletResults = await Promise.all(promises);
+  results.push(...walletResults);
+
+  // Calculate summary statistics
+  const successfulWallets = results.filter(r => r.success).length;
+  const failedWallets = results.length - successfulWallets;
+  const totalTokens = results.reduce((sum, r) => sum + r.tokens.length, 0);
+
+  return {
+    results,
+    totalTokens,
+    successfulWallets,
+    failedWallets,
+  };
 };

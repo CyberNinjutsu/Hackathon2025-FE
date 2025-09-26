@@ -64,49 +64,42 @@ const fetchTokenRatio = async (
   fromSymbol: string,
   toSymbol: string
 ): Promise<TokenRatio | null> => {
-  // Nếu from và to token giống nhau, tỷ lệ là 1
-  if (fromSymbol.toUpperCase() === toSymbol.toUpperCase()) {
+  const from = fromSymbol.toUpperCase();
+  const to = toSymbol.toUpperCase();
+
+  if (from === to) {
     return { minValue: 0, ratio: 1 };
   }
 
   try {
-    const { data } = await axios.get(
+    const { data } = await axios.get<{ [key: string]: TokenRatio }>(
       "https://hackathon2025-be.phatnef.me/token-ratio",
-      { timeout: 10000 }
+      { timeout: 10000 } 
     );
 
-    // 1. Tạo key cho cặp trực tiếp (ví dụ: DAMS_GOLD)
-    const directKey = `${fromSymbol.toUpperCase()}_${toSymbol.toUpperCase()}`;
-    
-    // Nếu tìm thấy key trực tiếp trong dữ liệu trả về
+    if (!data) {
+        console.warn("No data received from token-ratio API.");
+        return null;
+    }
+
+    const directKey = `${from}_${to}`;
     if (data[directKey]) {
       console.log(`Found direct ratio for ${directKey}:`, data[directKey]);
-      return data[directKey] as TokenRatio;
-    }
-
-    // 2. Nếu không có, tạo key cho cặp nghịch đảo (ví dụ: GOLD_DAMS)
-    const inverseKey = `${toSymbol.toUpperCase()}_${fromSymbol.toUpperCase()}`;
-
-    // Nếu tìm thấy key nghịch đảo
-    if (data[inverseKey]) {
-      console.log(`Found inverse ratio for ${inverseKey}, calculating inverse.`);
-      const inverseRatioData = data[inverseKey] as TokenRatio;
-
-      // Tránh chia cho 0
-      if (inverseRatioData.ratio === 0) {
-        console.error("Inverse ratio is 0, cannot calculate swap rate.");
-        return null;
+      if(directKey == "GOLD_DAMS") {
+        return {
+          minValue : data[directKey].minValue,
+          ratio : data[directKey].ratio
+        }
       }
-      
-      // Tính toán tỷ lệ nghịch đảo và trả về một đối tượng TokenRatio mới
-      return {
-        minValue: inverseRatioData.minValue, // minValue có thể cần xem xét lại logic, nhưng tạm thời giữ nguyên
-        ratio: 1 / inverseRatioData.ratio,
-      };
+      if(directKey == "DAMS_GOLD") {
+        return {
+          minValue : data[directKey].minValue,
+          ratio : 1 / data[directKey].ratio
+        }
+      }
     }
 
-    // 3. Nếu không tìm thấy cả hai, trả về null
-    console.warn(`No ratio found for pair ${directKey} or ${inverseKey}`);
+    console.warn(`No ratio found for pair ${directKey}`);
     return null;
     
   } catch (error) {
@@ -114,5 +107,4 @@ const fetchTokenRatio = async (
     return null;
   }
 };
-
 export { getTransactionIcon, getStatusBadge, getTypeColorClass, formatNumber ,fetchTokenRatio};

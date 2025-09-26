@@ -1,7 +1,7 @@
 import { TokenAccount } from "@/utils/Types";
 import { solanaService } from "./solana";
 import { Connection, clusterApiUrl, PublicKey } from "@solana/web3.js";
-import { TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID } from "@solana/spl-token";
+import { TOKEN_2022_PROGRAM_ID, TOKEN_PROGRAM_ID } from "@solana/spl-token";
 import { TokenListProvider } from "@solana/spl-token-registry";
 
 export interface AssetSummary {
@@ -69,7 +69,7 @@ class DataService {
               const tokenAmount = info.tokenAmount || {};
               const uiAmount = tokenAmount.uiAmount ?? null;
               const amountRaw = tokenAmount.amount ?? "0";
-              const decimals = tokenAmount.decimals;
+              const decimals = tokenAmount.decimals ?? 0;
               const tokenInfo = tokenMap.get(mint);
 
               if (uiAmount && uiAmount > 0) {
