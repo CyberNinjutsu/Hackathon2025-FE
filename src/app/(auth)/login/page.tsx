@@ -230,11 +230,6 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Link href="/register" className="mt-4">
-              <p className="text-white text-center text-sm hover:text-white/80 transition-colors">
-                Don&apos;t have a wallet yet?
-              </p>
-            </Link>
           </CardContent>
         </Card>
       </div>
