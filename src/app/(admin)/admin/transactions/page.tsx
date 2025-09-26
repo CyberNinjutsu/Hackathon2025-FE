@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 export default function TransactionsPage() {
 	const [transactions, setTransactions] = useState<SolanaTransaction[]>([]);
+	const [totalTransactionCount, setTotalTransactionCount] = useState<number | null>(null);
 
 	const fetchTransactions = async () => {
 		try {
@@ -16,9 +17,26 @@ export default function TransactionsPage() {
 			console.error('Error fetching transactions:', error);
 		}
 	};
+	//for total transactions of multiple accounts, should use premium rpc api
+	const fetchTotalCount = async () => {
+		try {
+			const totalsMap = await solanaService.getTotalTransactionsForWallets();
+			let totalCount = 0;
+			// Sum the counts from all wallets
+			totalsMap.forEach((count) => {
+				if (typeof count === 'number') {
+					totalCount += count;
+				}
+			});
+			setTotalTransactionCount(totalCount);
+		} catch (error) {
+			console.error('Error fetching total transaction count:', error);
+		}
+	};
 
 	useEffect(() => {
 		fetchTransactions();
+				// fetchTotalCount();
 
 		// Auto-refresh every 60 seconds
 		const interval = setInterval(fetchTransactions, 60000);

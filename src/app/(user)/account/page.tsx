@@ -6,6 +6,7 @@ import TransactionItem from "@/components/account/TransactionItem";
 import SimpleTransactionAnalysis from "@/components/account/SimpleTransactionAnalysis";
 
 import BackgroundGlow from "@/components/Glow/BackgroundGlow";
+import LoadingComponent from "@/components/Loading";
 import Loading from "@/components/Loading";
 import { useAuth } from "@/lib/AuthContext";
 import { getStatusBadge } from "@/utils/Helper";
@@ -182,24 +183,24 @@ export default function AccountPage() {
                       Your Assets
                     </span>
                     <div className="bg-primary/20 border border-primary/30 px-2 py-1 rounded text-xs text-primary">
-                      {isLoadingTokens
-                        ? "Loading..."
-                        : `${tokens.length} tokens`}
+                      {isLoadingTokens ? (
+                        <LoadingComponent />
+                      ) : (
+                        `${tokens.length} tokens`
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className="p-4 flex-1">
                   {isLoadingTokens ? (
-                    <div className="flex items-center justify-center h-32">
-                      <div className="text-gray-400">Loading tokens...</div>
-                    </div>
+                    <LoadingComponent />
                   ) : tokens.length === 0 ? (
                     <div className="flex items-center justify-center h-32 text-center">
                       <div>
                         <div className="text-gray-400 mb-2">
                           No tokens found
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text  -xs text-gray-500">
                           {isAuthenticated
                             ? "No tokens in wallet"
                             : "Connect wallet to view tokens"}
@@ -251,11 +252,7 @@ export default function AccountPage() {
                 </div>
                 <div className="p-4 flex-1">
                   {isLoading ? (
-                    <div className="flex items-center justify-center h-32">
-                      <div className="text-gray-400">
-                        Loading transactions...
-                      </div>
-                    </div>
+                    <LoadingComponent />
                   ) : transactions.length === 0 ? (
                     <div className="flex items-center justify-center h-32">
                       <div className="text-gray-400">

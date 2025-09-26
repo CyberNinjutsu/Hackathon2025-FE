@@ -111,7 +111,7 @@ const SwapInterface: React.FC = () => {
         const outputAmount = amount * exchangeRate;
         const priceImpact = 0; // hoặc bạn có thể tính thêm
         const slippageDecimal = Number(slippage) / 100;
-        const minimumReceived = outputAmount * (1 - slippageDecimal);
+        const minimumReceived = outputAmount ;
         const networkFee = 1;
 
         return {
@@ -204,18 +204,22 @@ const SwapInterface: React.FC = () => {
   };
 
   const handleSwapTokens = () => {
+    // Lưu trữ token hiện tại vào biến tạm
     const tempFromToken = fromToken;
     const tempToToken = toToken;
-    const tempFromAmount = fromAmount;
-    const tempToAmount = toAmount;
 
+    // 1. Chỉ hoán đổi vị trí của fromToken và toToken
     setFromToken(tempToToken);
     setToToken(tempFromToken);
-    setFromAmount(tempToAmount);
-    setToTokenAmount(tempFromAmount);
 
-    if (tempToAmount) {
-      updateSwapQuote(tempToToken, tempFromToken, tempToAmount);
+    // 2. Xóa giá trị output (toAmount) và quote cũ để buộc tính toán lại
+    setToTokenAmount("");
+    setSwapQuote(null);
+
+    // 3. Kích hoạt tính toán lại quote với cặp token mới nhưng VẪN DÙNG fromAmount hiện tại
+    // Điều này đảm bảo giá trị người dùng đã nhập không bị mất
+    if (tempToToken && tempFromToken && fromAmount) {
+      updateSwapQuote(tempToToken, tempFromToken, fromAmount);
     }
   };
 
@@ -478,16 +482,11 @@ const SwapInterface: React.FC = () => {
           onSelectToken={handleSelectToken}
           tokens={walletTokens}
         />
-
-        <div className="flex items-center justify-between mb-6 my-6">
-          <h1 className="text-2xl font-bold text-white">Swap Tokens</h1>
-        </div>
-
         <div className="relative p-8 rounded-3xl bg-slate-900/40 backdrop-blur-xl border border-white/20 shadow-2xl">
+          <p className="text-2xl font-bold pb-3">Swap token</p>
           {isFetchingTokens && (
             <div className="absolute inset-0 bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 rounded-3xl">
               <Loader2 className="w-8 h-8 text-white animate-spin" />
-              <p className="mt-2 text-gray-300">Loading your tokens...</p>
             </div>
           )}
 
@@ -498,7 +497,7 @@ const SwapInterface: React.FC = () => {
                   <SwapInput
                     label="From"
                     token={fromToken}
-                    amount={fromAmount}
+                    amount={fromAmount} 
                     balance={fromToken?.balance}
                     onAmountChange={handleFromAmountChange}
                     onSelectToken={() => handleOpenPopup("from")}
@@ -559,13 +558,12 @@ const SwapInterface: React.FC = () => {
                       <div className="flex justify-between">
                         <span className="text-gray-400">Price impact</span>
                         <span
-                          className={`${
-                            swapQuote.priceImpact > 3
-                              ? "text-red-400"
-                              : swapQuote.priceImpact > 1
+                          className={`${swapQuote.priceImpact > 3
+                            ? "text-red-400"
+                            : swapQuote.priceImpact > 1
                               ? "text-yellow-400"
                               : "text-green-400"
-                          }`}
+                            }`}
                         >
                           {swapQuote.priceImpact.toFixed(2)}%
                         </span>

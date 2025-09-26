@@ -1,26 +1,60 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import BarChart from "@/components/dashboard/BarChart";
 import LineChart from "@/components/dashboard/LineChart";
 import StatsCard from "@/components/dashboard/StatsCard";
 import { ArrowRightLeft, Coins, DollarSign, Users, Activity } from "lucide-react";
-import { dataService, DashboardStats } from "@/lib/dataService";
-import { solanaService } from "@/lib/solana";
+// Bạn có thể comment out các import này vì chúng ta không dùng đến khi xài mock data
+// import { dataService, DashboardStats } from "@/lib/dataService";
+// import { solanaService } from "@/lib/solana";
+
+// --- Bắt đầu phần Mock Data ---
+
+// Định nghĩa lại kiểu DashboardStats nếu bạn đã comment out import ở trên
+interface DashboardStats {
+  totalAssets: number;
+  totalValue: number;
+  totalTransactions: number;
+  activeUsers: number;
+  transactionVolume: number;
+  successRate: number;
+}
+
+const mockStats: DashboardStats = {
+  totalAssets: 6,
+  totalValue: 105000,
+  totalTransactions: 12530,
+  activeUsers: 842,
+  transactionVolume: 1210.6,
+  successRate: 98.7,
+};
+
+const mockChartData = [
+  { date: 'May 20', value: 120.5 },
+  { date: 'May 21', value: 155.2 },
+  { date: 'May 22', value: 98.7 },
+  { date: 'May 23', value: 210.0 },
+  { date: 'May 24', value: 180.3 },
+  { date: 'May 25', value: 250.8 },
+  { date: 'May 26', value: 195.1 },
+];
+
+const mockAssetDistribution = [
+  { label: 'DAMS', value: 50000, color: '#00ffb2' },
+  { label: 'GOLD', value: 25000, color: '#ffd700' },
+];
+
+// --- Kết thúc phần Mock Data ---
 
 export default function AdminDashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    totalAssets: 0,
-    totalValue: 0,
-    totalTransactions: 0,
-    activeUsers: 0,
-    transactionVolume: 0,
-    successRate: 0
-  });
-  const [loading, setLoading] = useState(true);
-  const [chartData, setChartData] = useState<Array<{ date: string; value: number }>>([]);
-  const [assetDistribution, setAssetDistribution] = useState<Array<{ label: string; value: number; color: string }>>([]);
+  // Khởi tạo state với mock data
+  const [stats, setStats] = useState<DashboardStats>(mockStats);
+  const [loading, setLoading] = useState(false); // Set loading thành false
+  const [chartData, setChartData] = useState(mockChartData);
+  const [assetDistribution, setAssetDistribution] = useState(mockAssetDistribution);
 
+  // Tạm thời vô hiệu hóa việc fetch dữ liệu thật
+  /*
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
@@ -29,43 +63,8 @@ export default function AdminDashboardPage() {
         dataService.getAssetsSummary(),
         solanaService.getRecentTransactions(50)
       ]);
-
       setStats(dashboardStats);
-
-      // Generate chart data from transactions (last 7 days)
-      const last7Days = Array.from({ length: 7 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - (6 - i));
-        return {
-          date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-          value: 0
-        };
-      });
-
-      transactions.forEach(tx => {
-        if (tx.blockTime) {
-          const txDate = new Date(tx.blockTime * 1000);
-          const dayIndex = Math.floor((Date.now() - txDate.getTime()) / (1000 * 60 * 60 * 24));
-          if (dayIndex >= 0 && dayIndex < 7) {
-            const dataPoint = last7Days[6 - dayIndex];
-            if (dataPoint) {
-              dataPoint.value += tx.amount || 0;
-            }
-          }
-        }
-      });
-
-      setChartData(last7Days);
-
-      // Generate asset distribution
-      const colors = ['#00ffb2', '#ffd700', '#8b4513', '#9932cc', '#c0c0c0', '#ff6b6b'];
-      const distribution = assets.slice(0, 6).map((asset, index) => ({
-        label: asset.name,
-        value: asset.totalBalance,
-        color: colors[index] || '#666666'
-      }));
-
-      setAssetDistribution(distribution);
+      // ... (phần logic còn lại)
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
@@ -75,38 +74,33 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
-
-    // Auto-refresh every 2 minutes
     const interval = setInterval(fetchDashboardData, 120000);
     return () => clearInterval(interval);
   }, []);
+  */
 
   const statsData = [
     {
       title: "Total Assets",
-      value: loading ? "..." : stats.totalAssets.toString(),
-      change: "+12.5%",
+      value: loading ? "..." : 2,
       changeType: "positive" as const,
       icon: Coins,
     },
     {
       title: "Total Value",
-      value: loading ? "..." : `$${stats.totalValue.toFixed(0)}`,
-      change: "+8.2%",
+      value: loading ? "..." : `$${stats.totalValue.toLocaleString()}`, // Dùng toLocaleString() cho đẹp
       changeType: "positive" as const,
       icon: DollarSign,
     },
     {
       title: "Active Wallets",
-      value: loading ? "..." : stats.activeUsers.toString(),
-      change: "+15.3%",
+      value: loading ? "..." : 2,
       changeType: "positive" as const,
       icon: Users,
     },
     {
       title: "Transactions",
-      value: loading ? "..." : stats.totalTransactions.toString(),
-      change: `${stats.successRate.toFixed(1)}% success`,
+      value: loading ? "..." : 122,
       changeType: "positive" as const,
       icon: ArrowRightLeft,
     },
@@ -122,7 +116,6 @@ export default function AdminDashboardPage() {
         <p className="text-gray-400">
           Real-time overview of wallet assets and transaction activity
         </p>
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div className="bg-gray-800/50 rounded-lg p-4">
             <h3 className="text-sm font-medium text-gray-400 mb-2">Monitored Wallets</h3>
@@ -160,15 +153,8 @@ export default function AdminDashboardPage() {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <LineChart
-          data={chartData}
-          title="Transaction Volume (Last 7 Days)"
-          color="#00ffb2"
-        />
-        <BarChart
-          data={assetDistribution}
-          title="Token Distribution by Balance"
-        />
+        <LineChart data={chartData} title="Transaction Volume (Last 7 Days)" color="#00ffb2" />
+        <BarChart data={assetDistribution} title="Token Distribution by Balance" />
       </div>
     </div>
   );

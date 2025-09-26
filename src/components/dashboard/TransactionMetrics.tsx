@@ -49,33 +49,6 @@ export default function TransactionMetrics({
 			change: "-0.8%",
 			changeType: "negative" as const
 		},
-		{
-			title: "Pending",
-			value: pendingCount.toString(),
-			icon: AlertCircle,
-			color: "text-yellow-400",
-			bgColor: "bg-yellow-500/20",
-			change: "+5.2%",
-			changeType: "positive" as const
-		},
-		{
-			title: "Total Volume",
-			value: `${totalVolume.toFixed(2)} SOL`,
-			icon: TrendingUp,
-			color: "text-cyan-400",
-			bgColor: "bg-cyan-500/20",
-			change: "+18.7%",
-			changeType: "positive" as const
-		},
-		{
-			title: "Total Fees",
-			value: `${totalFees.toFixed(4)} SOL`,
-			icon: Activity,
-			color: "text-purple-400",
-			bgColor: "bg-purple-500/20",
-			change: "+3.4%",
-			changeType: "positive" as const
-		}
 	];
 
 	return (
