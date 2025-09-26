@@ -104,7 +104,9 @@ export default function LoginPage() {
     try {
       await window.solana.connect();
       const userPublicKey = window.solana.publicKey;
-
+      if(!userPublicKey) {
+        throw new Error("error");
+      }
       const nonce = `Login to DAMS at: ${new Date().toISOString()}`;
       const message = new TextEncoder().encode(nonce);
       const signedMessage = await window.solana?.signMessage?.(message, "utf8");
@@ -121,8 +123,9 @@ export default function LoginPage() {
       if (!isVerified) {
         throw new Error("Signature verification failed. Please try again.");
       }
+const solanaPublicKey = new PublicKey(userPublicKey.toString());
 
-      await checkWalletExistence(userPublicKey);
+await checkWalletExistence(solanaPublicKey);
       handleSuccess(userPublicKey.toString());
     } catch (err) {
       handleError(

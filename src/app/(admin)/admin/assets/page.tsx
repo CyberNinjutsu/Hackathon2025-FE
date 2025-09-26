@@ -140,8 +140,7 @@ export default function AssetsPage() {
   }, []);
 
   const filteredAssets = assets.filter(asset =>
-    asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    asset.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+    asset.name.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
 
   const getStatusColor = (status: string) => {
