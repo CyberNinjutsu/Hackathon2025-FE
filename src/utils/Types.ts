@@ -122,7 +122,15 @@ interface TokenRatio {
 }
 
 
-export type TransactionTypeName =  | "Send"  | "Receive"  | "Mint"  | "Swap"  | "Other";
+interface PaymentSuccessProps {
+  orderId?: string;
+  orderTotal?: number;
+  customerEmail?: string;
+  estimatedDelivery?: string;
+}
+
+
+export type TransactionTypeName = | "Send" | "Receive" | "Mint" | "Swap" | "Other";
 
 export type {
   Asset,
@@ -136,5 +144,5 @@ export type {
   ParsedInstruction,
   MintInfo,
   TokenMetadataExtension,
-  ParsedTransaction,TokenRatio
+  ParsedTransaction, TokenRatio, PaymentSuccessProps
 };
