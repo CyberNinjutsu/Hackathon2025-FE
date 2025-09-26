@@ -306,3 +306,76 @@ export const groupTokensBySymbol = (tokens: TokenAccount[]): Map<string, TokenAc
 
   return grouped;
 };
+
+
+interface TokenFetchResult {
+  success: boolean;
+  data: TokenAccount[];
+  error?: string;
+}
+
+/**
+ * Result interface for multi-wallet token fetch
+ */
+interface MultiWalletTokenResult {
+  walletAddress: string;
+  success: boolean;
+  tokens: TokenAccount[];
+  error?: string;
+}
+
+/**
+ * Combined result for all wallets
+ */
+interface MultiWalletFetchResult {
+  results: MultiWalletTokenResult[];
+  totalTokens: number;
+  successfulWallets: number;
+  failedWallets: number;
+}
+/**
+ * Fetch token accounts from multiple wallets
+ * @param walletPublicKeys - Array of wallet public key strings
+ * @param config - Configuration options
+ * @returns Promise<MultiWalletFetchResult> - Results for all wallets
+ */
+export const fetchMultiWalletTokens = async (
+  walletPublicKeys: string[],
+  config: TokenFetchConfig = {}
+): Promise<MultiWalletFetchResult> => {
+  const results: MultiWalletTokenResult[] = [];
+  
+  // Process all wallets in parallel for better performance
+  const promises = walletPublicKeys.map(async (walletAddress) => {
+    try {
+      const tokens = await fetchTokenAccounts(walletAddress, config);
+      return {
+        walletAddress,
+        success: true,
+        tokens,
+      } as MultiWalletTokenResult;
+    } catch (error) {
+      return {
+        walletAddress,
+        success: false,
+        tokens: [],
+        error: error instanceof Error ? error.message : 'Unknown error',
+      } as MultiWalletTokenResult;
+    }
+  });
+
+  const walletResults = await Promise.all(promises);
+  results.push(...walletResults);
+
+  // Calculate summary statistics
+  const successfulWallets = results.filter(r => r.success).length;
+  const failedWallets = results.length - successfulWallets;
+  const totalTokens = results.reduce((sum, r) => sum + r.tokens.length, 0);
+
+  return {
+    results,
+    totalTokens,
+    successfulWallets,
+    failedWallets,
+  };
+};

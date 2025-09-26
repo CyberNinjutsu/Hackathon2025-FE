@@ -62,8 +62,9 @@ interface TokenAccount {
   mint: string;
   uiAmount: number | null;
   amountRaw: string;
-  decimals?: number;
+  decimals: number;
   symbol?: string;
+
   logoURI?: string;
   logo?: string;
 }
@@ -144,5 +145,28 @@ export type {
   ParsedInstruction,
   MintInfo,
   TokenMetadataExtension,
-  ParsedTransaction, TokenRatio, PaymentSuccessProps
+  ParsedTransaction, TokenRatio, PaymentSuccessProps,AssetSummary,WalletSummary,TokenFetchConfig
 };
+
+// Additional interfaces for the enhanced functionality
+ interface AssetSummary {
+  name: string;
+  symbol: string;
+  totalBalance: number;
+  usdValue: number;
+  holders: number;
+  transactions: number;
+  status: 'active' | 'inactive';
+}
+
+ interface WalletSummary {
+  address: string;
+  totalTokens: number;
+  totalValue: number;
+  lastUpdated: Date;
+  status: 'connected' | 'error';
+}
+interface TokenFetchConfig {
+  cluster?: 'devnet' | 'mainnet-beta' | 'testnet';
+  commitment?: 'processed' | 'confirmed' | 'finalized';
+}

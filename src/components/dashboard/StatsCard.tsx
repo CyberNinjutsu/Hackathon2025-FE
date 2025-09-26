@@ -8,7 +8,7 @@ interface StatsCardProps {
 	icon: LucideIcon;
 }
 
-export default function StatsCard({ title, value, change, changeType, icon: Icon }: StatsCardProps) {
+export default function StatsCard({ title, value, changeType, icon: Icon }: StatsCardProps) {
 	const changeColor = {
 		positive: 'text-green-400',
 		negative: 'text-red-400',
@@ -21,9 +21,6 @@ export default function StatsCard({ title, value, change, changeType, icon: Icon
 				<div className="w-12 h-12 bg-primary/20 border border-primary/30 rounded-xl flex items-center justify-center">
 					<Icon className="w-6 h-6 text-primary" />
 				</div>
-				<span className={`text-sm font-medium ${changeColor}`}>
-					{change}
-				</span>
 			</div>
 			<div>
 				<h3 className="text-2xl font-bold text-white mb-1">{value}</h3>
