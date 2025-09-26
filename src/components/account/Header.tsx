@@ -58,7 +58,7 @@ export default function Header() {
     if (!key) return "";
     return `${key.substring(0, 4)}...${key.substring(key.length - 4)}`;
   };
-  
+
   // Hàm xử lý điều hướng trên di động và đóng menu
   const handleMobileNavigation = (path: string) => {
     router.push(path);
@@ -83,11 +83,11 @@ export default function Header() {
   };
 
   return (
-     <header
+    <header
       className={cn(
-        "fixed top-0 left-0 z-20 w-full transition-all duration-300",
-          isScrolled
-          ? "bg-background/90 backdrop-blur-sm border-b border-border"
+        "fixed top-0 left-0 z-10 w-full transition-all duration-300",
+        isScrolled
+          ? "bg-transparent border-b border-border"
           : "bg-transparent"
       )}
     >
@@ -174,7 +174,7 @@ export default function Header() {
           />
 
           {/* Nội dung Menu */}
-          <div className="relative h-full bg-background border-t border-border">
+          <div className="relative h-full bg-transparent border-t border-border">
             <div className="h-full overflow-y-auto px-6 py-8">
               <nav className="flex flex-col">
                 <div>
@@ -235,7 +235,7 @@ export default function Header() {
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <Button asChild  size="lg" className="w-full rounded-lg h-12">
+                      <Button asChild size="lg" className="w-full rounded-lg h-12">
                         <Link href="/login" onClick={() => setIsOpen(false)}>
                           Connect Wallet
                         </Link>
