@@ -39,7 +39,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark antialiased" suppressHydrationWarning>
-      <body className={`font-sans ${dmSans.variable} homepage-container`}>
+      <body className={`font-sans ${dmSans.variable} homepage-container select-none`}>
         <BackgroundGlow />
         <AuthProvider>
           {children}

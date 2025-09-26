@@ -11,7 +11,7 @@ import {
   Send,
   Sparkles,
   User,
-  X
+  X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
@@ -201,7 +201,7 @@ export default function AIInvestmentChatbot({
   return (
     <>
       {/* Chat Toggle Button - Always visible, completely separate */}
-      <div className={`fixed bottom-6 right-6 z-50 ${className}`}>
+      <div className={`fixed bottom-6 right-8 z-50 ${className}`}>
         <AnimatePresence mode="wait">
           {!isOpen && (
             <motion.div
@@ -236,7 +236,7 @@ export default function AIInvestmentChatbot({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 100, scale: 0.3 }}
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            className={`fixed bottom-24 right-6 w-96 h-[600px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
+            className={`fixed bottom-14 right-4 w-96 h-[600px] bg-slate-900/95 border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm ring-1 ring-teal-500/20 z-40 ${className}`}
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-teal-500 to-cyan-500 p-4 text-white">

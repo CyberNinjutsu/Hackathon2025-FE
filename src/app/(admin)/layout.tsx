@@ -23,7 +23,7 @@ export default function AdminLayout({
   return (
     <html lang="en" className="dark antialiased" suppressHydrationWarning>
       <body
-        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container`}
+        className={`font-sans ${GeistSans.variable} ${GeistMono.variable} custom-scrollbar homepage-container select-none`}
       >
         <AdminAuthProvider>
           <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white">

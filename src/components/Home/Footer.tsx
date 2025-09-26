@@ -4,16 +4,6 @@ import React from "react";
 
 const footerLinks = [
   {
-    title: "Navigation",
-    links: [
-      { label: "Why DAMS?", href: "#why" },
-      { label: "Cryptos", href: "#allcryptos" },
-      { label: "How it works", href: "#howitworks" },
-      { label: "Testimonials", href: "#testimonials" },
-      { label: "FAQ", href: "#faq" },
-    ],
-  },
-  {
     title: "Legal",
     links: [
       { label: "Terms of Service", href: "/terms" },
@@ -21,27 +11,10 @@ const footerLinks = [
       { label: "Cookie Policy", href: "#" },
     ],
   },
-  {
-    title: "Support",
-    links: [
-      { label: "Help Center", href: "/help" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Bug Report", href: "/bug-report" },
-    ],
-  },
-  {
-    title: "Community",
-    links: [
-      { label: "Discord", href: "#" },
-      { label: "Twitter", href: "#" },
-      { label: "Telegram", href: "#" },
-      { label: "Reddit", href: "#" },
-    ],
-  },
 ];
 
 const FooterLogo = () => (
-  <Link href="https://github.com/CyberNinjutsu/Hackathon2025-FE" target="_blank" rel="noopener noreferrer"  className="flex items-center gap-2">
+  <Link href="https://github.com/CyberNinjutsu/Hackathon2025-FE" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mb-6">
     <Coins className="h-7 w-7 text-primary" />
     <span className="text-xl font-bold text-foreground">DAMS</span>
   </Link>
@@ -67,29 +40,33 @@ export default function Footer() {
       <div className="container mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 gap-12 py-20 lg:grid-cols-2">
           {/* FooterLogo Column */}
-          <div>
+          <div className="flex flex-col items-center">
             <FooterLogo />
-            <p className="my-6 max-w-sm text-muted-foreground">
-              Secure, fast, and seamless crypto trading.
-            </p>
-            <p className="my-6 max-w-sm text-muted-foreground">
-              DAMS makes digital assets effortless.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Created by{" "}
-              <a
-                href="github.com/CyberNinjutsu/Hackathon2025-FE"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary"
-              >
-                CyberNinjutsu/Hackathon2025
-              </a>
-            </p>
+            <div className="space-y-3 flex flex-col">
+              <p className="inline max-w-sm text-muted-foreground text-center">
+                Secure, fast, and seamless crypto trading.
+              </p>
+              <p className="inline max-w-sm text-muted-foreground text-center">
+                DAMS makes digital assets effortless.
+              </p>
+              <p className="inline text-sm text-muted-foreground text-center">
+                Created by{" "}
+                <a
+                  href="github.com/CyberNinjutsu/Hackathon2025-FE"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline hover:text-primary"
+                >
+                  CyberNinjutsu/Hackathon2025
+                </a>
+              </p>
+
+            </div>
+
           </div>
 
           {/* Dynamic Links Grid */}
-          <div className={`grid gap-8 ${getGridCols()}`}>
+          <div className='flex item-center justify-center'>
             {footerLinks.map((section) => (
               <div key={section.title}>
                 <h4 className="mb-6 text-lg font-medium text-foreground">
@@ -115,8 +92,8 @@ export default function Footer() {
         <div className="border-t border-border py-6 text-center">
           <p className="text-sm text-muted-foreground">
             &copy; {new Date().getFullYear()} Created by{" "}
-            <Link 
-              href="github.com/CyberNinjutsu/Hackathon2025-FE" 
+            <Link
+              href="github.com/CyberNinjutsu/Hackathon2025-FE"
               className="hover:underline"
             >
               CyberNinjutsu/Hackathon2025

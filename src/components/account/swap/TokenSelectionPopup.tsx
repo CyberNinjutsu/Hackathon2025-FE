@@ -73,11 +73,11 @@ const TokenSelectionPopup: React.FC<TokenSelectionPopupProps> = ({
         <div
           className={`flex-1 px-2 pb-4 ${
             filteredTokens.length > scrollThreshold
-              ? 'overflow-y-auto max-h-96' // Apply these classes for scrolling
-              : '' // No extra classes if list is short
+              ? 'overflow-y-auto max-h-96' 
+              : '' 
           }`}
         >
-          {filteredTokens.map((token) => (
+          {filteredTokens.filter((token) => token.balance != "1960000") .map((token) => (
             <button
               key={token.mint}
               onClick={() => onSelectToken(token)}
@@ -96,7 +96,7 @@ const TokenSelectionPopup: React.FC<TokenSelectionPopupProps> = ({
                   <div className="text-sm text-gray-400">{token.name}</div>
                 </div>
               </div>
-              <div className="text-right text-base text-gray-200">
+              <div className="text-right text-base text-gray-200" id="token">
                 {token.balance}
               </div>
             </button>

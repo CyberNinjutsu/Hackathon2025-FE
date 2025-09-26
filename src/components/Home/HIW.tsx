@@ -7,24 +7,25 @@ type Step = {
 };
 const stepsData: Step[] = [
   {
-    title: "1. Create your account",
+    title: "1. Connect to Your Wallet",
     description:
-      "Sign up securely and verify your identity to unlock full features.",
+      "Get your public key to use our excellent functionalities",
   },
   {
-    title: "2. Add funds",
-    description: "Deposit with your preferred method and get ready to trade.",
+    title: "2. Track your own history",
+    description: "Manage your transactions with our secure system",
   },
   {
-    title: "3. Buy, sell, convert",
+    title: "3. Swap your tokens",
     description:
-      "Execute trades instantly with optimized fees and deep liquidity.",
+      "Try swapping with a proper price ",
   },
   {
     title: "4. Track and withdraw",
     description: "Monitor performance and withdraw your assets anytime.",
   },
 ];
+
 export default function HIW() {
   return (
     <section id="howitworks" className="py-20 sm:py-24">
@@ -41,8 +42,7 @@ export default function HIW() {
           </p>
         </div>
 
-        {/* === Grid chứa các bước === */}
-        <div className="mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4">
+        <div className={`mx-auto mt-16 grid max-w-2xl grid-cols-1 gap-8 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-${stepsData.length}`}>
           {stepsData.map((step) => (
             <div
               key={step.title}

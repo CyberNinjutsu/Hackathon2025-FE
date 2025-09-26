@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Star } from "lucide-react";
 import WordAnimate from "../WordAnimate";
+import { GoldChart } from "../GoldChart";
 
 const StarIcon = ({ filled = true }: { filled?: boolean }) => (
   <Star
@@ -58,7 +59,7 @@ export default function HeroSection() {
           </div>
         </div>
 
-    
+        <GoldChart />
       </div>
     </section>
   );

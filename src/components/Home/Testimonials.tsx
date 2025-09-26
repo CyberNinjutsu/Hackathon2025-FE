@@ -63,13 +63,13 @@ export default function Testimonials() {
             as="h2"
             className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
           >
-            Trusted by 
-          </WordAnimate>
+            Trusted by {" "}
+          </WordAnimate>{" "}{" "}
           <WordAnimate
             as="h2"
             className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl"
           >
-            Crypto Enthusiasts Worldwide
+            {" "}Crypto Enthusiasts Worldwide
           </WordAnimate>
           <WordAnimate
             as="p"
