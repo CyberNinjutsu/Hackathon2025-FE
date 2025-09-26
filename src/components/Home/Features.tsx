@@ -45,7 +45,7 @@ const features = [
   },
   {
     title: "Optimized Fees",
-    description: "Benefit from some of the lowest fees on the market. (sử)a",
+    description: "Benefit from some of the lowest fees on the market",
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
